@@ -34,7 +34,19 @@ function useSequencerState() {
     publishAndSet(sequencer.toggleHit(track, beat));
   }
 
-  return [sequencer, toggleHit];
+  function setTempo(newTempo) {
+    publishAndSet(sequencer.setTempo(newTempo));
+  }
+
+  useInterval(() => {
+    console.log('tick');
+  }, 1000 / (sequencer.tempo / 60));
+
+  return [
+    sequencer,
+    toggleHit,
+    setTempo,
+  ];
 }
 
 function DumpJson(object) {
@@ -42,11 +54,12 @@ function DumpJson(object) {
 }
 
 function App() {
-  const [sequencer, toggleHit] = useSequencerState();
+  const [sequencer, toggleHit, setTempo] = useSequencerState();
 
   return (
     <div className="App">
       <h1>hello {sequencer.count}</h1>
+      <p><input type="number" value={sequencer.tempo} onChange={(e) => setTempo(parseInt(e.target.value, 10))} /></p>
       <table className="Sequencer">
         <thead>
           <tr>

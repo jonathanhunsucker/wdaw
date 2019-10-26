@@ -78,12 +78,14 @@ class Track {
 }
 
 export default class Sequencer {
-  constructor(tracks, numberOfBeats) {
+  constructor(tempo, tracks, numberOfBeats) {
+    this.tempo = tempo;
     this.tracks = tracks;
     this.numberOfBeats = numberOfBeats;
   }
   static fromNothing() {
     return new Sequencer(
+      120,
       [
         new Track("Track 1", flatten([
           on(1).hit([C2]),
@@ -97,6 +99,7 @@ export default class Sequencer {
   }
   static parse(object) {
     return new Sequencer(
+      object.tempo,
       object.tracks.map((trackObject) => Track.parse(trackObject)),
       object.numberOfBeats
     );
@@ -106,9 +109,17 @@ export default class Sequencer {
   }
   toggleHit(givenTrack, beat) {
     return new Sequencer(
+      this.tempo,
       this.tracks.map((track) => {
         return track === givenTrack ? track.toggle(beat) : track;
       }),
+      this.numberOfBeats
+    );
+  }
+  setTempo(newTempo) {
+    return new Sequencer(
+      newTempo,
+      this.tracks,
       this.numberOfBeats
     );
   }
