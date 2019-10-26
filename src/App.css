@@ -1,2 +1,10 @@
 .App {
 }
+
+.Sequencer {
+  border-collapse: collapse;
+}
+
+.Sequencer td, .Sequencer th {
+  border-style: ridge;
+}
