@@ -1,13 +1,29 @@
 import React, { Component, useState, useEffect, useRef } from "react";
 
 import "./App.css";
+import Server from "./Server.js";
 import Sequencer from "./Sequencer.js";
+import useInterval from "./useInterval.js";
 
 function useSequencerState() {
-  const [sequencer, setSequencer] = useState(new Sequencer(0));
+  const [sequencer, setSequencer] = useState(new Sequencer(null));
+  const server = new Server("http://10.0.0.245:8000/");
+
+  async function load() {
+    setSequencer(new Sequencer((await server.read()).count));
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  useInterval(() => {
+    load();
+  }, 1000);
 
   function setCount(count) {
     const updatedSequencer = sequencer.setCount(count);
+    server.write(updatedSequencer);
     setSequencer(updatedSequencer);
   }
 
