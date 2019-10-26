@@ -6,11 +6,20 @@ import Sequencer from "./Sequencer.js";
 import useInterval from "./useInterval.js";
 
 function useSequencerState() {
-  const [sequencer, setSequencer] = useState(new Sequencer(null));
+  const [sequencer, setSequencer] = useState(Sequencer.fromNothing());
   const server = new Server("http://10.0.0.245:8000/");
 
+  function publishAndSet(sequencer) {
+    server.write(sequencer);
+    set(sequencer);
+  }
+
+  function set(sequencer) {
+    setSequencer(sequencer);
+  }
+
   async function load() {
-    setSequencer(new Sequencer((await server.read()).count));
+    set(Sequencer.parse(await server.read()));
   }
 
   useEffect(() => {
@@ -21,22 +30,50 @@ function useSequencerState() {
     load();
   }, 1000);
 
-  function setCount(count) {
-    const updatedSequencer = sequencer.setCount(count);
-    server.write(updatedSequencer);
-    setSequencer(updatedSequencer);
+  function toggleHit(track, beat) {
+    publishAndSet(sequencer.toggleHit(track, beat));
   }
 
-  return [sequencer, setCount];
+  return [sequencer, toggleHit];
+}
+
+function DumpJson(object) {
+  return (<pre>{JSON.stringify(object, null, 2)}</pre>);
 }
 
 function App() {
-  const [sequencer, setCount] = useSequencerState();
+  const [sequencer, toggleHit] = useSequencerState();
 
   return (
     <div className="App">
       <h1>hello {sequencer.count}</h1>
-      <button onClick={() => setCount(sequencer.count + 1)}>increment</button>
+      <table className="Sequencer">
+        <thead>
+          <tr>
+          <th></th>
+            {sequencer.beats.map((beat) =>
+              <th key={beat}>{beat}</th>
+            )}
+          </tr>
+        </thead>
+        <tbody>
+          {sequencer.tracks.map((track) =>
+            <tr key={track}>
+              <td>{track.name}</td>
+              {sequencer.beats.map((beat) =>
+                <td key={beat}>
+                  <input
+                    type="checkbox"
+                    checked={track.hasHitOnBeat(beat)}
+                    onChange={() => toggleHit(track, beat)}
+                  />
+                </td>
+              )}
+            </tr>
+          )}
+        </tbody>
+      </table>
+      {DumpJson(sequencer)}
     </div>
   );
 }
