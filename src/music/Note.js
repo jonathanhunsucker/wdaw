@@ -29,6 +29,9 @@ export default class Note {
 
     return frequency;
   }
+  equals(note) {
+    return this.pitch === note.pitch;
+  }
   /**
    * Override toJSON to encapsulate private members like, this.parts
    */

@@ -45,6 +45,9 @@ class Hit {
     );
     return parsed;
   }
+  equals(hit) {
+    return this.note.equals(hit.note) && this.beat === hit.beat;
+  }
 }
 
 function flatten(lists) {
