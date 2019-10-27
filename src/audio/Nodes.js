@@ -11,7 +11,7 @@ import Note from "../music/Note.js";
  * This method exists to be a quick gate-opening method.
  */
 export function silentPingToWakeAutoPlayGates(audioContext) {
-  ping(audioContext, new Note('C4'), 0.0);
+  (new Voice()).play(audioContext, new Note('C4'), 0.0);
 }
 
 
@@ -23,15 +23,21 @@ export function silentPingToWakeAutoPlayGates(audioContext) {
  * @param {Number} gainLevel - Between 0.0 and 1.0
  */
 export function ping(audioContext, note, gainLevel) {
-  const oscillator = audioContext.createOscillator();
-  oscillator.type = 'triangle';
-  oscillator.frequency.value = note.frequency;
-  oscillator.start(oscillator.context.currentTime);
-  oscillator.stop(oscillator.context.currentTime + 0.3);
+  (new Voice()).play(audioContext, note, gainLevel);
+}
 
-  const gain = audioContext.createGain();
-  gain.gain.value = gainLevel;
+export class Voice {
+  play(audioContext, note, gainLevel) {
+    const oscillator = audioContext.createOscillator();
+    oscillator.type = 'triangle';
+    oscillator.frequency.value = note.frequency;
+    oscillator.start(oscillator.context.currentTime);
+    oscillator.stop(oscillator.context.currentTime + 0.3);
 
-  oscillator.connect(gain);
-  gain.connect(audioContext.destination);
+    const gain = audioContext.createGain();
+    gain.gain.value = gainLevel;
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+  }
 }
