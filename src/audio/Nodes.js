@@ -1,3 +1,5 @@
+import Note from "../music/Note.js";
+
 /**
  * Some browsers gate audio until the user interacts with the page.
  *
@@ -9,7 +11,7 @@
  * This method exists to be a quick gate-opening method.
  */
 export function silentPingToWakeAutoPlayGates(audioContext) {
-  ping(audioContext, 20000, 0.0);
+  ping(audioContext, new Note('C4'), 0.0);
 }
 
 
@@ -17,13 +19,13 @@ export function silentPingToWakeAutoPlayGates(audioContext) {
  * Play a triangle wave at a frequency and gain, for a 300ms duration.
  *
  * @param {AudioContext} audioContext
- * @param {Number} frequency - In hertz, eg. 440
+ * @param {Note} note
  * @param {Number} gainLevel - Between 0.0 and 1.0
  */
-export function ping(audioContext, frequency, gainLevel) {
+export function ping(audioContext, note, gainLevel) {
   const oscillator = audioContext.createOscillator();
   oscillator.type = 'triangle';
-  oscillator.frequency.value = frequency;
+  oscillator.frequency.value = note.frequency;
   oscillator.start(oscillator.context.currentTime);
   oscillator.stop(oscillator.context.currentTime + 0.3);
 

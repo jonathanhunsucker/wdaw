@@ -45,9 +45,6 @@ class Hit {
     );
     return parsed;
   }
-  get frequency() {
-    return this.note.frequency;
-  }
 }
 
 function flatten(lists) {
@@ -136,7 +133,7 @@ export default class Sequencer {
     this.tracks.forEach((track) => {
       const hits = track.hitsOnBeat(beat);
       hits.forEach((hit) => {
-        ping(audioContext, hit.frequency, 1.0);
+        ping(audioContext, hit.note, 1.0);
       });
     });
   }
