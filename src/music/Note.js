@@ -20,7 +20,7 @@ export default class Note {
     const relativeStepMultiplier = Math.pow(2, 1/12);
 
     const [wholeThing, note, accidental, octave] = this.parts;
-    const integerNote = ['C', 'D', 'E', 'F', 'G', 'A', 'B'].indexOf(note);
+    const integerNote = ['C', '_', 'D', '_', 'E', 'F', '_', 'G', '_', 'A', '_', 'B'].indexOf(note) + 3;
     const accidentalVariation = {'b': -1, '#': 1, '': 0}[accidental];
     const integerOctave = parseInt(octave, 10);
 
