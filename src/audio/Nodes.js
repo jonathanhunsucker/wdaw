@@ -11,33 +11,66 @@ import Note from "../music/Note.js";
  * This method exists to be a quick gate-opening method.
  */
 export function silentPingToWakeAutoPlayGates(audioContext) {
-  (new Voice()).play(audioContext, new Note('C4'), 0.0);
+  const voice = new Voice(
+    [
+      new Gain(
+        0.0,
+        [
+          new Wave('triangle'),
+        ]
+      )
+    ]
+  );
+
+  voice.play(audioContext, new Note('C4'));
 }
 
-
-/**
- * Play a triangle wave at a frequency and gain, for a 300ms duration.
- *
- * @param {AudioContext} audioContext
- * @param {Note} note
- * @param {Number} gainLevel - Between 0.0 and 1.0
- */
-export function ping(audioContext, note, gainLevel) {
-  (new Voice()).play(audioContext, note, gainLevel);
+function passthru(upstreams, audioContext, note, destination) {
+  upstreams
+    .map((upstream) => upstream.play(audioContext, note))
+    .forEach((node) => node.connect(destination));
 }
+
 
 export class Voice {
-  play(audioContext, note, gainLevel) {
-    const oscillator = audioContext.createOscillator();
-    oscillator.type = 'triangle';
-    oscillator.frequency.value = note.frequency;
-    oscillator.start(oscillator.context.currentTime);
-    oscillator.stop(oscillator.context.currentTime + 0.3);
-
-    const gain = audioContext.createGain();
-    gain.gain.value = gainLevel;
-
-    oscillator.connect(gain);
-    gain.connect(audioContext.destination);
+  constructor(upstreams) {
+    this.upstreams = upstreams || [];
   }
+  play(audioContext, note) {
+    passthru(this.upstreams, audioContext, note, audioContext.destination);
+  }
+}
+
+export class Wave {
+  constructor(type) {
+    this.type = type;
+  }
+  play(audioContext, note) {
+    const node = audioContext.createOscillator();
+
+    node.type = this.type;
+    node.frequency.value = note.frequency;
+    node.start(node.context.currentTime);
+    node.stop(node.context.currentTime + 0.3);
+
+    return node;
+  }
+}
+
+export class Gain {
+  constructor(level, upstreams) {
+    this.level = level;
+    this.upstreams = upstreams;
+  }
+  play(audioContext, note) {
+    const node = audioContext.createGain();
+    node.gain.setValueAtTime(0.0, this.level);
+
+    passthru(this.upstreams, audioContext, note, node);
+
+    return node;
+  }
+}
+
+
 }
