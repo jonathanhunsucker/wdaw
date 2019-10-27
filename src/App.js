@@ -2,9 +2,10 @@ import React, { Component, useState, useEffect, useRef } from "react";
 
 import "./App.css";
 import Server from "./Server.js";
-import Sequencer from "./Sequencer.js";
+import { Sequencer, Hit } from "./Sequencer.js";
 import useInterval from "./useInterval.js";
 import { silentPingToWakeAutoPlayGates } from "./audio/Nodes.js";
+import Note from "./music/Note.js";
 
 const audioContext = new (window.webkitAudioContext || window.AudioContext)();
 
@@ -33,8 +34,8 @@ function useSequencerState() {
     load();
   }, 1000);
 
-  function toggleHit(track, beat) {
-    publishAndSet(sequencer.toggleHit(track, beat));
+  function toggleHit(track, hit) {
+    publishAndSet(sequencer.toggleHit(track, hit));
   }
 
   function setTempo(newTempo) {
@@ -101,8 +102,8 @@ function App() {
                 <td key={beat} style={{backgroundColor: currentBeat === beat ? 'lightgrey' : 'transparent'}}>
                   <input
                     type="checkbox"
-                    checked={track.hasHitOnBeat(beat)}
-                    onChange={() => toggleHit(track, beat)}
+                    checked={track.hasHit(new Hit('C2', beat))}
+                    onChange={() => toggleHit(track, new Hit('C2', beat))}
                   />
                 </td>
               )}

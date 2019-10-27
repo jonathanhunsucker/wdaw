@@ -33,7 +33,7 @@ function on(beat) {
   return new Beat(beat);
 }
 
-class Hit {
+export class Hit {
   constructor(note, beat) {
     this.note = note;
     this.beat = beat;
@@ -70,29 +70,29 @@ class Track {
   hitsOnBeat(beat) {
     return this.hits.filter((hit) => hit.beat === beat);
   }
-  hasHitOnBeat(beat) {
-    return this.hitsOnBeat(beat).length > 0;
+  hasHit(subject) {
+    return this.hits.filter((hit) => subject.equals(hit)).length > 0;
   }
-  toggle(beat) {
-    return this.hasHitOnBeat(beat) ? this.remove(beat) : this.add(beat);
+  toggle(hit) {
+    return this.hasHit(hit) ? this.remove(hit) : this.add(hit);
   }
-  add(beat) {
+  add(hit) {
     return new Track(
       this.name,
       this.voice,
-      this.hits.concat(on(beat).hit([new Note('C2')]))
+      this.hits.concat(hit)
     );
   }
-  remove(beat) {
+  remove(subject) {
     return new Track(
       this.name,
       this.voice,
-      this.hits.filter((hit) => hit.beat !== beat)
+      this.hits.filter((hit) => subject.equals(hit) === false)
     );
   }
 }
 
-export default class Sequencer {
+export class Sequencer {
   constructor(tempo, tracks, numberOfBeats) {
     this.tempo = tempo;
     this.tracks = tracks;
@@ -131,11 +131,11 @@ export default class Sequencer {
   get beats() {
     return [...Array(this.numberOfBeats).keys()].map((i) => ++i);
   }
-  toggleHit(givenTrack, beat) {
+  toggleHit(givenTrack, hit) {
     return new Sequencer(
       this.tempo,
       this.tracks.map((track) => {
-        return track === givenTrack ? track.toggle(beat) : track;
+        return track === givenTrack ? track.toggle(hit) : track;
       }),
       this.numberOfBeats
     );
