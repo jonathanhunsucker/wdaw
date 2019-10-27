@@ -1,3 +1,5 @@
+import { ping } from "./audio/Nodes.js";
+
 class Note {
   /**
    * @param {string} pitch - In scientific pitch notation, eg. C2, Eb6, F#-1
@@ -92,8 +94,11 @@ class Track {
       object.hits.map((hit) => Hit.parse(hit))
     );
   }
+  hitsOnBeat(beat) {
+    return this.hits.filter((hit) => hit.beat === beat);
+  }
   hasHitOnBeat(beat) {
-    return this.hits.filter((hit) => hit.beat === beat).length > 0;
+    return this.hitsOnBeat(beat).length > 0;
   }
   toggle(beat) {
     return this.hasHitOnBeat(beat) ? this.remove(beat) : this.add(beat);
@@ -150,6 +155,14 @@ export default class Sequencer {
       }),
       this.numberOfBeats
     );
+  }
+  play(audioContext, beat) {
+    this.tracks.forEach((track) => {
+      const hits = track.hitsOnBeat(beat);
+      hits.forEach((hit) => {
+        ping(audioContext, hit.frequency, 1.0);
+      });
+    });
   }
   setTempo(newTempo) {
     return new Sequencer(

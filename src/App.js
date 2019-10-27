@@ -47,6 +47,7 @@ function useSequencerState() {
   useInterval(() => {
     const nextBeat = currentBeat === sequencer.numberOfBeats ? 1 : currentBeat + 1;
     setCurrentBeat(nextBeat);
+    sequencer.play(audioContext, nextBeat);
   }, isPlaying ? 1000 / (sequencer.tempo / 60) : null);
 
   return [
