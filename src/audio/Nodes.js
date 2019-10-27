@@ -72,6 +72,12 @@ export class Wave {
 
     return node;
   }
+  toJSON() {
+    return {
+      kind: Wave.kind,
+      type: this.type,
+    };
+  }
 }
 Wave.kind = "wave";
 
@@ -90,6 +96,13 @@ export class Gain {
     passthru(this.upstreams, audioContext, note, node);
 
     return node;
+  }
+  toJSON() {
+    return {
+      kind: Gain.kind,
+      level: this.level,
+      upstreams: this.upstreams,
+    };
   }
 }
 Gain.kind = "gain";
@@ -117,6 +130,16 @@ export class Envelope {
     node.gain.linearRampToValueAtTime(this.sustain, now  + this.attack + this.decay); // decay to sustain
 
     return node;
+  }
+  toJSON() {
+    return {
+      kind: Envelope.kind,
+      attack: this.level,
+      decay: this.decay,
+      sustain: this.sustain,
+      release: this.release,
+      upstreams: this.upstreams,
+    };
   }
 }
 Envelope.kind = "envelope";
