@@ -52,13 +52,15 @@ function flatten(lists) {
 }
 
 class Track {
-  constructor(name, hits) {
+  constructor(name, voice, hits) {
     this.name = name;
+    this.voice = voice;
     this.hits = hits;
   }
   static parse(object) {
     return new Track(
-      object.name,
+      object.name || 'Untitled track',
+      object.voice || new Voice(),
       object.hits.map((hit) => Hit.parse(hit))
     );
   }
@@ -74,12 +76,14 @@ class Track {
   add(beat) {
     return new Track(
       this.name,
+      this.voice,
       this.hits.concat(on(beat).hit([C2]))
     );
   }
   remove(beat) {
     return new Track(
       this.name,
+      this.voice,
       this.hits.filter((hit) => hit.beat !== beat)
     );
   }
@@ -100,12 +104,16 @@ export default class Sequencer {
     return new Sequencer(
       120,
       [
-        new Track("Track 1", flatten([
-          on(1).hit([C2]),
-          on(2).hit([E2]),
-          on(3).hit([G2]),
-          on(4).hit([C3]),
-        ])),
+        new Track(
+          "Track 1",
+          new Voice(),
+          flatten([
+            on(1).hit([C2]),
+            on(2).hit([E2]),
+            on(3).hit([G2]),
+            on(4).hit([C3]),
+          ])
+        ),
       ],
       4
     );
