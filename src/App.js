@@ -78,6 +78,12 @@ function App() {
     setIsPlaying,
   ] = useSequencerState();
 
+  const range = [
+    new Note('C3'),
+    new Note('G2'),
+    new Note('E2'),
+    new Note('C2'),
+  ];
 
   return (
     <div className="App">
@@ -100,11 +106,22 @@ function App() {
               <td>{track.name}</td>
               {sequencer.beats.map((beat) =>
                 <td key={beat} style={{backgroundColor: currentBeat === beat ? 'lightgrey' : 'transparent'}}>
-                  <input
-                    type="checkbox"
-                    checked={track.hasHit(new Hit('C2', beat))}
-                    onChange={() => toggleHit(track, new Hit('C2', beat))}
-                  />
+                  <table>
+                    <tbody>
+                      {range.map((note) =>
+                        <tr key={note.pitch}>
+                          <td>{note.pitch}</td>
+                          <td>
+                            <input
+                              type="checkbox"
+                              checked={track.hasHit(new Hit(note, beat))}
+                              onChange={() => toggleHit(track, new Hit(note, beat))}
+                            />
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </td>
               )}
             </tr>
