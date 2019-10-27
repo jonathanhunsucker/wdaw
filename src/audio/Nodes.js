@@ -9,6 +9,18 @@
  * This method exists to be a quick gate-opening method.
  */
 export function silentPingToWakeAutoPlayGates(audioContext) {
+  ping(audioContext, 20000, 0.0);
+}
+
+
+/**
+ * Play a triangle wave at a frequency and gain, for a 300ms duration.
+ *
+ * @param {AudioContext} audioContext
+ * @param {Number} frequency - In hertz, eg. 440
+ * @param {Number} gainLevel - Between 0.0 and 1.0
+ */
+export function ping(audioContext, frequency, gainLevel) {
   const oscillator = audioContext.createOscillator();
   oscillator.type = 'triangle';
   oscillator.frequency.value = frequency;
