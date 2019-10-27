@@ -72,5 +72,28 @@ export class Gain {
   }
 }
 
+export class Envelope {
+  constructor(options, upstreams) {
+    this.attack = options.attack || 0.0;
+    this.decay = options.decay || 0.0;
+    this.sustain = options.sustain || 0.0;
+    this.release = options.release || 0.0;
 
+    this.upstreams = upstreams;
+  }
+  static parse(object) {
+    return new Envelope({}, []);
+  }
+  play(audioContext, note) {
+    const node = audioContext.createGain();
+    const now = node.context.currentTime;
+
+    passthru(this.upstreams, audioContext, note, node);
+
+    node.gain.setValueAtTime(0.0, now + 0.0); // initialize to 0
+    node.gain.linearRampToValueAtTime(1.0, now + this.attack); // attack
+    node.gain.linearRampToValueAtTime(this.sustain, now  + this.attack + this.decay); // decay to sustain
+
+    return node;
+  }
 }
