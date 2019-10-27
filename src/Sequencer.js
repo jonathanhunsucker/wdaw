@@ -1,4 +1,4 @@
-import { ping } from "./audio/Nodes.js";
+import { Voice } from "./audio/Nodes.js";
 import Note from "./music/Note.js";
 
 class Beat {
@@ -141,7 +141,7 @@ export default class Sequencer {
     this.tracks.forEach((track) => {
       const hits = track.hitsOnBeat(beat);
       hits.forEach((hit) => {
-        ping(audioContext, hit.note, 1.0);
+        track.voice.play(audioContext, hit.note, 1.0);
       });
     });
   }
