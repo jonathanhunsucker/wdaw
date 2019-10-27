@@ -31,10 +31,24 @@ function passthru(upstreams, audioContext, note, destination) {
     .forEach((node) => node.connect(destination));
 }
 
+function upstreamsBuilder(upstreams) {
+  const registry = [Wave, Envelope, Gain].reduce((reduction, stage) => {
+    reduction[stage.kind] = stage;
+    return reduction;
+  }, {});
+
+  return upstreams.map((upstream) => registry[upstream.kind].parse(upstream));
+}
+
 
 export class Voice {
   constructor(upstreams) {
     this.upstreams = upstreams || [];
+  }
+  static parse(object) {
+    return new Voice(
+      upstreamsBuilder(object.upstreams || [])
+    );
   }
   play(audioContext, note) {
     passthru(this.upstreams, audioContext, note, audioContext.destination);
@@ -44,6 +58,9 @@ export class Voice {
 export class Wave {
   constructor(type) {
     this.type = type;
+  }
+  static parse(object) {
+    return new Wave(object.type);
   }
   play(audioContext, note) {
     const node = audioContext.createOscillator();
@@ -56,11 +73,15 @@ export class Wave {
     return node;
   }
 }
+Wave.kind = "wave";
 
 export class Gain {
   constructor(level, upstreams) {
     this.level = level;
     this.upstreams = upstreams;
+  }
+  static parse(object) {
+    return new Gain(object.level, upstreamsBuilder(object.upstreams || []));
   }
   play(audioContext, note) {
     const node = audioContext.createGain();
@@ -71,6 +92,7 @@ export class Gain {
     return node;
   }
 }
+Gain.kind = "gain";
 
 export class Envelope {
   constructor(options, upstreams) {
@@ -97,3 +119,4 @@ export class Envelope {
     return node;
   }
 }
+Envelope.kind = "envelope";

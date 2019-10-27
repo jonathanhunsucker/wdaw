@@ -60,7 +60,7 @@ class Track {
   static parse(object) {
     return new Track(
       object.name || 'Untitled track',
-      object.voice || new Voice(),
+      Voice.parse(object.voice || {}),
       object.hits.map((hit) => Hit.parse(hit))
     );
   }
@@ -106,7 +106,7 @@ export default class Sequencer {
       [
         new Track(
           "Track 1",
-          new Voice(),
+          null,
           flatten([
             on(1).hit([C2]),
             on(2).hit([E2]),
