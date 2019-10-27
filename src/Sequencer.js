@@ -141,7 +141,7 @@ export default class Sequencer {
     this.tracks.forEach((track) => {
       const hits = track.hitsOnBeat(beat);
       hits.forEach((hit) => {
-        track.voice.play(audioContext, hit.note, 1.0);
+        track.voice.play(audioContext, hit.note);
       });
     });
   }
