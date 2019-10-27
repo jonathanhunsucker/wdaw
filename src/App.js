@@ -39,17 +39,20 @@ function useSequencerState() {
   }
 
   const [currentBeat, setCurrentBeat] = useState(1);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useInterval(() => {
     const nextBeat = currentBeat === sequencer.numberOfBeats ? 1 : currentBeat + 1;
     setCurrentBeat(nextBeat);
-  }, 1000 / (sequencer.tempo / 60));
+  }, isPlaying ? 1000 / (sequencer.tempo / 60) : null);
 
   return [
     sequencer,
     toggleHit,
     setTempo,
     currentBeat,
+    isPlaying,
+    setIsPlaying,
   ];
 }
 
@@ -63,10 +66,14 @@ function App() {
     toggleHit,
     setTempo,
     currentBeat,
+    isPlaying,
+    setIsPlaying,
   ] = useSequencerState();
+
 
   return (
     <div className="App">
+      <p><button onClick={() => setIsPlaying(!isPlaying)}>{isPlaying ? 'pause' : 'play'}</button></p>
       <p><input type="number" value={sequencer.tempo} onChange={(e) => setTempo(parseInt(e.target.value, 10))} /></p>
       <table className="Sequencer">
         <thead>
