@@ -77,7 +77,7 @@ class Track {
     return new Track(
       this.name,
       this.voice,
-      this.hits.concat(on(beat).hit([C2]))
+      this.hits.concat(on(beat).hit([new Note('C2')]))
     );
   }
   remove(beat) {
