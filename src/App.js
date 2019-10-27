@@ -4,22 +4,9 @@ import "./App.css";
 import Server from "./Server.js";
 import Sequencer from "./Sequencer.js";
 import useInterval from "./useInterval.js";
+import { silentPingToWakeAutoPlayGates } from "./audio/Nodes.js";
 
 const audioContext = new (window.webkitAudioContext || window.AudioContext)();
-
-function silentPingToWakeAutoPlayGates(audioContext) {
-  const oscillator = audioContext.createOscillator();
-  oscillator.type = 'triangle';
-  oscillator.frequency.value = 440;
-  oscillator.start(oscillator.context.currentTime);
-  oscillator.stop(oscillator.context.currentTime + 0.3);
-
-  const gain = audioContext.createGain();
-  gain.gain.value = 0.0;
-
-  oscillator.connect(gain);
-  gain.connect(audioContext.destination);
-}
 
 function useSequencerState() {
   const [sequencer, setSequencer] = useState(Sequencer.fromNothing());
