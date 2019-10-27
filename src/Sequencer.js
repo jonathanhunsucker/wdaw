@@ -48,11 +48,27 @@ class Beat {
   static parse(object) {
     return new Beat(object);
   }
+  /**
+   * Factory method for building a list of hits on this beat, for a list of notes.
+   *
+   * eg. `(new Beat(2)).hit([new Note('C2')])`
+   *
+   * @param {Note[]} notes
+   * @return {Hit[]}
+   */
   hit(notes) {
     return notes.map((note) => new Hit(note, this.beat));
   }
 }
 
+/**
+ * Factory method sugar for Beat constructor.
+ *
+ * eg. `on(2)`
+ *
+ * @param {Number} beat
+ * @return {Beat}
+ */
 function on(beat) {
   return new Beat(beat);
 }
@@ -73,11 +89,6 @@ class Hit {
     return this.note.frequency;
   }
 }
-
-const C2 = new Note('C2');
-const E2 = new Note('E2');
-const G2 = new Note('G2');
-const C3 = new Note('C3');
 
 function flatten(lists) {
   return [].concat.apply([], lists);
@@ -124,6 +135,11 @@ export default class Sequencer {
     this.numberOfBeats = numberOfBeats;
   }
   static fromNothing() {
+    const C2 = new Note('C2');
+    const E2 = new Note('E2');
+    const G2 = new Note('G2');
+    const C3 = new Note('C3');
+
     return new Sequencer(
       120,
       [
