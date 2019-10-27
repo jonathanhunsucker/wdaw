@@ -38,14 +38,18 @@ function useSequencerState() {
     publishAndSet(sequencer.setTempo(newTempo));
   }
 
+  const [currentBeat, setCurrentBeat] = useState(1);
+
   useInterval(() => {
-    console.log('tick');
+    const nextBeat = currentBeat === sequencer.numberOfBeats ? 1 : currentBeat + 1;
+    setCurrentBeat(nextBeat);
   }, 1000 / (sequencer.tempo / 60));
 
   return [
     sequencer,
     toggleHit,
     setTempo,
+    currentBeat,
   ];
 }
 
@@ -54,18 +58,24 @@ function DumpJson(object) {
 }
 
 function App() {
-  const [sequencer, toggleHit, setTempo] = useSequencerState();
+  const [
+    sequencer,
+    toggleHit,
+    setTempo,
+    currentBeat,
+  ] = useSequencerState();
 
   return (
     <div className="App">
-      <h1>hello {sequencer.count}</h1>
       <p><input type="number" value={sequencer.tempo} onChange={(e) => setTempo(parseInt(e.target.value, 10))} /></p>
       <table className="Sequencer">
         <thead>
           <tr>
           <th></th>
             {sequencer.beats.map((beat) =>
-              <th key={beat}>{beat}</th>
+              <th key={beat} style={{backgroundColor: currentBeat === beat ? 'lightgrey' : 'transparent'}}>
+                {beat}
+              </th>
             )}
           </tr>
         </thead>
@@ -74,7 +84,7 @@ function App() {
             <tr key={track}>
               <td>{track.name}</td>
               {sequencer.beats.map((beat) =>
-                <td key={beat}>
+                <td key={beat} style={{backgroundColor: currentBeat === beat ? 'lightgrey' : 'transparent'}}>
                   <input
                     type="checkbox"
                     checked={track.hasHitOnBeat(beat)}
