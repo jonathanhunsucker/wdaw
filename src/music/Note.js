@@ -43,6 +43,10 @@ export default class Note {
   static parse(object) {
     return new Note(object.pitch);
   }
+  static range(low, high) {
+    return mathRange(low.stepsFromMiddleA, high.stepsFromMiddleA)
+      .map((stepsFromMiddleA) => Note.fromStepsFromMiddleA(stepsFromMiddleA));
+  }
   get frequency() {
     const middleAFrequency = 440.0;
     const relativeStepMultiplier = Math.pow(2, 1/12);

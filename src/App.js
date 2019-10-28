@@ -78,13 +78,6 @@ function App() {
     setIsPlaying,
   ] = useSequencerState();
 
-  const range = [
-    new Note('C3'),
-    new Note('G2'),
-    new Note('E2'),
-    new Note('C2'),
-  ];
-
   return (
     <div className="App">
       <p><button onClick={() => setIsPlaying(!isPlaying)}>{isPlaying ? 'pause' : 'play'}</button></p>
@@ -108,7 +101,7 @@ function App() {
                 <td key={beat} style={{backgroundColor: currentBeat === beat ? 'lightgrey' : 'transparent'}}>
                   <table>
                     <tbody>
-                      {range.map((note) =>
+                      {Note.range(new Note('C2'), new Note('C3')).reverse().map((note) =>
                         <tr key={note.pitch}>
                           <td>{note.pitch}</td>
                           <td>
