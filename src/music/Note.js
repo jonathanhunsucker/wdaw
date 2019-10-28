@@ -1,22 +1,4 @@
-function mathRange(low, high) {
-  let range = [];
-  let current = low;
-  while (current <= high) {
-    range.push(current);
-    current++;
-  }
-
-  return range;
-}
-
-function mathModulo(x, mod) {
-  let value = x % mod;
-  if (value < 0) {
-    value += mod;
-  }
-
-  return value;
-}
+import { range, modulo } from "./../math.js";
 
 const letters = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
 
@@ -36,7 +18,7 @@ export default class Note {
   }
   static fromStepsFromMiddleA(steps) {
     const octaves = Math.floor(steps / 12) + 3;
-    const step = mathModulo(steps, 12);
+    const step = modulo(steps, 12);
     const letter = letters[step];
     return new Note(`${letter}${octaves}`);
   }
@@ -44,7 +26,7 @@ export default class Note {
     return new Note(object.pitch);
   }
   static range(low, high) {
-    return mathRange(low.stepsFromMiddleA, high.stepsFromMiddleA)
+    return range(low.stepsFromMiddleA, high.stepsFromMiddleA)
       .map((stepsFromMiddleA) => Note.fromStepsFromMiddleA(stepsFromMiddleA));
   }
   get frequency() {
