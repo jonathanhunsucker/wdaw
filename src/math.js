@@ -21,3 +21,35 @@ export function modulo(x, mod) {
 export function flatten(lists) {
   return [].concat.apply([], lists);
 }
+
+export function scaleDown(list, factor) {
+  return list.map((item) => item / factor);
+}
+
+export function reduceRational(rational) {
+  if (rational[0] === 0) {
+    return [0, 0];
+  }
+  const [numerator, denominator] = rational;
+  return scaleDown(rational, greatestCommonDivisor(numerator, denominator));
+}
+
+export function greatestCommonDivisor(x, y) {
+  if (!y) {
+    return x;
+  }
+
+  return greatestCommonDivisor(y, x % y);
+}
+
+export function rationalIsZero(rational) {
+  return rational[0] === 0 && rational[1] === 0;
+}
+
+export function rationalEquals(left, right) {
+  if (left[0] === 0 || right[0] === 0) {
+    return rationalIsZero(left) && rationalIsZero(right);
+  }
+
+  return left[0] * right[1] === left[1] * right[0];
+}
