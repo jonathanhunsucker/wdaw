@@ -1,6 +1,6 @@
 import { Binding, stageFactory, Gain } from "./audio/Nodes.js";
 import Note from "./music/Note.js";
-import { range } from "./math.js";
+import { range, flatten } from "./math.js";
 
 class Beat {
   constructor(beat) {
@@ -49,10 +49,6 @@ export class Hit {
   equals(hit) {
     return this.note.equals(hit.note) && this.beat === hit.beat;
   }
-}
-
-function flatten(lists) {
-  return [].concat.apply([], lists);
 }
 
 class Track {

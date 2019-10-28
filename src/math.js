@@ -17,3 +17,7 @@ export function modulo(x, mod) {
 
   return value;
 }
+
+export function flatten(lists) {
+  return [].concat.apply([], lists);
+}
