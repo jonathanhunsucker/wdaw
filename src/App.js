@@ -6,6 +6,7 @@ import { Sequencer, Hit } from "./Sequencer.js";
 import useInterval from "./useInterval.js";
 import { silentPingToWakeAutoPlayGates } from "./audio/Nodes.js";
 import Note from "./music/Note.js";
+import { flatten } from "./math.js";
 
 const audioContext = new (window.webkitAudioContext || window.AudioContext)();
 
@@ -85,7 +86,8 @@ function App() {
       <table className="Sequencer">
         <thead>
           <tr>
-          <th></th>
+            <th></th>
+            <th></th>
             {sequencer.beats.map((beat) =>
               <th key={beat} style={{backgroundColor: currentBeat === beat ? 'lightgrey' : 'transparent'}}>
                 {beat}
@@ -94,31 +96,26 @@ function App() {
           </tr>
         </thead>
         <tbody>
-          {sequencer.tracks.map((track) =>
-            <tr key={track}>
-              <td>{track.name}</td>
-              {sequencer.beats.map((beat) =>
-                <td key={beat} style={{backgroundColor: currentBeat === beat ? 'lightgrey' : 'transparent'}}>
-                  <table>
-                    <tbody>
-                      {Note.range(new Note('C2'), new Note('C3')).reverse().map((note) =>
-                        <tr key={note.pitch}>
-                          <td>{note.pitch}</td>
-                          <td>
-                            <input
-                              type="checkbox"
-                              checked={track.hasHit(new Hit(note, beat))}
-                              onChange={() => toggleHit(track, new Hit(note, beat))}
-                            />
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </td>
-              )}
-            </tr>
-          )}
+          {sequencer.tracks.map((track) => {
+            const range = Note.range(new Note('C2'), new Note('C3')).reverse();
+            return flatten(
+              range.map((note, index) =>
+                <tr key={note.pitch}>
+                  {index === 0 && <td rowSpan={range.length}>{track.name}</td>}
+                  <td>{note.pitch}</td>
+                  {sequencer.beats.map((beat) =>
+                    <td key={beat} style={{backgroundColor: currentBeat === beat ? 'lightgrey' : 'transparent'}}>
+                      <input
+                        type="checkbox"
+                        checked={track.hasHit(new Hit(note, beat))}
+                        onChange={() => toggleHit(track, new Hit(note, beat))}
+                      />
+                    </td>
+                  )}
+                </tr>
+              )
+            );
+          })}
         </tbody>
       </table>
       {DumpJson(sequencer)}
