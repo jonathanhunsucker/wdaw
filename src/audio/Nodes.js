@@ -11,47 +11,47 @@ import Note from "../music/Note.js";
  * This method exists to be a quick gate-opening method.
  */
 export function silentPingToWakeAutoPlayGates(audioContext) {
-  const voice = new Voice(
+  const binding = new Binding(
+    new Gain(0.0),
+    null,
     [
-      new Gain(
-        0.0,
-        [
-          new Wave('triangle'),
-        ]
-      )
+      new Binding(
+        new Wave('triangle'),
+        new Note('C4'),
+        []
+      ),
     ]
   );
 
-  voice.play(audioContext, new Note('C4'));
+  binding.play(audioContext, audioContext.destination);
 }
 
-function passthru(upstreams, audioContext, note, destination) {
-  upstreams
-    .map((upstream) => upstream.play(audioContext, note))
-    .forEach((node) => node.connect(destination));
-}
-
-function upstreamsBuilder(upstreams) {
+export function stageFactory(stageObject) {
   const registry = [Wave, Envelope, Gain].reduce((reduction, stage) => {
     reduction[stage.kind] = stage;
     return reduction;
   }, {});
 
-  return upstreams.map((upstream) => registry[upstream.kind].parse(upstream));
+  return registry[stageObject.kind].parse(stageObject);
 }
 
-
-export class Voice {
-  constructor(upstreams) {
-    this.upstreams = upstreams || [];
+/*
+ * Partial application of a note to tree of stages
+ */
+export class Binding {
+  constructor(stage, note, bindings) {
+    this.stage = stage;
+    this.note = note;
+    this.bindings = bindings;
   }
-  static parse(object) {
-    return new Voice(
-      upstreamsBuilder(object.upstreams || [])
-    );
-  }
-  play(audioContext, note) {
-    passthru(this.upstreams, audioContext, note, audioContext.destination);
+  /*
+   * Actually builds nodes, then starts and connects
+   */
+  play(audioContext, destination) {
+    const node = this.stage.press(audioContext, this.note);
+    node.connect(destination);
+    this.bindings.forEach((binding) => binding.play(audioContext, node).connect(node));
+    return node;
   }
 }
 
@@ -62,15 +62,15 @@ export class Wave {
   static parse(object) {
     return new Wave(object.type);
   }
-  play(audioContext, note) {
-    const node = audioContext.createOscillator();
+  press(audioContext, note) {
+    const wave = audioContext.createOscillator();
 
-    node.type = this.type;
-    node.frequency.value = note.frequency;
-    node.start(node.context.currentTime);
-    node.stop(node.context.currentTime + 0.3);
+    wave.type = this.type;
+    wave.frequency.value = note.frequency;
+    wave.start(wave.context.currentTime);
+    wave.stop(wave.context.currentTime + 0.3);
 
-    return node;
+    return wave;
   }
   toJSON() {
     return {
@@ -87,15 +87,13 @@ export class Gain {
     this.upstreams = upstreams;
   }
   static parse(object) {
-    return new Gain(object.level, upstreamsBuilder(object.upstreams || []));
+    return new Gain(object.level, (object.upstreams || []).map(stageFactory));
   }
-  play(audioContext, note) {
-    const node = audioContext.createGain();
-    node.gain.setValueAtTime(0.0, this.level);
+  press(audioContext) {
+    const gain = audioContext.createGain();
+    gain.gain.value = this.level;
 
-    passthru(this.upstreams, audioContext, note, node);
-
-    return node;
+    return gain;
   }
   toJSON() {
     return {
@@ -119,11 +117,9 @@ export class Envelope {
   static parse(object) {
     return new Envelope({}, []);
   }
-  play(audioContext, note) {
+  press(audioContext, note) {
     const node = audioContext.createGain();
     const now = node.context.currentTime;
-
-    passthru(this.upstreams, audioContext, note, node);
 
     node.gain.setValueAtTime(0.0, now + 0.0); // initialize to 0
     node.gain.linearRampToValueAtTime(1.0, now + this.attack); // attack

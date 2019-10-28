@@ -1,4 +1,4 @@
-import { Voice } from "./audio/Nodes.js";
+import { Binding, stageFactory, Gain } from "./audio/Nodes.js";
 import Note from "./music/Note.js";
 
 class Beat {
@@ -63,7 +63,7 @@ class Track {
   static parse(object) {
     return new Track(
       object.name || 'Untitled track',
-      Voice.parse(object.voice || {}),
+      stageFactory(object.voice),
       object.hits.map((hit) => Hit.parse(hit))
     );
   }
@@ -141,12 +141,13 @@ export class Sequencer {
     );
   }
   play(audioContext, beat) {
-    this.tracks.forEach((track) => {
-      const hits = track.hitsOnBeat(beat);
-      hits.forEach((hit) => {
-        track.voice.play(audioContext, hit.note);
-      });
-    });
+    const binding = new Binding(
+      new Gain(0.1),
+      null,
+      flatten(this.tracks.map((track) => track.hitsOnBeat(beat).map((hit) => new Binding(track.voice, hit.note, []))))
+    );
+
+    binding.play(audioContext, audioContext.destination);
   }
   setTempo(newTempo) {
     return new Sequencer(
