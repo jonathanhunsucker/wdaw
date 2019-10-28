@@ -129,7 +129,12 @@ export class Envelope {
     this.upstreams = upstreams;
   }
   static parse(object) {
-    return new Envelope({}, []);
+    return new Envelope({
+      attack: object.attack,
+      decay: object.decay,
+      sustain: object.sustain,
+      release: object.release,
+    }, object.upstreams.map(stageFactory));
   }
   bind(note) {
     return new Binding(
