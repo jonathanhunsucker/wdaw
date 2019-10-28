@@ -16,18 +16,25 @@ export default class Note {
     return new Note(object.pitch);
   }
   get frequency() {
-    const middleCFrequency = 440.0;
+    const middleAFrequency = 440.0;
     const relativeStepMultiplier = Math.pow(2, 1/12);
 
-    const [wholeThing, note, accidental, octave] = this.parts;
-    const integerNote = ['C', '_', 'D', '_', 'E', 'F', '_', 'G', '_', 'A', '_', 'B'].indexOf(note) + 3;
-    const accidentalVariation = {'b': -1, '#': 1, '': 0}[accidental];
-    const integerOctave = parseInt(octave, 10);
-
-    const stepsFromMiddleC = 12 * (integerOctave - 4) + integerNote + accidentalVariation;
-    const frequency = middleCFrequency * Math.pow(relativeStepMultiplier, stepsFromMiddleC);
-
+    const frequency = middleAFrequency * Math.pow(relativeStepMultiplier, this.stepsFromMiddleA);
     return frequency;
+  }
+  get octave() {
+    const [wholeThing, note, accidental, octave] = this.parts;
+    return parseInt(octave, 10);
+  }
+  get step() {
+    const [wholeThing, note, accidental, octave] = this.parts;
+    const integerNote = ['A', '_', 'B', 'C', '_', 'D', '_', 'E', 'F', '_', 'G', '_'].indexOf(note);
+    const accidentalVariation = {'b': -1, '#': 1, '': 0}[accidental];
+
+    return integerNote + accidentalVariation;
+  }
+  get stepsFromMiddleA() {
+    return 12 * (this.octave - 3) + this.step;
   }
   equals(note) {
     return this.pitch === note.pitch;
