@@ -6,6 +6,7 @@ import { Sequencer, Hit } from "./Sequencer.js";
 import useInterval from "./useInterval.js";
 import { silentPingToWakeAutoPlayGates } from "./audio/Nodes.js";
 import Note from "./music/Note.js";
+import Beat from "./music/Beat.js";
 import { flatten } from "./math.js";
 
 const audioContext = new (window.webkitAudioContext || window.AudioContext)();
@@ -43,14 +44,15 @@ function useSequencerState() {
     publishAndSet(sequencer.setTempo(newTempo));
   }
 
-  const [currentBeat, setCurrentBeat] = useState(1);
+  const [currentBeat, setCurrentBeat] = useState(new Beat(1, [0, 0]));
   const [isPlaying, setIsPlaying] = useState(false);
 
   useInterval(() => {
-    const nextBeat = currentBeat === sequencer.numberOfBeats ? 1 : currentBeat + 1;
+    const tickSize = [1, sequencer.divisions];
+    const nextBeat = currentBeat.next(tickSize, sequencer.timeSignature);
     setCurrentBeat(nextBeat);
     sequencer.play(audioContext, nextBeat);
-  }, isPlaying ? 1000 / (sequencer.tempo / 60) : null);
+  }, isPlaying ? 1000 / (sequencer.tempo / 60 * sequencer.divisions) : null);
 
   return [
     sequencer,
@@ -89,8 +91,8 @@ function App() {
             <th></th>
             <th></th>
             {sequencer.beats.map((beat) =>
-              <th key={beat} style={{backgroundColor: currentBeat === beat ? 'lightgrey' : 'transparent'}}>
-                {beat}
+              <th key={beat.key} style={{backgroundColor: currentBeat.equals(beat) ? 'lightgrey' : 'transparent'}}>
+                {beat.beat}
               </th>
             )}
           </tr>
@@ -104,7 +106,7 @@ function App() {
                   {index === 0 && <td rowSpan={range.length}>{track.name}</td>}
                   <td>{note.pitch}</td>
                   {sequencer.beats.map((beat) =>
-                    <td key={beat} style={{backgroundColor: currentBeat === beat ? 'lightgrey' : 'transparent'}}>
+                    <td key={beat.key} style={{backgroundColor: currentBeat.equals(beat) ? 'lightgrey' : 'transparent'}}>
                       <input
                         type="checkbox"
                         checked={track.hasHit(new Hit(note, beat))}

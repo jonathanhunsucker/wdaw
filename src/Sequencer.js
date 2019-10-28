@@ -1,26 +1,8 @@
 import { Binding, stageFactory, Gain } from "./audio/Nodes.js";
 import Note from "./music/Note.js";
+import Beat from "./music/Beat.js";
+import TimeSignature from "./music/TimeSignature.js";
 import { range, flatten } from "./math.js";
-
-class Beat {
-  constructor(beat) {
-    this.beat = beat;
-  }
-  static parse(object) {
-    return new Beat(object);
-  }
-  /**
-   * Factory method for building a list of hits on this beat, for a list of notes.
-   *
-   * eg. `(new Beat(2)).hit([new Note('C2')])`
-   *
-   * @param {Note[]} notes
-   * @return {Hit[]}
-   */
-  hit(notes) {
-    return notes.map((note) => new Hit(note, this.beat));
-  }
-}
 
 /**
  * Factory method sugar for Beat constructor.
@@ -35,6 +17,10 @@ function on(beat) {
 }
 
 export class Hit {
+  /**
+   * @param {Note} note
+   * @param {Beat} beat
+   */
   constructor(note, beat) {
     this.note = note;
     this.beat = beat;
@@ -42,12 +28,12 @@ export class Hit {
   static parse(object) {
     const parsed = new Hit(
       Note.parse(object.note),
-      object.beat
+      Beat.parse(object.beat)
     );
     return parsed;
   }
   equals(hit) {
-    return this.note.equals(hit.note) && this.beat === hit.beat;
+    return this.note.equals(hit.note) && this.beat.equals(hit.beat);
   }
 }
 
@@ -65,7 +51,7 @@ class Track {
     );
   }
   hitsOnBeat(beat) {
-    return this.hits.filter((hit) => hit.beat === beat);
+    return this.hits.filter((hit) => hit.beat.equals(beat));
   }
   hasHit(subject) {
     return this.hits.filter((hit) => subject.equals(hit)).length > 0;
@@ -90,16 +76,27 @@ class Track {
 }
 
 export class Sequencer {
-  constructor(tempo, tracks, numberOfBeats) {
+  constructor(tempo, tracks, timeSignature) {
     this.tempo = tempo;
     this.tracks = tracks;
-    this.numberOfBeats = numberOfBeats;
+    this.timeSignature = new TimeSignature(4, 4);
+    this.divisions = 4;
   }
   static fromNothing() {
-    const C2 = new Note('C2');
-    const E2 = new Note('E2');
-    const G2 = new Note('G2');
-    const C3 = new Note('C3');
+    /**
+     * Factory method for building a list of hits on this beat, for a list of notes.
+     *
+     * eg. `on(2).hit(['C2'])`
+     *
+     * @param {Number} beat
+     * @param {[Number, Number]} rational
+     * @return {hit: f(Note[]) => Hit[]}
+     */
+    const on = (beat, rational) => {
+      return {
+        hit: (pitches) => pitches.map((pitch) => new Hit(new Note(pitch), new Beat(beat, rational))),
+      };
+    }
 
     return new Sequencer(
       120,
@@ -108,25 +105,30 @@ export class Sequencer {
           "Track 1",
           null,
           flatten([
-            on(1).hit([C2]),
-            on(2).hit([E2]),
-            on(3).hit([G2]),
-            on(4).hit([C3]),
+            on(1, [0, 0]).hit(['C2']),
+            on(2, [0, 0]).hit(['E2']),
+            on(3, [0, 0]).hit(['G2']),
+            on(3, [1, 2]).hit(['C3']),
+            on(4, [0, 0]).hit(['C3']),
           ])
         ),
       ],
-      4
+      new TimeSignature(4, 4)
     );
   }
   static parse(object) {
     return new Sequencer(
       object.tempo,
       object.tracks.map((trackObject) => Track.parse(trackObject)),
-      object.numberOfBeats
+      object.timeSignature
     );
   }
   get beats() {
-    return range(1, this.numberOfBeats);
+    return flatten(
+      range(1, this.timeSignature.beats).map((beat) => {
+        return range(0, this.divisions - 1).map((numerator) => new Beat(beat, [numerator, this.divisions]));
+      })
+    );
   }
   toggleHit(givenTrack, hit) {
     return new Sequencer(
@@ -134,7 +136,7 @@ export class Sequencer {
       this.tracks.map((track) => {
         return track === givenTrack ? track.toggle(hit) : track;
       }),
-      this.numberOfBeats
+      this.timeSignature
     );
   }
   play(audioContext, beat) {
@@ -150,7 +152,7 @@ export class Sequencer {
     return new Sequencer(
       newTempo,
       this.tracks,
-      this.numberOfBeats
+      this.timeSignature
     );
   }
 };
