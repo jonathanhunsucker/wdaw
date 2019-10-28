@@ -149,7 +149,8 @@ export class Envelope {
 
     node.gain.setValueAtTime(0.0, now + 0.0); // initialize to 0
     node.gain.linearRampToValueAtTime(1.0, now + this.attack); // attack
-    node.gain.linearRampToValueAtTime(this.sustain, now  + this.attack + this.decay); // decay to sustain
+    node.gain.linearRampToValueAtTime(this.sustain, now + this.attack + this.decay); // decay to sustain
+    node.gain.linearRampToValueAtTime(0.0, now + this.attack + this.decay + this.release); // ramp to zero by release
 
     return node;
   }
