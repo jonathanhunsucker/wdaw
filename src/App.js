@@ -83,6 +83,7 @@ function App() {
 
   return (
     <div className="App">
+      <p>now: {audioContext.currentTime}</p>
       <p><button onClick={() => setIsPlaying(!isPlaying)}>{isPlaying ? 'pause' : 'play'}</button></p>
       <p><input type="number" value={sequencer.tempo} onChange={(e) => setTempo(parseInt(e.target.value, 10))} /></p>
       <table className="Sequencer">
