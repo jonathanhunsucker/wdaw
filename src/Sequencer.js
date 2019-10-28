@@ -1,5 +1,6 @@
 import { Binding, stageFactory, Gain } from "./audio/Nodes.js";
 import Note from "./music/Note.js";
+import { range } from "./math.js";
 
 class Beat {
   constructor(beat) {
@@ -129,7 +130,7 @@ export class Sequencer {
     );
   }
   get beats() {
-    return [...Array(this.numberOfBeats).keys()].map((i) => ++i);
+    return range(1, this.numberOfBeats);
   }
   toggleHit(givenTrack, hit) {
     return new Sequencer(
