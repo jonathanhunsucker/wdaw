@@ -157,7 +157,7 @@ export class Envelope {
   toJSON() {
     return {
       kind: Envelope.kind,
-      attack: this.level,
+      attack: this.attack,
       decay: this.decay,
       sustain: this.sustain,
       release: this.release,
