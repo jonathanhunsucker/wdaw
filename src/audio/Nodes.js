@@ -62,6 +62,13 @@ export class Wave {
   static parse(object) {
     return new Wave(object.type);
   }
+  bind(note) {
+    return new Binding(
+      this,
+      note,
+      []
+    );
+  }
   press(audioContext, note) {
     const wave = audioContext.createOscillator();
 
@@ -88,6 +95,13 @@ export class Gain {
   }
   static parse(object) {
     return new Gain(object.level, (object.upstreams || []).map(stageFactory));
+  }
+  bind(note) {
+    return new Binding(
+      this,
+      note,
+      this.upstreams.map((stage) => stage.bind(note))
+    );
   }
   press(audioContext) {
     const gain = audioContext.createGain();
@@ -116,6 +130,13 @@ export class Envelope {
   }
   static parse(object) {
     return new Envelope({}, []);
+  }
+  bind(note) {
+    return new Binding(
+      this,
+      note,
+      this.upstreams.map((stage) => stage.bind(note))
+    );
   }
   press(audioContext, note) {
     const node = audioContext.createGain();

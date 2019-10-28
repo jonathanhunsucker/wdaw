@@ -143,7 +143,7 @@ export class Sequencer {
     const binding = new Binding(
       new Gain(0.1),
       null,
-      flatten(this.tracks.map((track) => track.hitsOnBeat(beat).map((hit) => new Binding(track.voice, hit.note, []))))
+      flatten(this.tracks.map((track) => track.hitsOnBeat(beat).map((hit) => track.voice.bind(hit.note))))
     );
 
     binding.play(audioContext, audioContext.destination);
