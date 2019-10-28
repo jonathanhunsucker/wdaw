@@ -6,7 +6,7 @@ export default class Note {
     const scientificPitchNotationExpression = /^([A-G])([#b]?)(-?\d+)$/
     const parts = pitch.match(scientificPitchNotationExpression);
     if (parts instanceof Array === false) {
-      throw new Error(this.pitch + ' is unparseable');
+      throw new Error(pitch + ' is unparseable');
     }
 
     this.parts = parts;
