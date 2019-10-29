@@ -4,18 +4,6 @@ import Beat from "./music/Beat.js";
 import TimeSignature from "./music/TimeSignature.js";
 import { range, flatten } from "./math.js";
 
-/**
- * Factory method sugar for Beat constructor.
- *
- * eg. `on(2)`
- *
- * @param {Number} beat
- * @return {Beat}
- */
-function on(beat) {
-  return new Beat(beat);
-}
-
 export class Hit {
   /**
    * @param {Note} note
