@@ -8,42 +8,11 @@ import { silentPingToWakeAutoPlayGates } from "./audio/Nodes.js";
 import Note from "./music/Note.js";
 import Beat from "./music/Beat.js";
 import { flatten } from "./math.js";
+import { DumpJson } from "./debug.js";
 
 const audioContext = new (window.webkitAudioContext || window.AudioContext)();
 
-function useSequencerState() {
-  const [sequencer, setSequencer] = useState(Sequencer.fromNothing());
-  const server = new Server("http://10.0.0.245:8000/");
-
-  function publishAndSet(sequencer) {
-    server.write(sequencer);
-    set(sequencer);
-  }
-
-  function set(sequencer) {
-    setSequencer(sequencer);
-  }
-
-  async function load() {
-    set(Sequencer.parse(await server.read()));
-  }
-
-  useEffect(() => {
-    load();
-  }, []);
-
-  useInterval(() => {
-    load();
-  }, 1000);
-
-  function toggleHit(track, hit) {
-    publishAndSet(sequencer.toggleHit(track, hit));
-  }
-
-  function setTempo(newTempo) {
-    publishAndSet(sequencer.setTempo(newTempo));
-  }
-
+function usePlayer(sequencer) {
   const [currentBeat, setCurrentBeat] = useState(new Beat(1, [0, 0]));
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -55,31 +24,66 @@ function useSequencerState() {
   }, isPlaying ? 1000 / (sequencer.tempo / 60 * sequencer.divisions) : null);
 
   return [
-    sequencer,
-    toggleHit,
-    setTempo,
     currentBeat,
-    isPlaying,
-    (newIsPlaying) => {
-      silentPingToWakeAutoPlayGates(audioContext);
-      setIsPlaying(newIsPlaying);
-    },
+    [isPlaying, setIsPlaying],
   ];
 }
 
-function DumpJson(object) {
-  return (<pre>{JSON.stringify(object, null, 2)}</pre>);
+function useSyncronizedSequencer(initialSequencer) {
+  const [sequencer, setSequencer] = useState(initialSequencer);
+  const server = new Server("http://10.0.0.245:8000/");
+
+  async function load() {
+    set(Sequencer.parse(await server.read()));
+  }
+
+  const doLoad = () => {
+    load();
+  };
+
+  useEffect(doLoad, []);
+  useInterval(doLoad, 1000);
+
+  function publishAndSet(sequencer) {
+    server.write(sequencer);
+    set(sequencer);
+  }
+
+  function set(sequencer) {
+    setSequencer(sequencer);
+  }
+
+  return [
+    sequencer,
+    (newSequencer) => {
+      publishAndSet(newSequencer);
+    },
+  ];
 }
 
 function App() {
   const [
     sequencer,
-    toggleHit,
-    setTempo,
+    setSequencer,
+  ] = useSyncronizedSequencer(Sequencer.fromNothing());
+
+  const [
     currentBeat,
-    isPlaying,
-    setIsPlaying,
-  ] = useSequencerState();
+    [isPlaying, playerSetIsPlaying],
+  ] = usePlayer(sequencer);
+
+  function toggleHit(track, hit) {
+    setSequencer(sequencer.toggleHit(track, hit));
+  }
+
+  function setTempo(newTempo) {
+    setSequencer(sequencer.setTempo(newTempo));
+  }
+
+  function setIsPlaying(newIsPlaying) {
+    silentPingToWakeAutoPlayGates(audioContext);
+    playerSetIsPlaying(newIsPlaying);
+  }
 
   return (
     <div className="App">
