@@ -75,7 +75,7 @@ export class Wave {
     wave.type = this.type;
     wave.frequency.value = note.frequency;
     wave.start(wave.context.currentTime);
-    wave.stop(wave.context.currentTime + 0.3);
+    wave.stop(wave.context.currentTime + 0.3); // TODO replace with release(), an accompaniment to press
 
     return wave;
   }
