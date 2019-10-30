@@ -4,6 +4,21 @@ import Beat from "./music/Beat.js";
 import TimeSignature from "./music/TimeSignature.js";
 import { range, flatten } from "./math.js";
 
+class Expiration {
+  /**
+   * @param {Binding} binding
+   */
+  constructor(binding) {
+    this.binding = binding;
+  }
+  get isExpired() {
+    return true;
+  }
+  expire() {
+    this.binding.stop();
+  }
+}
+
 export class Hit {
   /**
    * @param {Note} note
@@ -127,14 +142,30 @@ export class Sequencer {
       this.timeSignature
     );
   }
+  /**
+   * @param {AudioContext} audioContext
+   * @param {Beat} beat
+   *
+   * @returns {Expiration[]}
+   */
   play(audioContext, beat) {
+    const expirations = flatten(
+      this.tracks.map((track) => {
+        return track.hitsOnBeat(beat).map((hit) => {
+          return new Expiration(track.voice.bind(hit.note));
+        });
+      })
+    );
+
     const binding = new Binding(
       new Gain(0.1),
       null,
-      flatten(this.tracks.map((track) => track.hitsOnBeat(beat).map((hit) => track.voice.bind(hit.note))))
+      expirations.map((expiration) => expiration.binding)
     );
 
     binding.play(audioContext, audioContext.destination);
+
+    return expirations;
   }
   setTempo(newTempo) {
     return new Sequencer(
