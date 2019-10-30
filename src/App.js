@@ -35,7 +35,14 @@ function usePlayer(sequencer) {
 
   return [
     currentBeat,
-    [isPlaying, setIsPlaying],
+    [
+      isPlaying,
+      (newIsPlaying) => {
+        // sometimes when pausing, notes are left playing
+        expireAll();
+        setIsPlaying(newIsPlaying);
+      },
+    ],
   ];
 }
 
