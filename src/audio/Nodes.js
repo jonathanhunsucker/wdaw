@@ -121,10 +121,12 @@ Gain.kind = "gain";
 
 export class Envelope {
   constructor(options, upstreams) {
-    this.attack = options.attack || 0.0;
-    this.decay = options.decay || 0.0;
-    this.sustain = options.sustain || 0.0;
-    this.release = options.release || 0.0;
+    this.options = {
+      attack: options.attack || 0.001,
+      decay: options.decay || 0.0,
+      sustain: options.sustain || 1.0,
+      release: options.release || 0.5,
+    };
 
     this.upstreams = upstreams;
   }
@@ -148,9 +150,9 @@ export class Envelope {
     const now = node.context.currentTime;
 
     node.gain.setValueAtTime(0.0, now + 0.0); // initialize to 0
-    node.gain.linearRampToValueAtTime(1.0, now + this.attack); // attack
-    node.gain.linearRampToValueAtTime(this.sustain, now + this.attack + this.decay); // decay to sustain
-    node.gain.linearRampToValueAtTime(0.0, now + this.attack + this.decay + this.release); // ramp to zero by release
+    node.gain.linearRampToValueAtTime(1.0, now + this.options.attack); // attack
+    node.gain.linearRampToValueAtTime(this.options.sustain, now + this.options.attack + this.options.decay); // decay to sustain
+    node.gain.linearRampToValueAtTime(0.0, now + this.options.attack + this.options.decay + this.options.release); // ramp to zero by release
 
     return node;
   }
