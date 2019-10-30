@@ -17,20 +17,28 @@ function usePlayer(sequencer) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [pendingExpirations, setPendingExpirations] = useState([]);
 
-  function expireAll() {
-    pendingExpirations.map((pendingExpiration) => pendingExpiration.expire());
-    setPendingExpirations([]);
+  const all = (expiration) => true;
+  const expired = (expiration) => expiration.isExpired();
+
+  function expireByPolicy(policy) {
+    const [dead, alive] = pendingExpirations.reduce((reduction, expiration) => {
+      reduction[policy(expiration) ? 0 : 1].push(expiration);
+      return reduction;
+    }, [[], []]);
+
+    dead.map((expiration) => expiration.expire());
+    return alive;
   }
 
   useInterval(() => {
-    expireAll();
+    const remainingAlive = expireByPolicy(expired);
 
     const tickSize = [1, sequencer.divisions];
     const nextBeat = currentBeat.plus(tickSize, sequencer.timeSignature);
     setCurrentBeat(nextBeat);
     const newPendingExpirations = sequencer.play(audioContext, nextBeat);
 
-    setPendingExpirations(newPendingExpirations);
+    setPendingExpirations(remainingAlive.concat(newPendingExpirations));
   }, isPlaying ? 1000 / (sequencer.tempo / 60 * sequencer.divisions) : null);
 
   return [
@@ -39,7 +47,7 @@ function usePlayer(sequencer) {
       isPlaying,
       (newIsPlaying) => {
         // sometimes when pausing, notes are left playing
-        expireAll();
+        expireByPolicy(all);
         setIsPlaying(newIsPlaying);
       },
     ],
