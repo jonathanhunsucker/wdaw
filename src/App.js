@@ -10,9 +10,12 @@ import Beat from "./music/Beat.js";
 import { flatten } from "./math.js";
 import { DumpJson } from "./debug.js";
 
-const audioContext = new (window.webkitAudioContext || window.AudioContext)();
+function useAudioContext() {
+  const ref = useRef(new (window.webkitAudioContext || window.AudioContext)());
+  return ref.current;
+}
 
-function usePlayer(sequencer) {
+function usePlayer(audioContext, sequencer) {
   const [currentBeat, setCurrentBeat] = useState(new Beat(1, [0, 0]));
   const [isPlaying, setIsPlaying] = useState(false);
   const [pendingExpirations, setPendingExpirations] = useState([]);
@@ -87,6 +90,8 @@ function useSyncronizedSequencer(initialSequencer) {
 }
 
 function App() {
+  const audioContext = useAudioContext();
+
   const [
     sequencer,
     setSequencer,
@@ -95,7 +100,7 @@ function App() {
   const [
     currentBeat,
     [isPlaying, playerSetIsPlaying],
-  ] = usePlayer(sequencer);
+  ] = usePlayer(audioContext, sequencer);
 
   function toggleHit(track, hit) {
     setSequencer(sequencer.toggleHit(track, hit));
