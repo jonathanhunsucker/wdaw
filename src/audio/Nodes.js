@@ -75,9 +75,11 @@ export class Wave {
     wave.type = this.type;
     wave.frequency.value = note.frequency;
     wave.start(wave.context.currentTime);
-    wave.stop(wave.context.currentTime + 0.3); // TODO replace with release(), an accompaniment to press
 
     return wave;
+  }
+  release(node) {
+    node.stop(node.context.currentTime + 1.0);
   }
   toJSON() {
     return {
@@ -108,6 +110,8 @@ export class Gain {
     gain.gain.value = this.level;
 
     return gain;
+  }
+  release(node) {
   }
   toJSON() {
     return {
@@ -152,9 +156,11 @@ export class Envelope {
     node.gain.setValueAtTime(0.0, now + 0.0); // initialize to 0
     node.gain.linearRampToValueAtTime(1.0, now + this.options.attack); // attack
     node.gain.linearRampToValueAtTime(this.options.sustain, now + this.options.attack + this.options.decay); // decay to sustain
-    node.gain.linearRampToValueAtTime(0.0, now + this.options.attack + this.options.decay + this.options.release); // ramp to zero by release
 
     return node;
+  }
+  release(node) {
+    node.gain.linearRampToValueAtTime(0, node.context.currentTime + this.options.release);
   }
   toJSON() {
     return {
