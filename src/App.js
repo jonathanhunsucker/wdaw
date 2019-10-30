@@ -15,12 +15,22 @@ const audioContext = new (window.webkitAudioContext || window.AudioContext)();
 function usePlayer(sequencer) {
   const [currentBeat, setCurrentBeat] = useState(new Beat(1, [0, 0]));
   const [isPlaying, setIsPlaying] = useState(false);
+  const [pendingExpirations, setPendingExpirations] = useState([]);
+
+  function expireAll() {
+    pendingExpirations.map((pendingExpiration) => pendingExpiration.expire());
+    setPendingExpirations([]);
+  }
 
   useInterval(() => {
+    expireAll();
+
     const tickSize = [1, sequencer.divisions];
     const nextBeat = currentBeat.next(tickSize, sequencer.timeSignature);
     setCurrentBeat(nextBeat);
-    sequencer.play(audioContext, nextBeat);
+    const newPendingExpirations = sequencer.play(audioContext, nextBeat);
+
+    setPendingExpirations(newPendingExpirations);
   }, isPlaying ? 1000 / (sequencer.tempo / 60 * sequencer.divisions) : null);
 
   return [
