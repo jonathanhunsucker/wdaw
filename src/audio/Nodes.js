@@ -24,6 +24,7 @@ export function silentPingToWakeAutoPlayGates(audioContext) {
   );
 
   binding.play(audioContext, audioContext.destination);
+  binding.stop();
 }
 
 export function stageFactory(stageObject) {
@@ -50,8 +51,13 @@ export class Binding {
   play(audioContext, destination) {
     const node = this.stage.press(audioContext, this.note);
     node.connect(destination);
+    this.node = node;
     this.bindings.forEach((binding) => binding.play(audioContext, node).connect(node));
     return node;
+  }
+  stop() {
+    this.stage.release(this.node);
+    this.bindings.map((binding) => binding.stop());
   }
 }
 
