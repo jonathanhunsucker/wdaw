@@ -15,7 +15,7 @@ export default class Beat {
   get key() {
     return `${this.beat}.${this.rational[0]}.${this.rational[1]}`;
   }
-  next(tickSize, timeSignature) {
+  plus(tickSize, timeSignature) {
     let nextBeat = this.beat;
     let nextRational = rationalSum(tickSize, this.rational);
     if (rationalGreaterEqual(nextRational, [1, 1])) {

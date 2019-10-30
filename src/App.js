@@ -26,7 +26,7 @@ function usePlayer(sequencer) {
     expireAll();
 
     const tickSize = [1, sequencer.divisions];
-    const nextBeat = currentBeat.next(tickSize, sequencer.timeSignature);
+    const nextBeat = currentBeat.plus(tickSize, sequencer.timeSignature);
     setCurrentBeat(nextBeat);
     const newPendingExpirations = sequencer.play(audioContext, nextBeat);
 
