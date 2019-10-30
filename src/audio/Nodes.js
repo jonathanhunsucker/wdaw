@@ -171,10 +171,10 @@ export class Envelope {
   toJSON() {
     return {
       kind: Envelope.kind,
-      attack: this.attack,
-      decay: this.decay,
-      sustain: this.sustain,
-      release: this.release,
+      attack: this.options.attack,
+      decay: this.options.decay,
+      sustain: this.options.sustain,
+      release: this.options.release,
       upstreams: this.upstreams,
     };
   }
