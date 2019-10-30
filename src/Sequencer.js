@@ -10,9 +10,11 @@ class Expiration {
    */
   constructor(binding) {
     this.binding = binding;
+    this.timer = 10;
   }
-  get isExpired() {
-    return true;
+  isExpired() {
+    this.timer--;
+    return this.timer < 0;
   }
   expire() {
     this.binding.stop();
