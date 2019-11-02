@@ -9,15 +9,6 @@ export function range(low, high) {
   return range;
 }
 
-export function modulo(x, mod) {
-  let value = x % mod;
-  if (value < 0) {
-    value += mod;
-  }
-
-  return value;
-}
-
 export function flatten(lists) {
   return [].concat.apply([], lists);
 }

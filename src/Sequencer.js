@@ -1,5 +1,5 @@
 import { Binding, stageFactory, Gain } from "./audio/Nodes.js";
-import Note from "./music/Note.js";
+import { Note } from "@jonathanhunsucker/music-js";
 import Beat from "./music/Beat.js";
 import TimeSignature from "./music/TimeSignature.js";
 import { range, flatten } from "./math.js";

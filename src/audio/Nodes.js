@@ -1,4 +1,4 @@
-import Note from "../music/Note.js";
+import { Note } from "@jonathanhunsucker/music-js";
 
 /**
  * Some browsers gate audio until the user interacts with the page.

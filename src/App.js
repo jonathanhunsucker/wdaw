@@ -5,7 +5,7 @@ import Server from "./Server.js";
 import { Sequencer, Hit } from "./Sequencer.js";
 import useInterval from "./useInterval.js";
 import { silentPingToWakeAutoPlayGates } from "./audio/Nodes.js";
-import Note from "./music/Note.js";
+import { Note } from "@jonathanhunsucker/music-js";
 import Beat from "./music/Beat.js";
 import { flatten } from "./math.js";
 import { DumpJson } from "./debug.js";
