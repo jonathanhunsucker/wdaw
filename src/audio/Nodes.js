@@ -1,5 +1,3 @@
-import { Note } from "@jonathanhunsucker/music-js";
-
 /**
  * Some browsers gate audio until the user interacts with the page.
  *
@@ -17,7 +15,7 @@ export function silentPingToWakeAutoPlayGates(audioContext) {
     [
       new Binding(
         new Wave('triangle'),
-        new Note('C4'),
+        440,
         []
       ),
     ]
@@ -37,19 +35,19 @@ export function stageFactory(stageObject) {
 }
 
 /*
- * Partial application of a note to tree of stages
+ * Partial application of a frequency to tree of stages
  */
 export class Binding {
-  constructor(stage, note, bindings) {
+  constructor(stage, frequency, bindings) {
     this.stage = stage;
-    this.note = note;
+    this.frequency = frequency;
     this.bindings = bindings;
   }
   /*
    * Actually builds nodes, then starts and connects
    */
   play(audioContext, destination) {
-    const node = this.stage.press(audioContext, this.note);
+    const node = this.stage.press(audioContext, this.frequency);
     node.connect(destination);
     this.node = node;
     this.bindings.forEach((binding) => binding.play(audioContext, node).connect(node));
@@ -68,18 +66,18 @@ export class Wave {
   static parse(object) {
     return new Wave(object.type);
   }
-  bind(note) {
+  bind(frequency) {
     return new Binding(
       this,
-      note,
+      frequency,
       []
     );
   }
-  press(audioContext, note) {
+  press(audioContext, frequency) {
     const wave = audioContext.createOscillator();
 
     wave.type = this.type;
-    wave.frequency.value = note.frequency;
+    wave.frequency.value = frequency;
     wave.start(wave.context.currentTime);
 
     return wave;
@@ -104,11 +102,11 @@ export class Gain {
   static parse(object) {
     return new Gain(object.level, (object.upstreams || []).map(stageFactory));
   }
-  bind(note) {
+  bind(frequency) {
     return new Binding(
       this,
-      note,
-      this.upstreams.map((stage) => stage.bind(note))
+      frequency,
+      this.upstreams.map((stage) => stage.bind(frequency))
     );
   }
   press(audioContext) {
@@ -148,14 +146,14 @@ export class Envelope {
       release: object.release,
     }, object.upstreams.map(stageFactory));
   }
-  bind(note) {
+  bind(frequency) {
     return new Binding(
       this,
-      note,
-      this.upstreams.map((stage) => stage.bind(note))
+      frequency,
+      this.upstreams.map((stage) => stage.bind(frequency))
     );
   }
-  press(audioContext, note) {
+  press(audioContext, frequency) {
     const node = audioContext.createGain();
     const now = node.context.currentTime;
 

@@ -157,7 +157,7 @@ export class Sequencer {
     const expirations = flatten(
       this.tracks.map((track) => {
         return track.hitsOnBeat(beat).map((hit) => {
-          return new Expiration(track.voice.bind(hit.note));
+          return new Expiration(track.voice.bind(hit.note.frequency));
         });
       })
     );
