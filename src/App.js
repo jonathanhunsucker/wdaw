@@ -4,7 +4,7 @@ import "./App.css";
 import Server from "./Server.js";
 import { Sequencer, Hit } from "./Sequencer.js";
 import useInterval from "./useInterval.js";
-import { silentPingToWakeAutoPlayGates } from "./audio/Nodes.js";
+import { silentPingToWakeAutoPlayGates } from "@jonathanhunsucker/audio-js";
 import { Note } from "@jonathanhunsucker/music-js";
 import Beat from "./music/Beat.js";
 import { flatten } from "./math.js";

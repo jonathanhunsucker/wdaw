@@ -1,4 +1,4 @@
-import { Binding, stageFactory, Gain, Envelope, Wave } from "./audio/Nodes.js";
+import { Binding, stageFactory, Gain, Envelope, Wave } from "@jonathanhunsucker/audio-js";
 import { Note } from "@jonathanhunsucker/music-js";
 import Beat from "./music/Beat.js";
 import TimeSignature from "./music/TimeSignature.js";
