@@ -1,4 +1,4 @@
-import { Binding, stageFactory, Gain } from "./audio/Nodes.js";
+import { Binding, stageFactory, Gain, Envelope, Wave } from "./audio/Nodes.js";
 import { Note } from "@jonathanhunsucker/music-js";
 import Beat from "./music/Beat.js";
 import TimeSignature from "./music/TimeSignature.js";
@@ -108,7 +108,10 @@ export class Sequencer {
       [
         new Track(
           "Track 1",
-          null,
+          new Envelope(
+            {},
+            [new Wave('triangle')]
+          ),
           flatten([
             on(1, [0, 0]).hit(['C2']),
             on(2, [0, 0]).hit(['E2']),
