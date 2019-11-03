@@ -95,7 +95,8 @@ function App() {
   const [
     sequencer,
     setSequencer,
-  ] = useSyncronizedSequencer(Sequencer.fromNothing());
+  //] = useSyncronizedSequencer(Sequencer.fromNothing());
+  ] = useState(Sequencer.fromNothing());
 
   const [
     currentBeat,
