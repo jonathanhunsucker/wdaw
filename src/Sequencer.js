@@ -10,7 +10,7 @@ class Expiration {
    */
   constructor(binding) {
     this.binding = binding;
-    this.timer = 10;
+    this.timer = 10;// todo replace with beat-based expiration, in way that's compatible with multiple measures
   }
   isExpired() {
     this.timer--;
@@ -109,7 +109,12 @@ export class Sequencer {
         new Track(
           "Track 1",
           new Envelope(
-            {},
+            {
+              attack: 0.01,
+              decay: 0.2,
+              sustain: 0.1,
+              release: 0.5,
+            },
             [new Wave('triangle')]
           ),
           flatten([

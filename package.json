@@ -26,6 +26,6 @@
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "@jonathanhunsucker/music-js": "^1.0.0",
-    "@jonathanhunsucker/audio-js": "^1.0.0"
+    "@jonathanhunsucker/audio-js": "^1.0.3"
   }
 }
