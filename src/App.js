@@ -166,7 +166,7 @@ function App() {
         ),
       ]
     )
-));
+  ));
 
   const setPatch = (newPatch) => {
     setSequencer(sequencer.setTrack(0, sequencer.tracks[0].setVoice(newPatch)));
