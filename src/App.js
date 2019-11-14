@@ -145,7 +145,32 @@ function App() {
     sequencer,
     setSequencer,
   //] = useSyncronizedSequencer(Sequencer.fromNothing());
-  ] = useState(Sequencer.fromNothing());
+  ] = useState(Sequencer.fromNothing(
+    new Filter(
+      "lowpass",
+      1000,
+      1,
+      null,
+      [
+        new Envelope(
+          {
+            attack: 0.01,
+            decay: 0.2,
+            sustain: 0.1,
+            release: 0.5,
+          },
+          [
+            new Wave('triangle'),
+            //new Noise(),
+          ],
+        ),
+      ]
+    )
+));
+
+  const setPatch = (newPatch) => {
+    setSequencer(sequencer.setTrack(0, sequencer.tracks[0].setVoice(newPatch)));
+  };
 
   const [
     currentBeat,
@@ -167,35 +192,7 @@ function App() {
 
   const [level, setLevel] = useState(0.1);
 
-  const [patch, setPatch] = useState(
-    new Filter(
-      "lowpass",
-      1000,
-      1,
-      null,
-      [
-        new Envelope(
-          {
-            attack: 0.01,
-            decay: 0.2,
-            sustain: 0.1,
-            release: 0.5,
-          },
-          [
-            new Wave('triangle'),
-            //new Noise(),
-          ],
-        ),
-      ]
-    )
-  );
-
-  const voice = new Gain(
-    level,
-    [
-      patch,
-    ]
-  );
+  const voice = new Gain(level, [sequencer.tracks[0].voice]);
 
   const [pressed, press, release] = useKeyboard(audioContext, voice);
   const [shift, setShift] = useState(0);
@@ -376,13 +373,13 @@ function App() {
       <h1>Keyboard</h1>
       <p>Shift: {shift}</p>
       <Keyboard layout={layout} mapping={mapping} pressed={keysDownCurrently} onPress={onPress} onRelease={onRelease} />
-      <PatchEditor patch={patch} setPatch={setPatch} />
+      <PatchEditor patch={sequencer.tracks[0].voice} setPatch={setPatch} />
 
       <h1>Debugging</h1>
       <h4>Sequencer</h4>
       {DumpJson(sequencer)}
       <h4>Patch</h4>
-      {DumpJson(patch)}
+      {DumpJson(sequencer.tracks[0].voice)}
     </div>
   );
 }

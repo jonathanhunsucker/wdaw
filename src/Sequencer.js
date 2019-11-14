@@ -78,6 +78,13 @@ class Track {
       this.hits.filter((hit) => subject.equals(hit) === false)
     );
   }
+  setVoice(voice) {
+    return new Track(
+      this.name,
+      voice,
+      this.hits
+    );
+  }
 }
 
 export class Sequencer {
@@ -87,7 +94,7 @@ export class Sequencer {
     this.timeSignature = new TimeSignature(4, 4);
     this.divisions = 4;
   }
-  static fromNothing() {
+  static fromNothing(patch) {
     /**
      * Factory method for building a list of hits on this beat, for a list of notes.
      *
@@ -108,15 +115,7 @@ export class Sequencer {
       [
         new Track(
           "Track 1",
-          new Envelope(
-            {
-              attack: 0.01,
-              decay: 0.2,
-              sustain: 0.1,
-              release: 0.5,
-            },
-            [new Wave('triangle')]
-          ),
+          patch,
           flatten([
             on(1, [0, 0]).hit(['C2']),
             on(2, [0, 0]).hit(['E2']),
@@ -181,6 +180,16 @@ export class Sequencer {
     return new Sequencer(
       newTempo,
       this.tracks,
+      this.timeSignature
+    );
+  }
+  setTrack(index, track) {
+    const tracks = this.tracks.slice();
+    tracks[index] = track;
+
+    return new Sequencer(
+      this.tempo,
+      tracks,
       this.timeSignature
     );
   }
