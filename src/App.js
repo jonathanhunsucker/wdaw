@@ -31,12 +31,12 @@ function removeFirst(criteria) {
   };
 }
 
-function useKeyboard(audioContext, voice) {
+function useKeyboard(audioContext, destination, voice) {
   const [pressed, setPressed] = useState([]);
 
   const press = (note) => {
     const binding = voice.bind(note.frequency);
-    binding.play(audioContext, audioContext.destination);
+    binding.play(audioContext, destination);
     setPressed((p) => p.concat([[note.pitch, binding]]));
   };
 
@@ -64,7 +64,7 @@ function useAudioContext() {
   return ref.current;
 }
 
-function usePlayer(audioContext, sequencer) {
+function usePlayer(audioContext, destination, sequencer) {
   const [currentBeat, setCurrentBeat] = useState(new Beat(1, [0, 0]));
   const [isPlaying, setIsPlaying] = useState(false);
   const [pendingExpirations, setPendingExpirations] = useState([]);
@@ -88,7 +88,7 @@ function usePlayer(audioContext, sequencer) {
     const tickSize = [1, sequencer.divisions];
     const nextBeat = currentBeat.plus(tickSize, sequencer.timeSignature);
     setCurrentBeat(nextBeat);
-    const newPendingExpirations = sequencer.play(audioContext, nextBeat);
+    const newPendingExpirations = sequencer.play(audioContext, destination, nextBeat);
 
     setPendingExpirations(remainingAlive.concat(newPendingExpirations));
   }, isPlaying ? 1000 / (sequencer.tempo / 60 * sequencer.divisions) : null);
@@ -172,10 +172,14 @@ function App() {
     setSequencer(sequencer.setTrack(0, sequencer.tracks[0].setVoice(newPatch)));
   };
 
+  const [level, setLevel] = useState(0.1);
+
+  const voice = new Gain(level, [sequencer.tracks[0].voice]);
+
   const [
     currentBeat,
     [isPlaying, playerSetIsPlaying],
-  ] = usePlayer(audioContext, sequencer);
+  ] = usePlayer(audioContext, audioContext.destination, sequencer);
 
   function toggleHit(track, hit) {
     setSequencer(sequencer.toggleHit(track, hit));
@@ -190,11 +194,7 @@ function App() {
     playerSetIsPlaying(newIsPlaying);
   }
 
-  const [level, setLevel] = useState(0.1);
-
-  const voice = new Gain(level, [sequencer.tracks[0].voice]);
-
-  const [pressed, press, release] = useKeyboard(audioContext, voice);
+  const [pressed, press, release] = useKeyboard(audioContext, audioContext.destination, voice);
   const [shift, setShift] = useState(0);
   const [mod, setMod] = useState(false);
 

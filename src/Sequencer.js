@@ -153,11 +153,12 @@ export class Sequencer {
   }
   /**
    * @param {AudioContext} audioContext
+   * @param {AudioNode} destination
    * @param {Beat} beat
    *
    * @returns {Expiration[]}
    */
-  play(audioContext, beat) {
+  play(audioContext, destination, beat) {
     const expirations = flatten(
       this.tracks.map((track) => {
         return track.hitsOnBeat(beat).map((hit) => {
@@ -167,12 +168,12 @@ export class Sequencer {
     );
 
     const binding = new Binding(
-      new Gain(0.1),
+      new Gain(1.0),
       null,
       expirations.map((expiration) => expiration.binding)
     );
 
-    binding.play(audioContext, audioContext.destination);
+    binding.play(audioContext, destination);
 
     return expirations;
   }
