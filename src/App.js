@@ -9,7 +9,7 @@ import Beat from "./music/Beat.js";
 import { flatten } from "./math.js";
 import { DumpJson } from "./debug.js";
 
-import { Gain, Filter, Envelope, Wave, Noise, silentPingToWakeAutoPlayGates } from "@jonathanhunsucker/audio-js";
+import { Gain, Binding, Filter, Envelope, Wave, Noise, silentPingToWakeAutoPlayGates } from "@jonathanhunsucker/audio-js";
 
 import { key, offset, Keyboard } from "./Keyboard.js";
 import PatchEditor from "./PatchEditor.js";
@@ -141,6 +141,16 @@ function useSyncronizedSequencer(initialSequencer) {
 function App() {
   const audioContext = useAudioContext();
 
+  const [level, setLevel] = useState(0.1);
+
+  const binding = new Binding(
+    new Gain(level),
+    null,
+    []
+  );
+
+  const destination = binding.play(audioContext, audioContext.destination);
+
   const [
     sequencer,
     setSequencer,
@@ -172,14 +182,10 @@ function App() {
     setSequencer(sequencer.setTrack(0, sequencer.tracks[0].setVoice(newPatch)));
   };
 
-  const [level, setLevel] = useState(0.1);
-
-  const voice = new Gain(level, [sequencer.tracks[0].voice]);
-
   const [
     currentBeat,
     [isPlaying, playerSetIsPlaying],
-  ] = usePlayer(audioContext, audioContext.destination, sequencer);
+  ] = usePlayer(audioContext, destination, sequencer);
 
   function toggleHit(track, hit) {
     setSequencer(sequencer.toggleHit(track, hit));
@@ -194,7 +200,7 @@ function App() {
     playerSetIsPlaying(newIsPlaying);
   }
 
-  const [pressed, press, release] = useKeyboard(audioContext, audioContext.destination, voice);
+  const [pressed, press, release] = useKeyboard(audioContext, destination, sequencer.tracks[0].voice);
   const [shift, setShift] = useState(0);
   const [mod, setMod] = useState(false);
 
