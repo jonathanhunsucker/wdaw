@@ -6,7 +6,7 @@ import { Sequencer, Hit } from "./Sequencer.js";
 import useInterval from "./useInterval.js";
 import { Note } from "@jonathanhunsucker/music-js";
 import Beat from "./music/Beat.js";
-import { flatten } from "./math.js";
+import { flatten, rationalEquals } from "./math.js";
 import { DumpJson } from "./debug.js";
 
 import { Gain, Binding, Filter, Envelope, Wave, Noise, silentPingToWakeAutoPlayGates } from "@jonathanhunsucker/audio-js";
@@ -361,7 +361,7 @@ function App() {
             <th></th>
             {sequencer.beats.map((beat) =>
               <th key={beat.key} style={{backgroundColor: currentBeat.equals(beat) ? 'lightgrey' : 'transparent'}}>
-                {beat.beat}
+                {rationalEquals(beat.rational, [0, 0]) ? beat.beat : ''}
               </th>
             )}
           </tr>
