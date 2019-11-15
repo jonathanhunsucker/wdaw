@@ -150,7 +150,7 @@ function useSyncronizedSequencer(initialSequencer) {
 function App() {
   const audioContext = useAudioContext();
 
-  const [level, setLevel] = useState(0.1);
+  const [level, setLevel] = useState(0.3);
 
   const binding = new Binding(
     new Gain(level),
