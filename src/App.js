@@ -32,19 +32,23 @@ function removeFirst(criteria) {
 }
 
 function useExcisedUponRemovalList(excisor) {
-  const [list, setList] = useState([]);
+  const list = useRef([]);
 
-  const updater = (update) => {
-    setList((current) => {
-      update.filter((item) => current.includes(item) === false).map(excisor);
-      return update;
+  return (policy, toAppend) => {
+    const toRemove = [];
+    const toKeep = [];
+
+    list.current.forEach((item) => {
+      if (policy(item)) {
+        toRemove.push(item);
+      } else {
+        toKeep.push(item);
+      }
     });
-  };
 
-  return [
-    list,
-    updater,
-  ];
+    toRemove.map(excisor);
+    list.current = toKeep.concat(toAppend);
+  };
 }
 
 function useKeyboard(audioContext, destination, voice) {
@@ -83,31 +87,19 @@ function useAudioContext() {
 function usePlayer(audioContext, destination, sequencer) {
   const [currentBeat, setCurrentBeat] = useState(new Beat(1, [0, 0]));
   const [isPlaying, setIsPlaying] = useState(false);
-  const [pendingExpirations, setPendingExpirations] = useExcisedUponRemovalList(
-    (expiration) => expiration.expire()
-  );
+  const exciseByPolicyAndAppend = useExcisedUponRemovalList((expiration) => expiration.expire());
 
   const all = (expiration) => true;
   const expired = (expiration) => expiration.isExpired();
 
-  function expireByPolicy(policy) {
-    const [dead, alive] = pendingExpirations.reduce((reduction, expiration) => {
-      reduction[policy(expiration) ? 0 : 1].push(expiration);
-      return reduction;
-    }, [[], []]);
-
-    return alive;
-  }
-
   useInterval(() => {
-    const remainingAlive = expireByPolicy(expired);
     const newPendingExpirations = sequencer.play(audioContext, destination, currentBeat);
 
     const tickSize = [1, sequencer.divisions];
     const nextBeat = currentBeat.plus(tickSize, sequencer.timeSignature);
     setCurrentBeat(nextBeat);
 
-    setPendingExpirations(remainingAlive.concat(newPendingExpirations));
+    exciseByPolicyAndAppend(expired, newPendingExpirations);
   }, isPlaying ? 1000 / (sequencer.tempo / 60 * sequencer.divisions) : null);
 
   return [
@@ -116,8 +108,7 @@ function usePlayer(audioContext, destination, sequencer) {
       isPlaying,
       (newIsPlaying) => {
         // sometimes when pausing, notes are left playing
-        const remaining = expireByPolicy(all);
-        setPendingExpirations(remaining);
+        exciseByPolicyAndAppend(all, []);
         setIsPlaying(newIsPlaying);
       },
     ],
