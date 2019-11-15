@@ -36,7 +36,7 @@ function WaveControls(wave, handleControlChange) {
 }
 
 function ScaledInput(props) {
-  const base = 3;
+  const base = props.base || 3;
   const scale = (value) => Math.pow(value, base);
   const unscale = (value) => Math.pow(value, 1 / base);
 
@@ -69,6 +69,7 @@ function EnvelopeControls(envelope, handleControlChange) {
       <br />
       <label htmlFor="sustain">Sustain</label>:{' '}
       <ScaledInput
+        base={1}
         value={envelope.sustain} min={0} max={1}
         onChange={(value) => handleControlChange("sustain", value)}
       />{' '}{Percentage(envelope.sustain)}
