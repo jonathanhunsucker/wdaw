@@ -6,6 +6,10 @@ function Seconds(value) {
   return value.toFixed(3) + "s";
 }
 
+function Percentage(value) {
+  return Math.round(value.toFixed(2) * 100) + "%";
+}
+
 function Frequency(value) {
   var scale = "";
 
@@ -67,7 +71,7 @@ function EnvelopeControls(envelope, handleControlChange) {
       <ScaledInput
         value={envelope.sustain} min={0} max={1}
         onChange={(value) => handleControlChange("sustain", value)}
-      />{' '}{Seconds(envelope.sustain)}
+      />{' '}{Percentage(envelope.sustain)}
       <br />
       <label htmlFor="Release">Release</label>:{' '}
       <ScaledInput
