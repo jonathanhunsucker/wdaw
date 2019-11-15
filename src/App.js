@@ -31,6 +31,22 @@ function removeFirst(criteria) {
   };
 }
 
+function useExcisedUponRemovalList(excisor) {
+  const [list, setList] = useState([]);
+
+  const updater = (update) => {
+    setList((current) => {
+      update.filter((item) => current.includes(item) === false).map(excisor);
+      return update;
+    });
+  };
+
+  return [
+    list,
+    updater,
+  ];
+}
+
 function useKeyboard(audioContext, destination, voice) {
   const [pressed, setPressed] = useState([]);
 
@@ -67,7 +83,9 @@ function useAudioContext() {
 function usePlayer(audioContext, destination, sequencer) {
   const [currentBeat, setCurrentBeat] = useState(new Beat(1, [0, 0]));
   const [isPlaying, setIsPlaying] = useState(false);
-  const [pendingExpirations, setPendingExpirations] = useState([]);
+  const [pendingExpirations, setPendingExpirations] = useExcisedUponRemovalList(
+    (expiration) => expiration.expire()
+  );
 
   const all = (expiration) => true;
   const expired = (expiration) => expiration.isExpired();
@@ -78,17 +96,16 @@ function usePlayer(audioContext, destination, sequencer) {
       return reduction;
     }, [[], []]);
 
-    dead.map((expiration) => expiration.expire());
     return alive;
   }
 
   useInterval(() => {
     const remainingAlive = expireByPolicy(expired);
+    const newPendingExpirations = sequencer.play(audioContext, destination, currentBeat);
 
     const tickSize = [1, sequencer.divisions];
     const nextBeat = currentBeat.plus(tickSize, sequencer.timeSignature);
     setCurrentBeat(nextBeat);
-    const newPendingExpirations = sequencer.play(audioContext, destination, nextBeat);
 
     setPendingExpirations(remainingAlive.concat(newPendingExpirations));
   }, isPlaying ? 1000 / (sequencer.tempo / 60 * sequencer.divisions) : null);
@@ -99,7 +116,8 @@ function usePlayer(audioContext, destination, sequencer) {
       isPlaying,
       (newIsPlaying) => {
         // sometimes when pausing, notes are left playing
-        expireByPolicy(all);
+        const remaining = expireByPolicy(all);
+        setPendingExpirations(remaining);
         setIsPlaying(newIsPlaying);
       },
     ],
