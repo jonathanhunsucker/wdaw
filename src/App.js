@@ -12,7 +12,7 @@ import { DumpJson } from "./debug.js";
 import { Gain, Binding, Filter, Envelope, Wave, Noise, silentPingToWakeAutoPlayGates } from "@jonathanhunsucker/audio-js";
 
 import { key, offset, Keyboard } from "./Keyboard.js";
-import PatchEditor from "./PatchEditor.js";
+import PatchEditor, { ScaledInput, Percentage } from "./PatchEditor.js";
 import { Mapping, Handler } from "./KeyCommand.js";
 import useKeystrokeMonitor from "./useKeystrokeMonitor.js";
 import useSet from "./useSet.js";
@@ -345,7 +345,13 @@ function App() {
   return (
     <div className="App">
       <h1>Sequencer</h1>
-      <p>Level: <input type="range" min="0" step="0.01" max="1.0" value={level} onChange={(e) => {setLevel(e.target.valueAsNumber)}} /></p>
+      <p>Level:{' '}
+        <ScaledInput
+          base={1}
+          value={level} min={0} max={1}
+          onChange={(value) => setLevel(value)}
+        />{' '}{Percentage(level)}
+      </p>
       <p>now: {audioContext.currentTime}</p>
       <p><button onClick={() => setIsPlaying(!isPlaying)}>{isPlaying ? 'pause' : 'play'}</button></p>
       <p><input type="number" value={sequencer.tempo} onChange={(e) => setTempo(parseInt(e.target.value, 10))} /></p>

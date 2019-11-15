@@ -2,15 +2,15 @@ import React from "react";
 
 import { Wave, Gain, Envelope, Filter } from "@jonathanhunsucker/audio-js";
 
-function Seconds(value) {
+export function Seconds(value) {
   return value.toFixed(3) + "s";
 }
 
-function Percentage(value) {
+export function Percentage(value) {
   return Math.round(value.toFixed(2) * 100) + "%";
 }
 
-function Frequency(value) {
+export function Frequency(value) {
   var scale = "";
 
   if (value >= 1000) {
@@ -35,7 +35,7 @@ function WaveControls(wave, handleControlChange) {
   );
 }
 
-function ScaledInput(props) {
+export function ScaledInput(props) {
   const base = props.base || 3;
   const scale = (value) => Math.pow(value, base);
   const unscale = (value) => Math.pow(value, 1 / base);
