@@ -175,7 +175,7 @@ function App() {
           {
             attack: 0.01,
             decay: 0.2,
-            sustain: 0.1,
+            sustain: 0.2,
             release: 0.5,
           },
           [
