@@ -394,12 +394,6 @@ function App() {
       <p>Shift: {shift}</p>
       <Keyboard layout={layout} mapping={mapping} pressed={keysDownCurrently} onPress={onPress} onRelease={onRelease} />
       <PatchEditor patch={sequencer.tracks[0].voice} setPatch={setPatch} />
-
-      <h1>Debugging</h1>
-      <h4>Sequencer</h4>
-      {DumpJson(sequencer)}
-      <h4>Patch</h4>
-      {DumpJson(sequencer.tracks[0].voice)}
     </div>
   );
 }
