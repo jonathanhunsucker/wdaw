@@ -43,6 +43,7 @@ function ScaledInput(props) {
   return (
     <input
       type="range"
+      style={{verticalAlign: "middle"}}
       value={unscale(props.value)}
       min={unscale(props.min)}
       step={0.01}
