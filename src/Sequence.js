@@ -268,9 +268,9 @@ export class Sequence {
               new Envelope(
                 {
                   attack: 0.001,
-                  decay: 0.100,
+                  decay: 0.050,
                   sustain: 0,
-                  release: 0.500,
+                  release: 0.050,
                 },
                 [
                   new Noise(),
