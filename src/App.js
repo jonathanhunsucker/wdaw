@@ -141,11 +141,10 @@ const Sequencer = React.memo(function Sequencer(props) {
         </thead>
         <tbody>
           {sequence.tracks.map((track) => {
-            const range = Note.range(new Note('C2'), new Note('C3')).reverse();
             return flatten(
-              range.map((note, index) =>
+              track.notes.map((note, index) =>
                 <tr key={note.pitch}>
-                  {index === 0 && <td style={cellStyles} rowSpan={range.length}>{track.name}</td>}
+                  {index === 0 && <td style={cellStyles} rowSpan={track.notes.length}>{track.name}</td>}
                   <td style={rightAlignStyles}>{note.pitch}</td>
                   {sequence.beats.map((beat) =>
                     <td key={beat.key} style={currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>

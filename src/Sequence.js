@@ -83,16 +83,18 @@ export class Hit {
 }
 
 class Track {
-  constructor(name, voice, hits) {
+  constructor(name, voice, hits, notes) {
     this.name = name;
     this.voice = voice;
     this.hits = hits;
+    this.notes = notes;
   }
   static parse(object) {
     return new Track(
       object.name || 'Untitled track',
       stageFactory(object.voice),
-      object.hits.map((hit) => Hit.parse(hit))
+      object.hits.map((hit) => Hit.parse(hit)),
+      object.notes.map((note) => new Note(note))
     );
   }
   findHits(filters) {
@@ -116,28 +118,32 @@ class Track {
     return new Track(
       this.name,
       this.voice,
-      this.hits.concat(hit)
+      this.hits.concat(hit),
+      this.notes
     );
   }
   remove(subject) {
     return new Track(
       this.name,
       this.voice,
-      this.hits.filter((hit) => subject.equals(hit) === false)
+      this.hits.filter((hit) => subject.equals(hit) === false),
+      this.notes
     );
   }
   without(toRemove) {
     return new Track(
       this.name,
       this.voice,
-      this.hits.filter((hit) => hit !== toRemove)
+      this.hits.filter((hit) => hit !== toRemove),
+      this.notes
     );
   }
   setVoice(voice) {
     return new Track(
       this.name,
       voice,
-      this.hits
+      this.hits,
+      this.notes
     );
   }
 }
@@ -151,6 +157,10 @@ export class Sequence {
     this.tickSize = [1, 4];
   }
   static fromNothing(patch) {
+    const notes = (pitches) => {
+      return pitches.map((pitch) => new Note(pitch));
+    };
+
     /**
      * Factory method for building a list of hits on this beat, for a list of notes.
      *
@@ -183,6 +193,7 @@ export class Sequence {
             on(4, [1, 4]).hit(['C3']).for([1, 4]),
             on(4, [1, 2]).hit(['C3']).for([1, 4]),
           ])
+          notes(['C3', 'A#3', 'G#2', 'G2', 'F2', 'D#2', 'D2', 'C2'])
         ),
       ],
       new TimeSignature(4, 4)
