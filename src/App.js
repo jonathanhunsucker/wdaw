@@ -111,7 +111,7 @@ const Sequencer = React.memo(function Sequencer(props) {
   }
 
   function setTempo(newTempo) {
-    setSequence(sequence.setTempo(newTempo));
+    props.setSequence(sequence.setTempo(newTempo));
   }
 
   function setIsPlaying(newIsPlaying) {
