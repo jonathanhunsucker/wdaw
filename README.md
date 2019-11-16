@@ -1,5 +1,13 @@
 # ddaw-client
 
+##### Features
+- Recording key presses to track
+- Time signature editing
+- Save a measure or few measures for a track, and re-use it later
+- Multiple tracks, each with their own patch
+- Drum tracks, which have one voice per instrument, but don't have key tracking or as close a concept of notes
+- 
+
 ###### Sources
 - setInterval implementation, https://overreacted.io/making-setinterval-declarative-with-react-hooks/
 - Common tempo ranges, http://www2.siba.fi/muste1/index.php?id=102&la=en
@@ -28,7 +36,7 @@
 - Song analysis
     - https://www.youtube.com/watch?v=ynFNt4tgBJ0
 - Audio visualizations
-    - https://www.youtube.com/watch?v=KKBmkxFm7-U
+    - https://www.youtube.com/watch?v=KKBmkxFm7-U likely made with https://ieee1599.lim.di.unimi.it/viewer.php?id=217 sphere viewer
     - On the right side of these plugins https://goodhertz.co/faq/
 - Music inspiration
     - https://soundcloud.com/tarkka/chilli-dat
@@ -58,6 +66,11 @@
 - Commercial sample packs
     - https://splice.com/sounds/beatmaker
 - Vinyl sampling setup on an old machine https://www.youtube.com/watch?v=B_fj7qO5V_o
+- Notation and representation
+    - http://w3c.github.io/musicxml/
+    - https://ieee1599.lim.di.unimi.it/index.php
+    - https://www.midi.org/specifications-old/item/gm-level-1-sound-set
+
 
 
 should have done market analysis first.
