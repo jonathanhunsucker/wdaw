@@ -12,7 +12,6 @@ import { DumpJson } from "./debug.js";
 import { key, offset, Keyboard } from "./Keyboard.js";
 import PatchEditor, { ScaledInput, Percentage } from "./PatchEditor.js";
 import { Mapping, Handler } from "./KeyCommand.js";
-import Server from "./Server.js";
 import { Sequence, Hit, Percussion } from "./Sequence.js";
 import { Sequencer } from "./Sequencer.js";
 
@@ -63,38 +62,6 @@ function useAudioContext() {
   });
   const ref = useRef(value);
   return ref.current;
-}
-
-function useSyncronizedSequence(initialSequence) {
-  const [sequence, setSequence] = useState(initialSequence);
-  const server = new Server("http://10.0.0.245:8000/");
-
-  async function load() {
-    set(Sequence.parse(await server.read()));
-  }
-
-  const doLoad = () => {
-    load();
-  };
-
-  useEffect(doLoad, []);
-  useInterval(doLoad, 1000);
-
-  function publishAndSet(sequence) {
-    server.write(sequence);
-    set(sequence);
-  }
-
-  function set(sequence) {
-    setSequence(sequence);
-  }
-
-  return [
-    sequence,
-    (newSequence) => {
-      publishAndSet(newSequence);
-    },
-  ];
 }
 
 const layout = [
