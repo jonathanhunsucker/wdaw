@@ -244,6 +244,27 @@ export class Sequence {
           ]),
           notes(['C3', 'A#3', 'G#2', 'G2', 'F2', 'D#2', 'D2', 'C2'])
         ),
+        new Track(
+          "Track 2",
+          new Noise(),
+          flatten([
+            on(1, [0, 0]).hit(['Kick']).for([0, 0]),
+            on(1, [0, 0]).hit(['ClosedHat']).for([0, 0]),
+            on(1, [1, 2]).hit(['ClosedHat']).for([0, 0]),
+            on(2, [0, 0]).hit(['Kick']).for([0, 0]),
+            on(2, [0, 0]).hit(['Snare']).for([0, 0]),
+            on(2, [0, 0]).hit(['ClosedHat']).for([0, 0]),
+            on(2, [1, 2]).hit(['ClosedHat']).for([0, 0]),
+            on(3, [0, 0]).hit(['Kick']).for([0, 0]),
+            on(3, [0, 0]).hit(['ClosedHat']).for([0, 0]),
+            on(3, [1, 2]).hit(['ClosedHat']).for([0, 0]),
+            on(4, [0, 0]).hit(['Kick']).for([0, 0]),
+            on(4, [0, 0]).hit(['Snare']).for([0, 0]),
+            on(4, [0, 0]).hit(['ClosedHat']).for([0, 0]),
+            on(4, [1, 2]).hit(['ClosedHat']).for([0, 0]),
+          ]),
+          notes(['ClosedHat', 'Snare', 'Kick'])
+        ),
       ],
       new TimeSignature(4, 4)
     );
