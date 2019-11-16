@@ -227,7 +227,7 @@ function useExcisedUponRemovalList(excisor) {
     const toRemove = [];
     const toKeep = [];
 
-    list.current.forEach((item) => {
+    list.current.concat(toAppend).forEach((item) => {
       if (policy(item)) {
         toRemove.push(item);
       } else {
@@ -236,7 +236,7 @@ function useExcisedUponRemovalList(excisor) {
     });
 
     toRemove.map(excisor);
-    list.current = toKeep.concat(toAppend);
+    list.current = toKeep;
   };
 }
 
