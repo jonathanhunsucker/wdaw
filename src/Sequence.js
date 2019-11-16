@@ -1,8 +1,33 @@
-import { Binding, stageFactory, Gain, Envelope, Wave } from "@jonathanhunsucker/audio-js";
+import { Binding, stageFactory, Gain, Envelope, Wave, Filter, Noise } from "@jonathanhunsucker/audio-js";
 import { Note } from "@jonathanhunsucker/music-js";
 import Beat from "./music/Beat.js";
 import TimeSignature from "./music/TimeSignature.js";
 import { range, flatten, rationalEquals, rationalSum, rationalGreaterEqual, rationalLess, rationalDifference, rationalAsFloat } from "./math.js";
+
+// will walk and talk like a note, but for representing percusive notes instead of scientific pitch notation
+// eventually, should be rolled back into music-js
+class Percussion {
+  constructor(pitch) {
+    this.pitch = pitch;
+  }
+  equals(percussion) {
+    return this.pitch === percussion.pitch;
+  }
+}
+
+// front for Percussion or Note
+class UniversalNoteParser {
+  constructor() {
+    throw new Error('Abstract class');
+  }
+  static parse(object) {
+    try {
+      return new Note(object);
+    } catch (e) {
+      return new Percussion(object);
+    }
+  }
+}
 
 const unique = (item, index, list) => {
   return list.indexOf(item) === index;
@@ -94,7 +119,7 @@ class Track {
       object.name || 'Untitled track',
       stageFactory(object.voice),
       object.hits.map((hit) => Hit.parse(hit)),
-      object.notes.map((note) => new Note(note))
+      object.notes.map((note) => UniversalNoteParser.parse(note))
     );
   }
   findHits(filters) {
@@ -158,7 +183,7 @@ export class Sequence {
   }
   static fromNothing(patch) {
     const notes = (pitches) => {
-      return pitches.map((pitch) => new Note(pitch));
+      return pitches.map((pitch) => UniversalNoteParser.parse(pitch));
     };
 
     /**
@@ -173,6 +198,11 @@ export class Sequence {
     const on = (beat, rational) => {
       return {
         hit: (pitches) => {
+          return {
+            for: (duration) => pitches.map((pitch) => new Hit(new Percussion(pitch), new Beat(beat, rational), duration)),
+          };
+        },
+        play: (pitches) => {
           return {
             for: (duration) => pitches.map((pitch) => new Hit(new Note(pitch), new Beat(beat, rational), duration)),
           };
@@ -206,12 +236,12 @@ export class Sequence {
             ]
           ),
           flatten([
-            on(2, [0, 0]).hit(['C2', 'D#2', 'G2']).for([1, 1]),
-            on(3, [2, 4]).hit(['C3']).for([1, 4]),
-            on(4, [0, 0]).hit(['C3']).for([1, 4]),
-            on(4, [1, 4]).hit(['C3']).for([1, 4]),
-            on(4, [1, 2]).hit(['C3']).for([1, 4]),
-          ])
+            on(2, [0, 0]).play(['C2', 'D#2', 'G2']).for([1, 1]),
+            on(3, [2, 4]).play(['C3']).for([1, 4]),
+            on(4, [0, 0]).play(['C3']).for([1, 4]),
+            on(4, [1, 4]).play(['C3']).for([1, 4]),
+            on(4, [1, 2]).play(['C3']).for([1, 4]),
+          ]),
           notes(['C3', 'A#3', 'G#2', 'G2', 'F2', 'D#2', 'D2', 'C2'])
         ),
       ],
