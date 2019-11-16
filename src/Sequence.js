@@ -124,6 +124,10 @@ class Track {
       object.notes.map((note) => UniversalNoteParser.parse(note))
     );
   }
+  supports(feature) {
+    if (feature === 'sustain') return rationalEquals(this.defaultHitDuration, [0, 0]) === false;
+    throw new Error(`Unknown feature \`${feature}\``);
+  }
   findHits(filters) {
     return this.hits.filter((hit) => {
       if (filters.hasOwnProperty('note') && !hit.note.equals(filters.note)) return false;

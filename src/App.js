@@ -51,7 +51,14 @@ const Sequencer = React.memo(function Sequencer(props) {
   }
 
   function toggleHit(track, note, beat, value) {
-    const spanningHit = track.findHits({spans: beat, note: note})[0];
+    if (track.supports('sustain') === false && value === 'indeterminate') {
+      return;
+    }
+
+    let spanningHit = track.findHits({spans: beat, note: note})[0];
+    if (track.supports('sustain') === false && !spanningHit) {
+      spanningHit = track.findHits({beginningOn: beat, note: note})[0];
+    }
 
     const toRemove = [];
     const toAdd = [];
