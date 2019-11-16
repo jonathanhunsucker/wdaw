@@ -31,6 +31,42 @@ function removeFirst(criteria) {
   };
 }
 
+function Checkbox(props) {
+  const checkboxRef = useRef(null);
+
+  const indeterminate = props.value === 'indeterminate';
+  const checked = props.value === true || indeterminate;
+
+  useEffect(() => {
+    checkboxRef.current.indeterminate = indeterminate;
+  });
+
+  const handleChange = (e) => {
+    const shiftWasPressed = e.nativeEvent.shiftKey;
+    const isChecked = e.target.checked;
+
+    const value = {
+      [[true, true].toString()]: 'indeterminate',
+      [['indeterminate', true].toString()]: false,
+      [[false, true].toString()]: 'indeterminate',
+      [[true, false].toString()]: false,
+      [['indeterminate', false].toString()]: false,
+      [[false, false].toString()]: true,
+    }[[props.value, shiftWasPressed].toString()];
+
+    props.onChange(value);
+  };
+
+  return (
+    <input
+      ref={checkboxRef}
+      type="checkbox"
+      checked={checked}
+      onChange={handleChange}
+    />
+  );
+}
+
 function useExcisedUponRemovalList(excisor) {
   const list = useRef([]);
 
@@ -195,8 +231,43 @@ function App() {
     [isPlaying, playerSetIsPlaying],
   ] = usePlayer(audioContext, destination, sequencer);
 
-  function toggleHit(track, hit) {
-    setSequencer(sequencer.toggleHit(track, hit));
+  function hitValue(track, note, beat) {
+    const spanningHits = track.hits.filter((hit) => hit.spans(beat) && hit.note.equals(note));
+    const spanningHit = spanningHits[0];
+    if (spanningHit) {
+      return spanningHit.beginsOn(beat) ? true : 'indeterminate';
+    } else {
+      return false;
+    }
+  }
+
+  function toggleHit(track, note, beat, value) {
+    const spanningHits = track.hits.filter((hit) => hit.spans(beat) && hit.note.equals(note));
+    const spanningHit = spanningHits[0];
+
+    const toRemove = [];
+    const toAdd = [];
+
+    if (value === true) {
+      // add a note on beat
+      // TODO
+    } else if (value === 'indeterminate') {
+      // sustain an existing note further
+      // TODO
+    } else if (value === false) {
+      // remove a hit, or shorten it
+      // TODO
+    }
+
+    setSequencer(
+      sequencer.replaceTrack(
+        track,
+        toAdd.reduce(
+          (track, hit) => track.add(hit),
+          toRemove.reduce((track, hit) => track.without(hit), track)
+        )
+      )
+    );
   }
 
   function setTempo(newTempo) {
@@ -375,10 +446,9 @@ function App() {
                   <td>{note.pitch}</td>
                   {sequencer.beats.map((beat) =>
                     <td key={beat.key} style={{backgroundColor: currentBeat.equals(beat) ? 'lightgrey' : 'transparent'}}>
-                      <input
-                        type="checkbox"
-                        checked={track.hasHit(new Hit(note, beat))}
-                        onChange={() => toggleHit(track, new Hit(note, beat))}
+                      <Checkbox
+                        value={hitValue(track, note, beat)}
+                        onChange={(value) => toggleHit(track, note, beat, value)}
                       />
                     </td>
                   )}
