@@ -119,12 +119,7 @@ function useSequenceState() {
 function App() {
   const audioContext = useAudioContext();
 
-  const [
-    level,
-    setLevel,
-    destination,
-  ] = useMainMix(audioContext);
-
+  const [level, setLevel, destination] = useMainMix(audioContext);
   const [sequence, setSequence] = useSequenceState();
 
   const [selectedTrack, setSelectedTrack] = useState(1);
