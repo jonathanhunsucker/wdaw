@@ -1,6 +1,5 @@
 import React, { Component, useState, useEffect, useRef, useMemo } from "react";
 
-import "./App.css";
 import Server from "./Server.js";
 import { Sequence, Hit } from "./Sequence.js";
 import useInterval from "./useInterval.js";
@@ -120,17 +119,21 @@ const Sequencer = React.memo(function Sequencer(props) {
     playerSetIsPlaying(newIsPlaying);
   }
 
+  const cellStyles = {borderStyle: 'ridge'};
+  const currentBeatStyles = Object.assign({}, {backgroundColor: 'lightgrey'}, cellStyles);
+  const rightAlignStyles = Object.assign({}, {textAlign: 'right'}, cellStyles);
+
   return (
     <React.Fragment>
       <p><button onClick={() => setIsPlaying(!isPlaying)}>{isPlaying ? 'pause' : 'play'}</button></p>
       <p><input type="number" value={sequence.tempo} onChange={(e) => setTempo(parseInt(e.target.value, 10))} /></p>
-      <table className="Sequencer">
+      <table className="Sequencer" style={{borderCollapse: 'collapse'}}>
         <thead>
           <tr>
-            <th></th>
-            <th></th>
+            <th style={cellStyles}></th>
+            <th style={cellStyles}></th>
             {sequence.beats.map((beat) =>
-              <th key={beat.key} style={{backgroundColor: currentBeat.equals(beat) ? 'lightgrey' : 'transparent'}}>
+              <th key={beat.key} style={currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
                 {rationalEquals(beat.rational, [0, 0]) ? beat.beat : ''}
               </th>
             )}
@@ -142,10 +145,10 @@ const Sequencer = React.memo(function Sequencer(props) {
             return flatten(
               range.map((note, index) =>
                 <tr key={note.pitch}>
-                  {index === 0 && <td rowSpan={range.length}>{track.name}</td>}
-                  <td>{note.pitch}</td>
+                  {index === 0 && <td style={cellStyles} rowSpan={range.length}>{track.name}</td>}
+                  <td style={rightAlignStyles}>{note.pitch}</td>
                   {sequence.beats.map((beat) =>
-                    <td key={beat.key} style={{backgroundColor: currentBeat.equals(beat) ? 'lightgrey' : 'transparent'}}>
+                    <td key={beat.key} style={currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
                       <Checkbox
                         value={hitValue(track, note, beat)}
                         onChange={(value) => toggleHit(track, note, beat, value)}
