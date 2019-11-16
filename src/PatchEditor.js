@@ -164,6 +164,8 @@ function StageTree(stage, setStage) {
   );
 }
 
-export default function PatchEditor(props) {
+const PatchEditor = React.memo(function PatchEditor(props) {
   return StageTree(props.patch, props.setPatch);
-}
+});
+
+export default PatchEditor;
