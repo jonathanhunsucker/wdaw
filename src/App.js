@@ -151,11 +151,20 @@ const Sequencer = React.memo(function Sequencer(props) {
           </tr>
         </thead>
         <tbody>
-          {sequence.tracks.map((track) => {
+          {sequence.tracks.map((track, trackIndex) => {
             return flatten(
               track.notes.map((note, index) =>
                 <tr key={note.pitch}>
-                  {index === 0 && <td style={cellStyles} rowSpan={track.notes.length}>{track.name}</td>}
+                  {index === 0 && <td style={cellStyles} rowSpan={track.notes.length}>
+                    <input
+                      type="radio"
+                      id={`track-${trackIndex}`}
+                      value={trackIndex}
+                      checked={trackIndex === props.selectedTrack}
+                      onChange={(e) => {props.setSelectedTrack(parseInt(e.target.value, 10));}}
+                    />{' '}
+                    <label htmlFor={`track-${trackIndex}`}>{track.name}</label>
+                  </td>}
                   <td style={rightAlignStyles}>{note.pitch}</td>
                   {sequence.beats.map((beat) =>
                     <td key={beat.key} style={currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
@@ -431,11 +440,13 @@ function App() {
     destination,
   ] = useMainMix(audioContext);
 
+  const [selectedTrack, setSelectedTrack] = useState(1);
+
   const setPatch = (newPatch) => {
-    setSequence(sequence.setTrack(0, sequence.tracks[0].setVoice(newPatch)));
+    setSequence(sequence.setTrack(selectedTrack, sequence.tracks[selectedTrack].setVoice(newPatch)));
   };
 
-  const [pressed, press, release] = useKeyboard(audioContext, destination, sequence.tracks[0].voice);
+  const [pressed, press, release] = useKeyboard(audioContext, destination, sequence.tracks[selectedTrack].voice);
   const [shift, setShift] = useState(0);
   const [mod, setMod] = useState(false);
 
@@ -518,12 +529,19 @@ function App() {
           onChange={(value) => setLevel(value)}
         />{' '}{Percentage(level)}
       </p>
-      <Sequencer audioContext={audioContext} destination={destination} sequence={sequence} setSequence={setSequence} />
+      <Sequencer
+        audioContext={audioContext}
+        destination={destination}
+        sequence={sequence}
+        setSequence={setSequence}
+        selectedTrack={selectedTrack}
+        setSelectedTrack={setSelectedTrack}
+      />
 
       <h1>Keyboard</h1>
       <p>Shift: {shift}</p>
       <Keyboard layout={layout} mapping={mapping} pressed={keysDownCurrently} onPress={onPress} onRelease={onRelease} />
-      <PatchEditor patch={sequence.tracks[0].voice} setPatch={setPatch} />
+      <PatchEditor patch={sequence.tracks[selectedTrack].voice} setPatch={setPatch} />
     </div>
   );
 }
