@@ -533,7 +533,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Sequencer</h1>
+      <h1>Workstation</h1>
       <p>Level:{' '}
         <ScaledInput
           base={1}
@@ -541,6 +541,8 @@ function App() {
           onChange={(value) => setLevel(value)}
         />{' '}{Percentage(level)}
       </p>
+
+      <h2>Sequencer</h2>
       <Sequencer
         audioContext={audioContext}
         destination={destination}
@@ -550,9 +552,11 @@ function App() {
         setSelectedTrack={setSelectedTrack}
       />
 
-      <h1>Keyboard</h1>
+      <h2>Keyboard</h2>
       <p>Shift: {shift}</p>
       <Keyboard layout={layout} mapping={mapping} pressed={keysDownCurrently} onPress={onPress} onRelease={onRelease} />
+
+      <h2>Patch</h2>
       <PatchEditor patch={sequence.tracks[selectedTrack].voice} setPatch={setPatch} />
     </div>
   );
