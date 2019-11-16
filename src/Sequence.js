@@ -109,8 +109,9 @@ export class Hit {
 }
 
 class Track {
-  constructor(name, defaultHitDuration, voice, hits, notes) {
+  constructor(name, kind, defaultHitDuration, voice, hits, notes) {
     this.name = name;
+    this.kind = kind;
     this.defaultHitDuration = defaultHitDuration;
     this.voice = voice;
     this.hits = hits;
@@ -119,6 +120,7 @@ class Track {
   static parse(object) {
     return new Track(
       object.name || 'Untitled track',
+      object.kind,
       object.defaultHitDuration,
       stageFactory(object.voice),
       object.hits.map((hit) => Hit.parse(hit)),
@@ -126,7 +128,7 @@ class Track {
     );
   }
   supports(feature) {
-    if (feature === 'sustain') return rationalEquals(this.defaultHitDuration, [0, 0]) === false;
+    if (feature === 'sustain') return this.kind === 'keys';
     throw new Error(`Unknown feature \`${feature}\``);
   }
   findHits(filters) {
@@ -150,6 +152,7 @@ class Track {
   add(hit) {
     return new Track(
       this.name,
+      this.kind,
       this.defaultHitDuration,
       this.voice,
       this.hits.concat(hit),
@@ -159,6 +162,7 @@ class Track {
   remove(subject) {
     return new Track(
       this.name,
+      this.kind,
       this.defaultHitDuration,
       this.voice,
       this.hits.filter((hit) => subject.equals(hit) === false),
@@ -168,6 +172,7 @@ class Track {
   without(toRemove) {
     return new Track(
       this.name,
+      this.kind,
       this.defaultHitDuration,
       this.voice,
       this.hits.filter((hit) => hit !== toRemove),
@@ -177,6 +182,7 @@ class Track {
   setVoice(voice) {
     return new Track(
       this.name,
+      this.kind,
       this.defaultHitDuration,
       voice,
       this.hits,
@@ -227,6 +233,7 @@ export class Sequence {
       [
         new Track(
           "Track 1",
+          'keys',
           [1, 4],
           new Filter(
             "lowpass",
@@ -258,6 +265,7 @@ export class Sequence {
         ),
         new Track(
           "Track 2",
+          'drums',
           [0, 0],
           new Filter(
             "bandpass",
