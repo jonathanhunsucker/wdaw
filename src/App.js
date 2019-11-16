@@ -1,8 +1,8 @@
-import React, { Component, useState, useEffect, useRef } from "react";
+import React, { Component, useState, useEffect, useRef, useMemo } from "react";
 
 import "./App.css";
 import Server from "./Server.js";
-import { Sequencer, Hit } from "./Sequencer.js";
+import { Sequence, Hit } from "./Sequence.js";
 import useInterval from "./useInterval.js";
 import { Note } from "@jonathanhunsucker/music-js";
 import Beat from "./music/Beat.js";
@@ -31,7 +31,138 @@ function removeFirst(criteria) {
   };
 }
 
-function Checkbox(props) {
+const Sequencer = React.memo(function Sequencer(props) {
+  const sequence = props.sequence;
+
+  const [
+    currentBeat,
+    [isPlaying, playerSetIsPlaying],
+  ] = usePlayer(props.audioContext, props.destination, sequence);
+
+  function hitValue(track, note, beat) {
+    const spanningHits = track.findHits({spans: beat, note: note})
+    const spanningHit = spanningHits[0];
+    if (spanningHit) {
+      return spanningHit.beginsOn(beat) ? true : 'indeterminate';
+    } else {
+      return false;
+    }
+  }
+
+  function toggleHit(track, note, beat, value) {
+    const spanningHits = track.hits.filter((hit) => hit.spans(beat) && hit.note.equals(note));
+    const spanningHit = spanningHits[0];
+
+    const toRemove = [];
+    const toAdd = [];
+
+    if (value === true) {
+      // add a note on beat
+      if (spanningHit) {
+        throw new Error('tried to add note to beat which is already spanned');
+      } else {
+        toAdd.push(new Hit(note, beat, sequence.tickSize));
+      }
+    } else if (value === 'indeterminate') {
+      // sustain an existing note further
+      const endsBeforeBeat = track.hits.filter((hit) => {
+        return hit.note.equals(note) && rationalLessEqual(hit.endingAsRational(), beat.toRational());
+      });
+
+      const hitWithClosestEnd = endsBeforeBeat.reduce((lastSoFar, candidate) => {
+        if (lastSoFar === null) {
+          return candidate;
+        }
+
+        const shouldTakeCandidate = rationalGreater(candidate.endingAsRational(), lastSoFar.endingAsRational());
+        return shouldTakeCandidate ? candidate : lastSoFar;
+      }, null);
+
+      const duration = rationalDifference(
+        beat.plus(sequence.tickSize, sequence.timeSignature).toRational(),
+        hitWithClosestEnd.beginningAsRational()
+      );
+      const adjusted = hitWithClosestEnd.adjustDurationTo(duration);
+
+      toRemove.push(spanningHit);
+      toAdd.push(adjusted);
+    } else if (value === false) {
+      // remove a hit, or shorten it
+      if (spanningHit) {
+        toRemove.push(spanningHit);
+        if (spanningHit.beginsOn(beat) === false) {
+          const duration = rationalDifference(beat.toRational(), spanningHit.beginningAsRational());
+          const adjusted = spanningHit.adjustDurationTo(duration);
+          toAdd.push(adjusted);
+        }
+      } else {
+        throw new Error('tried to remove a note for which no spanning hit could be found');
+      }
+    }
+
+    props.setSequence(
+      sequence.replaceTrack(
+        track,
+        toAdd.reduce(
+          (track, hit) => track.add(hit),
+          toRemove.reduce((track, hit) => track.without(hit), track)
+        )
+      )
+    );
+  }
+
+  function setTempo(newTempo) {
+    setSequence(sequence.setTempo(newTempo));
+  }
+
+  function setIsPlaying(newIsPlaying) {
+    silentPingToWakeAutoPlayGates(props.audioContext);
+    playerSetIsPlaying(newIsPlaying);
+  }
+
+  return (
+    <React.Fragment>
+      <p><button onClick={() => setIsPlaying(!isPlaying)}>{isPlaying ? 'pause' : 'play'}</button></p>
+      <p><input type="number" value={sequence.tempo} onChange={(e) => setTempo(parseInt(e.target.value, 10))} /></p>
+      <table className="Sequencer">
+        <thead>
+          <tr>
+            <th></th>
+            <th></th>
+            {sequence.beats.map((beat) =>
+              <th key={beat.key} style={{backgroundColor: currentBeat.equals(beat) ? 'lightgrey' : 'transparent'}}>
+                {rationalEquals(beat.rational, [0, 0]) ? beat.beat : ''}
+              </th>
+            )}
+          </tr>
+        </thead>
+        <tbody>
+          {sequence.tracks.map((track) => {
+            const range = Note.range(new Note('C2'), new Note('C3')).reverse();
+            return flatten(
+              range.map((note, index) =>
+                <tr key={note.pitch}>
+                  {index === 0 && <td rowSpan={range.length}>{track.name}</td>}
+                  <td>{note.pitch}</td>
+                  {sequence.beats.map((beat) =>
+                    <td key={beat.key} style={{backgroundColor: currentBeat.equals(beat) ? 'lightgrey' : 'transparent'}}>
+                      <Checkbox
+                        value={hitValue(track, note, beat)}
+                        onChange={(value) => toggleHit(track, note, beat, value)}
+                      />
+                    </td>
+                  )}
+                </tr>
+              )
+            );
+          })}
+        </tbody>
+      </table>
+    </React.Fragment>
+  );
+});
+
+const Checkbox = React.memo(function Checkbox(props) {
   const checkboxRef = useRef(null);
 
   const indeterminate = props.value === 'indeterminate';
@@ -39,7 +170,7 @@ function Checkbox(props) {
 
   useEffect(() => {
     checkboxRef.current.indeterminate = indeterminate;
-  });
+  }, [indeterminate]);
 
   const handleChange = (e) => {
     const shiftWasPressed = e.nativeEvent.shiftKey;
@@ -65,7 +196,7 @@ function Checkbox(props) {
       onChange={handleChange}
     />
   );
-}
+});
 
 function useExcisedUponRemovalList(excisor) {
   const list = useRef([]);
@@ -116,11 +247,14 @@ function useKeyboard(audioContext, destination, voice) {
 }
 
 function useAudioContext() {
-  const ref = useRef(new (window.webkitAudioContext || window.AudioContext)());
+  const value = useMemo(() => {
+    return new (window.webkitAudioContext || window.AudioContext)();
+  });
+  const ref = useRef(value);
   return ref.current;
 }
 
-function usePlayer(audioContext, destination, sequencer) {
+function usePlayer(audioContext, destination, sequence) {
   const [currentBeat, setCurrentBeat] = useState(new Beat(1, [0, 0]));
   const [isPlaying, setIsPlaying] = useState(false);
   const exciseByPolicyAndAppend = useExcisedUponRemovalList((expiration) => expiration.expire());
@@ -129,13 +263,13 @@ function usePlayer(audioContext, destination, sequencer) {
   const expired = (expiration) => expiration.expiresBy(audioContext.currentTime);
 
   useInterval(() => {
-    const newPendingExpirations = sequencer.play(audioContext, destination, currentBeat);
+    const newPendingExpirations = sequence.play(audioContext, destination, currentBeat);
 
-    const nextBeat = currentBeat.plus(sequencer.tickSize, sequencer.timeSignature);
+    const nextBeat = currentBeat.plus(sequence.tickSize, sequence.timeSignature);
     setCurrentBeat(nextBeat);
 
     exciseByPolicyAndAppend(expired, newPendingExpirations);
-  }, isPlaying ? sequencer.secondsPerBeat() / sequencer.divisions * 1000 : null);
+  }, isPlaying ? sequence.secondsPerBeat() / sequence.divisions * 1000 : null);
 
   return [
     currentBeat,
@@ -150,12 +284,12 @@ function usePlayer(audioContext, destination, sequencer) {
   ];
 }
 
-function useSyncronizedSequencer(initialSequencer) {
-  const [sequencer, setSequencer] = useState(initialSequencer);
+function useSyncronizedSequence(initialSequence) {
+  const [sequence, setSequence] = useState(initialSequence);
   const server = new Server("http://10.0.0.245:8000/");
 
   async function load() {
-    set(Sequencer.parse(await server.read()));
+    set(Sequence.parse(await server.read()));
   }
 
   const doLoad = () => {
@@ -165,41 +299,111 @@ function useSyncronizedSequencer(initialSequencer) {
   useEffect(doLoad, []);
   useInterval(doLoad, 1000);
 
-  function publishAndSet(sequencer) {
-    server.write(sequencer);
-    set(sequencer);
+  function publishAndSet(sequence) {
+    server.write(sequence);
+    set(sequence);
   }
 
-  function set(sequencer) {
-    setSequencer(sequencer);
+  function set(sequence) {
+    setSequence(sequence);
   }
 
   return [
-    sequencer,
-    (newSequencer) => {
-      publishAndSet(newSequencer);
+    sequence,
+    (newSequence) => {
+      publishAndSet(newSequence);
     },
   ];
 }
 
-function App() {
-  const audioContext = useAudioContext();
+const layout = [
+  [
+    key("Digit1"),
+    key("Digit2"),
+    key("Digit3"),
+    key("Digit4"),
+    key("Digit5"),
+    key("Digit6"),
+    key("Digit7"),
+    key("Digit8"),
+    key("Digit9"),
+    key("Digit0"),
+    key("Minus"),
+    key("Equal"),
+  ],
+  [
+    offset(0.5),
+    key("KeyQ"),
+    key("KeyW"),
+    key("KeyE"),
+    key("KeyR"),
+    key("KeyT"),
+    key("KeyY"),
+    key("KeyU"),
+    key("KeyI"),
+    key("KeyO"),
+    key("KeyP"),
+    key("BracketLeft"),
+    key("BracketRight"),
+  ],
+  [
+    offset(0.8),
+    key("KeyA"),
+    key("KeyS"),
+    key("KeyD"),
+    key("KeyF"),
+    key("KeyG"),
+    key("KeyH"),
+    key("KeyJ"),
+    key("KeyK"),
+    key("KeyL"),
+    key("Semicolon"),
+    key("Quote"),
+  ],
+  [
+    offset(1),
+    key("KeyZ"),
+    key("KeyX"),
+    key("KeyC"),
+    key("KeyV"),
+    key("KeyB"),
+    key("KeyN"),
+    key("KeyM"),
+    key("Comma"),
+    key("Period"),
+    key("Slash"),
+    key("ShiftRight", 1.5),
+  ],
+];
 
+function useMainMix(audioContext) {
   const [level, setLevel] = useState(0.3);
 
-  const binding = new Binding(
-    new Gain(level),
-    null,
-    []
-  );
+  const destination = useRef(null);
 
-  const destination = binding.play(audioContext, audioContext.destination);
+  const rebuildBinding = () => {
+    destination.current = (new Binding(
+      new Gain(level),
+      null,
+      []
+    )).play(audioContext, audioContext.destination);
+  };
 
-  const [
-    sequencer,
-    setSequencer,
-  //] = useSyncronizedSequencer(Sequencer.fromNothing());
-  ] = useState(Sequencer.fromNothing(
+  if (destination.current === null) {
+    rebuildBinding();
+  }
+
+  useEffect(rebuildBinding, [audioContext, level]);
+
+  return [
+    level,
+    setLevel,
+    destination.current,
+  ];
+}
+
+function useSequenceState() {
+  const [sequence, setSequence] = useState(Sequence.fromNothing(
     new Filter(
       "lowpass",
       1000,
@@ -222,97 +426,25 @@ function App() {
     )
   ));
 
-  const setPatch = (newPatch) => {
-    setSequencer(sequencer.setTrack(0, sequencer.tracks[0].setVoice(newPatch)));
-  };
+  return [sequence, setSequence];
+}
+
+function App() {
+  const audioContext = useAudioContext();
+
+  const [sequence, setSequence] = useSequenceState();
 
   const [
-    currentBeat,
-    [isPlaying, playerSetIsPlaying],
-  ] = usePlayer(audioContext, destination, sequencer);
+    level,
+    setLevel,
+    destination,
+  ] = useMainMix(audioContext);
 
-  function hitValue(track, note, beat) {
-    const spanningHits = track.hits.filter((hit) => hit.spans(beat) && hit.note.equals(note));
-    const spanningHit = spanningHits[0];
-    if (spanningHit) {
-      return spanningHit.beginsOn(beat) ? true : 'indeterminate';
-    } else {
-      return false;
-    }
-  }
+  const setPatch = (newPatch) => {
+    setSequence(sequence.setTrack(0, sequence.tracks[0].setVoice(newPatch)));
+  };
 
-  function toggleHit(track, note, beat, value) {
-    const spanningHits = track.hits.filter((hit) => hit.spans(beat) && hit.note.equals(note));
-    const spanningHit = spanningHits[0];
-
-    const toRemove = [];
-    const toAdd = [];
-
-    if (value === true) {
-      // add a note on beat
-      if (spanningHit) {
-        throw new Error('tried to add note to beat which is already spanned');
-      } else {
-        toAdd.push(new Hit(note, beat, sequencer.tickSize));
-      }
-    } else if (value === 'indeterminate') {
-      // sustain an existing note further
-      const endsBeforeBeat = track.hits.filter((hit) => {
-        return hit.note.equals(note) && rationalLessEqual(hit.endingAsRational(), beat.toRational());
-      });
-
-      const hitWithClosestEnd = endsBeforeBeat.reduce((lastSoFar, candidate) => {
-        if (lastSoFar === null) {
-          return candidate;
-        }
-
-        const shouldTakeCandidate = rationalGreater(candidate.endingAsRational(), lastSoFar.endingAsRational());
-        return shouldTakeCandidate ? candidate : lastSoFar;
-      }, null);
-
-      const duration = rationalDifference(
-        beat.plus(sequencer.tickSize, sequencer.timeSignature).toRational(),
-        hitWithClosestEnd.beginningAsRational()
-      );
-      const adjusted = hitWithClosestEnd.adjustDurationTo(duration);
-
-      toRemove.push(spanningHit);
-      toAdd.push(adjusted);
-    } else if (value === false) {
-      // remove a hit, or shorten it
-      if (spanningHit) {
-        toRemove.push(spanningHit);
-        if (spanningHit.beginsOn(beat) === false) {
-          const duration = rationalDifference(beat.toRational(), spanningHit.beginningAsRational());
-          const adjusted = spanningHit.adjustDurationTo(duration);
-          toAdd.push(adjusted);
-        }
-      } else {
-        throw new Error('tried to remove a note for which no spanning hit could be found');
-      }
-    }
-
-    setSequencer(
-      sequencer.replaceTrack(
-        track,
-        toAdd.reduce(
-          (track, hit) => track.add(hit),
-          toRemove.reduce((track, hit) => track.without(hit), track)
-        )
-      )
-    );
-  }
-
-  function setTempo(newTempo) {
-    setSequencer(sequencer.setTempo(newTempo));
-  }
-
-  function setIsPlaying(newIsPlaying) {
-    silentPingToWakeAutoPlayGates(audioContext);
-    playerSetIsPlaying(newIsPlaying);
-  }
-
-  const [pressed, press, release] = useKeyboard(audioContext, destination, sequencer.tracks[0].voice);
+  const [pressed, press, release] = useKeyboard(audioContext, destination, sequence.tracks[0].voice);
   const [shift, setShift] = useState(0);
   const [mod, setMod] = useState(false);
 
@@ -385,66 +517,6 @@ function App() {
 
   useKeystrokeMonitor(onPress, onRelease);
 
-  const layout = [
-    [
-      key("Digit1"),
-      key("Digit2"),
-      key("Digit3"),
-      key("Digit4"),
-      key("Digit5"),
-      key("Digit6"),
-      key("Digit7"),
-      key("Digit8"),
-      key("Digit9"),
-      key("Digit0"),
-      key("Minus"),
-      key("Equal"),
-    ],
-    [
-      offset(0.5),
-      key("KeyQ"),
-      key("KeyW"),
-      key("KeyE"),
-      key("KeyR"),
-      key("KeyT"),
-      key("KeyY"),
-      key("KeyU"),
-      key("KeyI"),
-      key("KeyO"),
-      key("KeyP"),
-      key("BracketLeft"),
-      key("BracketRight"),
-    ],
-    [
-      offset(0.8),
-      key("KeyA"),
-      key("KeyS"),
-      key("KeyD"),
-      key("KeyF"),
-      key("KeyG"),
-      key("KeyH"),
-      key("KeyJ"),
-      key("KeyK"),
-      key("KeyL"),
-      key("Semicolon"),
-      key("Quote"),
-    ],
-    [
-      offset(1),
-      key("KeyZ"),
-      key("KeyX"),
-      key("KeyC"),
-      key("KeyV"),
-      key("KeyB"),
-      key("KeyN"),
-      key("KeyM"),
-      key("Comma"),
-      key("Period"),
-      key("Slash"),
-      key("ShiftRight", 1.5),
-    ],
-  ];
-
   return (
     <div className="App">
       <h1>Sequencer</h1>
@@ -455,47 +527,12 @@ function App() {
           onChange={(value) => setLevel(value)}
         />{' '}{Percentage(level)}
       </p>
-      <p><button onClick={() => setIsPlaying(!isPlaying)}>{isPlaying ? 'pause' : 'play'}</button></p>
-      <p><input type="number" value={sequencer.tempo} onChange={(e) => setTempo(parseInt(e.target.value, 10))} /></p>
-      <table className="Sequencer">
-        <thead>
-          <tr>
-            <th></th>
-            <th></th>
-            {sequencer.beats.map((beat) =>
-              <th key={beat.key} style={{backgroundColor: currentBeat.equals(beat) ? 'lightgrey' : 'transparent'}}>
-                {rationalEquals(beat.rational, [0, 0]) ? beat.beat : ''}
-              </th>
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {sequencer.tracks.map((track) => {
-            const range = Note.range(new Note('C2'), new Note('C3')).reverse();
-            return flatten(
-              range.map((note, index) =>
-                <tr key={note.pitch}>
-                  {index === 0 && <td rowSpan={range.length}>{track.name}</td>}
-                  <td>{note.pitch}</td>
-                  {sequencer.beats.map((beat) =>
-                    <td key={beat.key} style={{backgroundColor: currentBeat.equals(beat) ? 'lightgrey' : 'transparent'}}>
-                      <Checkbox
-                        value={hitValue(track, note, beat)}
-                        onChange={(value) => toggleHit(track, note, beat, value)}
-                      />
-                    </td>
-                  )}
-                </tr>
-              )
-            );
-          })}
-        </tbody>
-      </table>
+      <Sequencer audioContext={audioContext} destination={destination} sequence={sequence} setSequence={setSequence} />
 
       <h1>Keyboard</h1>
       <p>Shift: {shift}</p>
       <Keyboard layout={layout} mapping={mapping} pressed={keysDownCurrently} onPress={onPress} onRelease={onRelease} />
-      <PatchEditor patch={sequencer.tracks[0].voice} setPatch={setPatch} />
+      <PatchEditor patch={sequence.tracks[0].voice} setPatch={setPatch} />
     </div>
   );
 }

@@ -4,6 +4,18 @@ import Beat from "./music/Beat.js";
 import TimeSignature from "./music/TimeSignature.js";
 import { range, flatten, rationalEquals, rationalSum, rationalGreaterEqual, rationalLess, rationalDifference, rationalAsFloat } from "./math.js";
 
+const unique = (item, index, list) => {
+  return list.indexOf(item) === index;
+};
+
+const memo = (that, property, getter) => {
+  if (that.hasOwnProperty(property) === false) {
+    that[property] = getter();
+  }
+
+  return that[property];
+}
+
 class Expiration {
   /**
    * @param {Binding} binding
@@ -83,6 +95,14 @@ class Track {
       object.hits.map((hit) => Hit.parse(hit))
     );
   }
+  findHits(filters) {
+    return this.hits.filter((hit) => {
+      return true
+        && filters.hasOwnProperty("note") && hit.note.equals(filters.note)
+        && filters.hasOwnProperty("spans") && hit.spans(filters.spans)
+        && true;
+    });
+  }
   hitsOnBeat(beat) {
     return this.hits.filter((hit) => hit.beat.equals(beat));
   }
@@ -122,7 +142,7 @@ class Track {
   }
 }
 
-export class Sequencer {
+export class Sequence {
   constructor(tempo, tracks, timeSignature) {
     this.tempo = tempo;
     this.tracks = tracks;
@@ -150,7 +170,7 @@ export class Sequencer {
       };
     }
 
-    return new Sequencer(
+    return new Sequence(
       120,
       [
         new Track(
@@ -169,24 +189,26 @@ export class Sequencer {
     );
   }
   static parse(object) {
-    return new Sequencer(
+    return new Sequence(
       object.tempo,
       object.tracks.map((trackObject) => Track.parse(trackObject)),
       object.timeSignature
     );
   }
   get beats() {
-    return flatten(
-      range(1, this.timeSignature.beats).map((beat) => {
-        return range(0, this.divisions - 1).map((numerator) => new Beat(beat, [numerator, this.divisions]));
-      })
-    );
+    return memo(this, '_beats', () => {
+      return flatten(
+        range(1, this.timeSignature.beats).map((beat) => {
+          return range(0, this.divisions - 1).map((numerator) => new Beat(beat, [numerator, this.divisions]));
+        })
+      );
+    });
   }
   toggleHit(givenTrack, hit) {
     return this.replaceTrack(givenTrack, givenTrack.toggle(hit));
   }
   replaceTrack(before, after) {
-    return new Sequencer(
+    return new Sequence(
       this.tempo,
       this.tracks.map((track) => track === before ? after : track),
       this.timeSignature
@@ -229,7 +251,7 @@ export class Sequencer {
     return expirations;
   }
   setTempo(newTempo) {
-    return new Sequencer(
+    return new Sequence(
       newTempo,
       this.tracks,
       this.timeSignature
@@ -239,7 +261,7 @@ export class Sequencer {
     const tracks = this.tracks.slice();
     tracks[index] = track;
 
-    return new Sequencer(
+    return new Sequence(
       this.tempo,
       tracks,
       this.timeSignature
