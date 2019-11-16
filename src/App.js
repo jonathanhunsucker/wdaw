@@ -86,6 +86,9 @@ const Sequencer = React.memo(function Sequencer(props) {
       }, null);
 
       const duration = rationalDifference(
+        // BUG plus wraps modulo timeSignature, causing an negative difference, which explodes
+        // IDEA separate modulo behavior into a helper, leaving plus to do straight math
+        // IDEA replace plus with context-specific addition behavior, optionally employing modulo (where applicable to context)
         beat.plus(sequence.tickSize, sequence.timeSignature).toRational(),
         hitWithClosestEnd.beginningAsRational()
       );
