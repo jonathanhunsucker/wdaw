@@ -7,6 +7,7 @@ import useInterval from "./useInterval.js";
 import useKeystrokeMonitor from "./useKeystrokeMonitor.js";
 import useSet from "./useSet.js";
 import useDestructiveReadMap from "./useDestructiveReadMap.js";
+import useKeyboard from "./useKeyboard.js";
 
 import { DumpJson } from "./debug.js";
 import { key, offset, Keyboard } from "./Keyboard.js";
@@ -14,47 +15,6 @@ import PatchEditor, { ScaledInput, Percentage } from "./PatchEditor.js";
 import { Mapping, Handler } from "./KeyCommand.js";
 import { Sequence, Hit, Percussion } from "./Sequence.js";
 import { Sequencer } from "./Sequencer.js";
-
-function removeFirst(criteria) {
-  var hasRemoved = false;
-  return (item) => {
-    const shouldRemove = criteria(item);
-    if (shouldRemove === true && hasRemoved === false) {
-      hasRemoved = true;
-      return false;
-    }
-
-    return true;
-  };
-}
-
-function useKeyboard(audioContext, destination, voice) {
-  const [pressed, setPressed] = useState([]);
-
-  const press = (note) => {
-    const binding = voice.bind(note.frequency);
-    binding.play(audioContext, destination);
-    setPressed((p) => p.concat([[note.pitch, binding]]));
-  };
-
-  const release = (note) => {
-    const pitchMatches = (pair) => pair[0] === note.pitch;
-
-    setPressed((p) => {
-      const candidates = p.filter(pitchMatches);
-      if (candidates.length > 0) {
-        candidates[0][1].release(audioContext);
-      }
-      return p.filter(removeFirst(pitchMatches));
-    });
-  };
-
-  return [
-    pressed,
-    press,
-    release,
-  ];
-}
 
 function useAudioContext() {
   const value = useMemo(() => {
