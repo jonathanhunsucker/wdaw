@@ -90,7 +90,7 @@ function usePlayer(audioContext, destination, sequencer) {
   const exciseByPolicyAndAppend = useExcisedUponRemovalList((expiration) => expiration.expire());
 
   const all = (expiration) => true;
-  const expired = (expiration) => expiration.isExpired();
+  const expired = (expiration) => expiration.expiresBy(audioContext.currentTime);
 
   useInterval(() => {
     const newPendingExpirations = sequencer.play(audioContext, destination, currentBeat);

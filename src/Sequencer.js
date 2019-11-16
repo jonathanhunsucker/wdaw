@@ -7,14 +7,14 @@ import { range, flatten, rationalEquals, rationalSum, rationalGreaterEqual, rati
 class Expiration {
   /**
    * @param {Binding} binding
+   * @param {float} expiresOn
    */
-  constructor(binding) {
+  constructor(binding, expiresOn) {
     this.binding = binding;
-    this.timer = 10;// todo replace with beat-based expiration, in way that's compatible with multiple measures
+    this.expiresOn = expiresOn;
   }
-  isExpired() {
-    this.timer--;
-    return this.timer < 0;
+  expiresBy(moment) {
+    return moment > this.expiresOn;
   }
   expire() {
     this.binding.stop();
@@ -198,10 +198,15 @@ export class Sequencer {
    * @returns {Expiration[]}
    */
   play(audioContext, destination, beat) {
+    const now = audioContext.currentTime;
+
     const expirations = flatten(
       this.tracks.map((track) => {
         return track.hitsOnBeat(beat).map((hit) => {
-          return new Expiration(track.voice.bind(hit.note.frequency));
+          const boundVoice = track.voice.bind(hit.note.frequency);
+          const expiresOn = now + rationalAsFloat(hit.duration) * this.secondsPerBeat();
+
+          return new Expiration(boundVoice, expiresOn);
         });
       })
     );
