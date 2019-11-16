@@ -286,11 +286,10 @@ function usePlayer(audioContext, destination, sequence) {
 
   useInterval(() => {
     const newPendingExpirations = sequence.play(audioContext, destination, currentBeat);
+    exciseByPolicyAndAppend(expired, newPendingExpirations);
 
     const nextBeat = currentBeat.plus(sequence.tickSize, sequence.timeSignature);
     setCurrentBeat(nextBeat);
-
-    exciseByPolicyAndAppend(expired, newPendingExpirations);
   }, isPlaying ? sequence.secondsPerBeat() / sequence.divisions * 1000 : null);
 
   return [
