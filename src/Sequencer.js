@@ -4,9 +4,10 @@ import { silentPingToWakeAutoPlayGates } from "@jonathanhunsucker/audio-js";
 
 import Beat from "./music/Beat.js";
 import useExcisedUponRemovalList from "./useExcisedUponRemovalList.js";
+import { flatten, rationalEquals, rationalDifference, rationalGreater, rationalLessEqual } from "./math.js";
+
 import useInterval from "./useInterval.js";
 import Checkbox from "./Checkbox.js";
-import { flatten, rationalEquals, rationalDifference, rationalGreater, rationalLessEqual } from "./math.js";
 
 function usePlayer(audioContext, destination, sequence) {
   const [currentBeat, setCurrentBeat] = useState(new Beat(1, [0, 0]));
@@ -17,6 +18,9 @@ function usePlayer(audioContext, destination, sequence) {
   const expired = (expiration) => expiration.expiresBy(audioContext.currentTime);
 
   useInterval(() => {
+    // BUG timing is off when the main thread is locked up, eg. when doing lots of re-renders
+    // FIXIDEA keep track of main thread utilization, and spend time optimizing it when it gets bad
+    // FIXIDEA replacement setTimeout-based timing with scheduled playing
     const newPendingExpirations = sequence.play(audioContext, destination, currentBeat);
     exciseByPolicyAndAppend(expired, newPendingExpirations);
 
