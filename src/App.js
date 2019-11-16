@@ -112,7 +112,14 @@ function useMainMix(audioContext) {
 }
 
 function useSequenceState() {
-  const [sequence, setSequence] = useState(Sequence.fromNothing());
+  const [sequence, setSequenceInternal] = useState(Sequence.fromNothing());
+  const setSequence = useMemo(() => {
+    return (replacement) => {
+      const index = sequence.tracks.indexOf(selectedTrack);
+      setSequenceInternal(replacement);
+      setSelectedTrack(replacement.tracks[index]);
+    };
+  }, [sequence]);
 
   const [selectedTrack, setSelectedTrack] = useState(sequence.tracks[0]);
 
@@ -120,12 +127,9 @@ function useSequenceState() {
   const setSelectedPatch = useMemo(
     () => {
       return (patch) => {
-        setSequence(
-          sequence.replaceTrack(
-            selectedTrack,
-            selectedTrack.setVoice(patch)
-          )
-        );
+        const replacement = selectedTrack.setVoice(patch);
+        setSequence(sequence.replaceTrack(selectedTrack, replacement));
+        setSelectedTrack(replacement);
       };
     },
     [sequence, selectedTrack]
