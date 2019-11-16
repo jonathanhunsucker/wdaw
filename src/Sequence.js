@@ -109,10 +109,9 @@ export class Hit {
 }
 
 class Track {
-  constructor(name, kind, defaultHitDuration, voice, hits, notes) {
+  constructor(name, kind, voice, hits, notes) {
     this.name = name;
     this.kind = kind;
-    this.defaultHitDuration = defaultHitDuration;
     this.voice = voice;
     this.hits = hits;
     this.notes = notes;
@@ -121,7 +120,6 @@ class Track {
     return new Track(
       object.name || 'Untitled track',
       object.kind,
-      object.defaultHitDuration,
       stageFactory(object.voice),
       object.hits.map((hit) => Hit.parse(hit)),
       object.notes.map((note) => UniversalNoteParser.parse(note))
@@ -130,6 +128,11 @@ class Track {
   supports(feature) {
     if (feature === 'sustain') return this.kind === 'keys';
     throw new Error(`Unknown feature \`${feature}\``);
+  }
+  getDefaultHitDuration() {
+    if (this.kind === 'keys') return [1, 4];
+    if (this.kind === 'drums') return [0, 0];
+    throw new Error(`Unknown track kind \`${this.kind}\``);
   }
   findHits(filters) {
     return this.hits.filter((hit) => {
@@ -153,7 +156,6 @@ class Track {
     return new Track(
       this.name,
       this.kind,
-      this.defaultHitDuration,
       this.voice,
       this.hits.concat(hit),
       this.notes
@@ -163,7 +165,6 @@ class Track {
     return new Track(
       this.name,
       this.kind,
-      this.defaultHitDuration,
       this.voice,
       this.hits.filter((hit) => subject.equals(hit) === false),
       this.notes
@@ -173,7 +174,6 @@ class Track {
     return new Track(
       this.name,
       this.kind,
-      this.defaultHitDuration,
       this.voice,
       this.hits.filter((hit) => hit !== toRemove),
       this.notes
@@ -183,7 +183,6 @@ class Track {
     return new Track(
       this.name,
       this.kind,
-      this.defaultHitDuration,
       voice,
       this.hits,
       this.notes
@@ -234,7 +233,6 @@ export class Sequence {
         new Track(
           "Track 1",
           'keys',
-          [1, 4],
           new Filter(
             "lowpass",
             1000,
@@ -266,7 +264,6 @@ export class Sequence {
         new Track(
           "Track 2",
           'drums',
-          [0, 0],
           new Filter(
             "bandpass",
             12000,
