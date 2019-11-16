@@ -345,7 +345,8 @@ export class Sequence {
       this.tracks.map((track) => {
         return track.hitsOnBeat(beat).map((hit) => {
           const boundVoice = track.voice.bind(hit.note.frequency);
-          const expiresOn = now + rationalAsFloat(hit.duration) * this.secondsPerBeat();
+          // BUG 50ms breathing room, should be determined by the track's voice, not hardcoded
+          const expiresOn = now + Math.max(rationalAsFloat(hit.duration) * this.secondsPerBeat(), 0.050);
 
           return new Expiration(boundVoice, expiresOn);
         });
