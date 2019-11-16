@@ -6,7 +6,7 @@ import { range, flatten, rationalEquals, rationalSum, rationalGreaterEqual, rati
 
 // will walk and talk like a note, but for representing percusive notes instead of scientific pitch notation
 // eventually, should be rolled back into music-js
-class Percussion {
+export class Percussion {
   constructor(pitch) {
     this.pitch = pitch;
   }
