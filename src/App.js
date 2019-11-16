@@ -6,7 +6,7 @@ import { Sequencer, Hit } from "./Sequencer.js";
 import useInterval from "./useInterval.js";
 import { Note } from "@jonathanhunsucker/music-js";
 import Beat from "./music/Beat.js";
-import { flatten, rationalEquals } from "./math.js";
+import { flatten, rationalDifference } from "./math.js";
 import { DumpJson } from "./debug.js";
 
 import { Gain, Binding, Filter, Envelope, Wave, Noise, silentPingToWakeAutoPlayGates } from "@jonathanhunsucker/audio-js";
@@ -260,7 +260,16 @@ function App() {
       // TODO
     } else if (value === false) {
       // remove a hit, or shorten it
-      // TODO
+      if (spanningHit) {
+        toRemove.push(spanningHit);
+        if (spanningHit.beginsOn(beat) === false) {
+          const duration = rationalDifference(beat.toRational(), spanningHit.beginningAsRational());
+          const adjusted = spanningHit.adjustDurationTo(duration);
+          toAdd.push(adjusted);
+        }
+      } else {
+        throw new Error('tried to remove a note for which no spanning hit could be found');
+      }
     }
 
     setSequencer(

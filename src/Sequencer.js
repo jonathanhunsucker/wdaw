@@ -61,6 +61,13 @@ export class Hit {
   equals(hit) {
     return this.note.equals(hit.note) && this.beat.equals(hit.beat) && rationalEquals(this.duration, hit.duration);
   }
+  adjustDurationTo(duration) {
+    return new Hit(
+      this.note,
+      this.beat,
+      duration
+    );
+  }
 }
 
 class Track {
