@@ -158,7 +158,7 @@ function App() {
     return Note.fromStepsFromMiddleA(note.stepsFromMiddleA + shift);
   };
 
-  if (selectedTrack === 0) {
+  if (selectedTrack.kind === 'keys') {
     const noteHandler = (note) => new Handler(translate(note).pitch, () => {
       press(translate(note));
       return () => {
@@ -204,7 +204,7 @@ function App() {
       'Minus': new Handler(`-${nudgeSize}`, () => setShift((s) => s - nudgeSize)),
       'Equal': new Handler(`+${nudgeSize}`, () => setShift((s) => s + nudgeSize)),
     });
-  } else {
+  } else if (selectedTrack.kind === 'drums') {
     const percussionHandler = (pitch, label) => new Handler(label || pitch, () => {
       press(pitch);
       return () => {};
@@ -214,6 +214,8 @@ function App() {
       'KeyX': percussionHandler('Snare'),
       'KeyC': percussionHandler('ClosedHat', 'Hat'),
     });
+  } else {
+    throw new Error(`Unknown track kind \`${selectedTrack.kind}\``);
   }
 
   const [keysDownCurrently, add, remove] = useSet([]);
