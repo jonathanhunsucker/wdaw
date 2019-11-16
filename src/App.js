@@ -159,13 +159,13 @@ function useSequenceState() {
 function App() {
   const audioContext = useAudioContext();
 
-  const [sequence, setSequence] = useSequenceState();
-
   const [
     level,
     setLevel,
     destination,
   ] = useMainMix(audioContext);
+
+  const [sequence, setSequence] = useSequenceState();
 
   const [selectedTrack, setSelectedTrack] = useState(1);
   const [selectedPatch, setSelectedPatch] = [
@@ -255,6 +255,7 @@ function App() {
     add(code);
     put(code, mapping.onPress(code));
   };
+
   const onRelease = (code) => {
     remove(code);
     const handler = read(code);
