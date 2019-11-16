@@ -185,6 +185,11 @@ export class Sequencer {
       this.timeSignature
     );
   }
+  secondsPerBeat() {
+    const minutesPerBeat = 1 / this.tempo;
+    const secondsPerBeat = minutesPerBeat * 60;
+    return secondsPerBeat;
+  }
   /**
    * @param {AudioContext} audioContext
    * @param {AudioNode} destination

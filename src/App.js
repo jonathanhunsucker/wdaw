@@ -95,12 +95,11 @@ function usePlayer(audioContext, destination, sequencer) {
   useInterval(() => {
     const newPendingExpirations = sequencer.play(audioContext, destination, currentBeat);
 
-    const tickSize = [1, sequencer.divisions];
-    const nextBeat = currentBeat.plus(tickSize, sequencer.timeSignature);
+    const nextBeat = currentBeat.plus(sequencer.tickSize, sequencer.timeSignature);
     setCurrentBeat(nextBeat);
 
     exciseByPolicyAndAppend(expired, newPendingExpirations);
-  }, isPlaying ? 1000 / (sequencer.tempo / 60 * sequencer.divisions) : null);
+  }, isPlaying ? sequencer.secondsPerBeat() / sequencer.divisions * 1000 : null);
 
   return [
     currentBeat,
