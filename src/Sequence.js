@@ -259,7 +259,25 @@ export class Sequence {
         new Track(
           "Track 2",
           [0, 0],
-          new Noise(),
+          new Filter(
+            "bandpass",
+            12000,
+            1,
+            null,
+            [
+              new Envelope(
+                {
+                  attack: 0.001,
+                  decay: 0.100,
+                  sustain: 0,
+                  release: 0.500,
+                },
+                [
+                  new Noise(),
+                ]
+              ),
+            ]
+          ),
           flatten([
             on(1, [0, 0]).hit(['Kick']).for([0, 0]),
             on(1, [0, 0]).hit(['ClosedHat']).for([0, 0]),
