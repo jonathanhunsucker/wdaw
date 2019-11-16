@@ -124,10 +124,11 @@ class Track {
   }
   findHits(filters) {
     return this.hits.filter((hit) => {
-      return true
-        && filters.hasOwnProperty("note") && hit.note.equals(filters.note)
-        && filters.hasOwnProperty("spans") && hit.spans(filters.spans)
-        && true;
+      if (filters.hasOwnProperty('note') && !hit.note.equals(filters.note)) return false;
+      if (filters.hasOwnProperty('spans') && !hit.spans(filters.spans)) return false;
+      if (filters.hasOwnProperty('beginningOn') && !hit.beginsOn(filters.beginningOn)) return false;
+
+      return true;
     });
   }
   hitsOnBeat(beat) {

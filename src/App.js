@@ -39,11 +39,13 @@ const Sequencer = React.memo(function Sequencer(props) {
   ] = usePlayer(props.audioContext, props.destination, sequence);
 
   function hitValue(track, note, beat) {
-    const spanningHits = track.findHits({spans: beat, note: note})
-    const spanningHit = spanningHits[0];
+    const spanningHit = track.findHits({spans: beat, note: note})[0]
     if (spanningHit) {
       return spanningHit.beginsOn(beat) ? true : 'indeterminate';
     } else {
+      if (track.findHits({beginningOn: beat, note: note})[0]) {
+        return true;
+      }
       return false;
     }
   }
