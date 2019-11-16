@@ -201,12 +201,19 @@ function App() {
   ] = useMainMix(audioContext);
 
   const [selectedTrack, setSelectedTrack] = useState(1);
+  const [selectedPatch, setSelectedPatch] = [
+    sequence.tracks[selectedTrack].voice,
+    (patch) => {
+      setSequence(
+        sequence.setTrack(
+          selectedTrack,
+          sequence.tracks[selectedTrack].setVoice(newPatch)
+        )
+      );
+    },
+  ];
 
-  const setPatch = (newPatch) => {
-    setSequence(sequence.setTrack(selectedTrack, sequence.tracks[selectedTrack].setVoice(newPatch)));
-  };
-
-  const [pressed, press, release] = useKeyboard(audioContext, destination, sequence.tracks[selectedTrack].voice);
+  const [pressed, press, release] = useKeyboard(audioContext, destination, selectedPatch);
 
   const [shift, setShift] = useState(0);
   const [mod, setMod] = useState(false);
@@ -316,7 +323,7 @@ function App() {
       <Keyboard layout={layout} mapping={mapping} pressed={keysDownCurrently} onPress={onPress} onRelease={onRelease} />
 
       <h2>Patch</h2>
-      <PatchEditor patch={sequence.tracks[selectedTrack].voice} setPatch={setPatch} />
+      <PatchEditor patch={selectedPatch} setPatch={setSelectedPatch} />
     </div>
   );
 }
