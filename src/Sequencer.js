@@ -78,6 +78,13 @@ class Track {
       this.hits.filter((hit) => subject.equals(hit) === false)
     );
   }
+  without(toRemove) {
+    return new Track(
+      this.name,
+      this.voice,
+      this.hits.filter((hit) => hit !== toRemove)
+    );
+  }
   setVoice(voice) {
     return new Track(
       this.name,
@@ -145,11 +152,12 @@ export class Sequencer {
     );
   }
   toggleHit(givenTrack, hit) {
+    return this.replaceTrack(givenTrack, givenTrack.toggle(hit));
+  }
+  replaceTrack(before, after) {
     return new Sequencer(
       this.tempo,
-      this.tracks.map((track) => {
-        return track === givenTrack ? track.toggle(hit) : track;
-      }),
+      this.tracks.map((track) => track === before ? after : track),
       this.timeSignature
     );
   }
