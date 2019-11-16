@@ -172,9 +172,8 @@ export const Sequencer = React.memo(function Sequencer(props) {
                     <input
                       type="radio"
                       id={`track-${trackIndex}`}
-                      value={trackIndex}
-                      checked={trackIndex === props.selectedTrack}
-                      onChange={(e) => {props.setSelectedTrack(parseInt(e.target.value, 10));}}
+                      checked={track === props.selectedTrack}
+                      onChange={() => props.setSelectedTrack(track)}
                     />{' '}
                     <label htmlFor={`track-${trackIndex}`}>{track.name}</label>
                   </td>}

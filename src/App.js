@@ -113,19 +113,17 @@ function useMainMix(audioContext) {
 
 function useSequenceState() {
   const [sequence, setSequence] = useState(Sequence.fromNothing());
-  return [sequence, setSequence];
-}
 
-function useSelectedPatch(sequence, selectedTrack) {
-  const selectedPatch = sequence.tracks[selectedTrack].voice;
+  const [selectedTrack, setSelectedTrack] = useState(sequence.tracks[0]);
 
+  const selectedPatch = selectedTrack.voice;
   const setSelectedPatch = useMemo(
     () => {
       return (patch) => {
         setSequence(
-          sequence.setTrack(
+          sequence.replaceTrack(
             selectedTrack,
-            sequence.tracks[selectedTrack].setVoice(patch)
+            selectedTrack.setVoice(patch)
           )
         );
       };
@@ -134,8 +132,9 @@ function useSelectedPatch(sequence, selectedTrack) {
   );
 
   return [
-    selectedPatch,
-    setSelectedPatch,
+    [sequence, setSequence],
+    [selectedTrack, setSelectedTrack],
+    [selectedPatch, setSelectedPatch],
   ];
 }
 
@@ -143,9 +142,11 @@ function App() {
   const audioContext = useAudioContext();
 
   const [level, setLevel, destination] = useMainMix(audioContext);
-  const [sequence, setSequence] = useSequenceState();
-  const [selectedTrack, setSelectedTrack] = useState(0);
-  const [selectedPatch, setSelectedPatch] = useSelectedPatch(sequence, selectedTrack);
+  const [
+    [sequence, setSequence],
+    [selectedTrack, setSelectedTrack],
+    [selectedPatch, setSelectedPatch],
+  ] = useSequenceState();
 
   const [pressed, press, release] = useKeyboard(audioContext, destination, selectedPatch);
 

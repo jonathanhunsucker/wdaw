@@ -370,14 +370,4 @@ export class Sequence {
       this.timeSignature
     );
   }
-  setTrack(index, track) {
-    const tracks = this.tracks.slice();
-    tracks[index] = track;
-
-    return new Sequence(
-      this.tempo,
-      tracks,
-      this.timeSignature
-    );
-  }
 };
