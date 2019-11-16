@@ -108,8 +108,9 @@ export class Hit {
 }
 
 class Track {
-  constructor(name, voice, hits, notes) {
+  constructor(name, defaultHitDuration, voice, hits, notes) {
     this.name = name;
+    this.defaultHitDuration = defaultHitDuration;
     this.voice = voice;
     this.hits = hits;
     this.notes = notes;
@@ -117,6 +118,7 @@ class Track {
   static parse(object) {
     return new Track(
       object.name || 'Untitled track',
+      object.defaultHitDuration,
       stageFactory(object.voice),
       object.hits.map((hit) => Hit.parse(hit)),
       object.notes.map((note) => UniversalNoteParser.parse(note))
@@ -143,6 +145,7 @@ class Track {
   add(hit) {
     return new Track(
       this.name,
+      this.defaultHitDuration,
       this.voice,
       this.hits.concat(hit),
       this.notes
@@ -151,6 +154,7 @@ class Track {
   remove(subject) {
     return new Track(
       this.name,
+      this.defaultHitDuration,
       this.voice,
       this.hits.filter((hit) => subject.equals(hit) === false),
       this.notes
@@ -159,6 +163,7 @@ class Track {
   without(toRemove) {
     return new Track(
       this.name,
+      this.defaultHitDuration,
       this.voice,
       this.hits.filter((hit) => hit !== toRemove),
       this.notes
@@ -167,6 +172,7 @@ class Track {
   setVoice(voice) {
     return new Track(
       this.name,
+      this.defaultHitDuration,
       voice,
       this.hits,
       this.notes
@@ -216,6 +222,7 @@ export class Sequence {
       [
         new Track(
           "Track 1",
+          [1, 4],
           new Filter(
             "lowpass",
             1000,
@@ -231,7 +238,6 @@ export class Sequence {
                 },
                 [
                   new Wave('triangle'),
-                  //new Noise(),
                 ],
               ),
             ]
@@ -247,6 +253,7 @@ export class Sequence {
         ),
         new Track(
           "Track 2",
+          [0, 0],
           new Noise(),
           flatten([
             on(1, [0, 0]).hit(['Kick']).for([0, 0]),

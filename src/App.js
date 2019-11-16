@@ -61,7 +61,7 @@ const Sequencer = React.memo(function Sequencer(props) {
       if (spanningHit) {
         throw new Error('tried to add note to beat which is already spanned');
       } else {
-        toAdd.push(new Hit(note, beat, sequence.tickSize));
+        toAdd.push(new Hit(note, beat, track.defaultHitDuration));
       }
     } else if (value === 'indeterminate') {
       // sustain an existing note further
