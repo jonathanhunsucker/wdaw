@@ -121,20 +121,25 @@ export class Sequencer {
     this.tracks = tracks;
     this.timeSignature = new TimeSignature(4, 4);
     this.divisions = 4;
+    this.tickSize = [1, 4];
   }
   static fromNothing(patch) {
     /**
      * Factory method for building a list of hits on this beat, for a list of notes.
      *
-     * eg. `on(2).hit(['C2'])`
+     * eg. `on(2).hit(['C2']).for([1, 4])`
      *
      * @param {Number} beat
      * @param {[Number, Number]} rational
-     * @return {hit: f(Note[]) => Hit[]}
+     * @return {hit: f(Note[]) => {for: f([integer, integer]) => Hit[]}}
      */
     const on = (beat, rational) => {
       return {
-        hit: (pitches) => pitches.map((pitch) => new Hit(new Note(pitch), new Beat(beat, rational))),
+        hit: (pitches) => {
+          return {
+            for: (duration) => pitches.map((pitch) => new Hit(new Note(pitch), new Beat(beat, rational), duration)),
+          };
+        },
       };
     }
 
@@ -145,13 +150,11 @@ export class Sequencer {
           "Track 1",
           patch,
           flatten([
-            on(2, [0, 0]).hit(['C2']),
-            on(2, [0, 0]).hit(['D#2']),
-            on(2, [0, 0]).hit(['G2']),
-            on(3, [2, 4]).hit(['C3']),
-            on(4, [0, 0]).hit(['C3']),
-            on(4, [1, 4]).hit(['C3']),
-            on(4, [1, 2]).hit(['C3']),
+            on(2, [0, 0]).hit(['C2', 'D#2', 'G2']).for([1, 1]),
+            on(3, [2, 4]).hit(['C3']).for([1, 4]),
+            on(4, [0, 0]).hit(['C3']).for([1, 4]),
+            on(4, [1, 4]).hit(['C3']).for([1, 4]),
+            on(4, [1, 2]).hit(['C3']).for([1, 4]),
           ])
         ),
       ],
