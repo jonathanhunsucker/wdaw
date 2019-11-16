@@ -41,6 +41,14 @@ export function leastCommonMultiplier(x, y) {
   return (x + y) / greatestCommonDivisor(x, y);
 }
 
+export function rationalAsFloat(rational) {
+  if (rationalIsZero(rational)) {
+    return 0;
+  }
+
+  return rational[0] / rational[1];
+}
+
 export function rationalIsZero(rational) {
   return rational[0] === 0 && rational[1] === 0;
 }
@@ -55,9 +63,37 @@ export function rationalSum(left, right) {
   return reduceRational([left[0] * right[1] + right[0] * left[1], left[1] * right[1]]);
 }
 
+export function rationalDifference(left, right) {
+  if (rationalGreaterEqual(left, right) === false) {
+    throw new Error('not subtracting larger rational from smaller');
+  }
+
+  if (rationalIsZero(right)) {
+    return left;
+  }
+
+  return reduceRational([
+    left[0] * right[1] - right[0] * left[1],
+    left[1] * right[1],
+  ]);
+}
+
 export function rationalGreaterEqual(left, right) {
   return left[0] * right[1] >= left[1] * right[0];
 }
+
+export function rationalLessEqual(left, right) {
+  return left[0] * right[1] <= left[1] * right[0];
+}
+
+export function rationalGreater(left, right) {
+  return left[0] * right[1] > left[1] * right[0];
+}
+
+export function rationalLess(left, right) {
+  return left[0] * right[1] < left[1] * right[0];
+}
+
 
 export function rationalEquals(left, right) {
   if (left[0] === 0 || right[0] === 0) {
