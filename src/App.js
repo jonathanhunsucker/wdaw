@@ -116,24 +116,36 @@ function useSequenceState() {
   return [sequence, setSequence];
 }
 
+function useSelectedPatch(sequence, selectedTrack) {
+  const selectedPatch = sequence.tracks[selectedTrack].voice;
+
+  const setSelectedPatch = useMemo(
+    () => {
+      return (patch) => {
+        setSequence(
+          sequence.setTrack(
+            selectedTrack,
+            sequence.tracks[selectedTrack].setVoice(patch)
+          )
+        );
+      };
+    },
+    [sequence, selectedTrack]
+  );
+
+  return [
+    selectedPatch,
+    setSelectedPatch,
+  ];
+}
+
 function App() {
   const audioContext = useAudioContext();
 
   const [level, setLevel, destination] = useMainMix(audioContext);
   const [sequence, setSequence] = useSequenceState();
-
-  const [selectedTrack, setSelectedTrack] = useState(1);
-  const [selectedPatch, setSelectedPatch] = [
-    sequence.tracks[selectedTrack].voice,
-    (patch) => {
-      setSequence(
-        sequence.setTrack(
-          selectedTrack,
-          sequence.tracks[selectedTrack].setVoice(newPatch)
-        )
-      );
-    },
-  ];
+  const [selectedTrack, setSelectedTrack] = useState(0);
+  const [selectedPatch, setSelectedPatch] = useSelectedPatch(sequence, selectedTrack);
 
   const [pressed, press, release] = useKeyboard(audioContext, destination, selectedPatch);
 
