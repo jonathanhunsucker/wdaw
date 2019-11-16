@@ -553,7 +553,6 @@ function App() {
       />
 
       <h2>Keyboard</h2>
-      <p>Shift: {shift}</p>
       <Keyboard layout={layout} mapping={mapping} pressed={keysDownCurrently} onPress={onPress} onRelease={onRelease} />
 
       <h2>Patch</h2>
