@@ -185,7 +185,26 @@ export class Sequence {
       [
         new Track(
           "Track 1",
-          patch,
+          new Filter(
+            "lowpass",
+            1000,
+            1,
+            null,
+            [
+              new Envelope(
+                {
+                  attack: 0.01,
+                  decay: 0.2,
+                  sustain: 0.2,
+                  release: 0.5,
+                },
+                [
+                  new Wave('triangle'),
+                  //new Noise(),
+                ],
+              ),
+            ]
+          ),
           flatten([
             on(2, [0, 0]).hit(['C2', 'D#2', 'G2']).for([1, 1]),
             on(3, [2, 4]).hit(['C3']).for([1, 4]),

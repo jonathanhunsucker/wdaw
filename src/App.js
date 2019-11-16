@@ -405,29 +405,7 @@ function useMainMix(audioContext) {
 }
 
 function useSequenceState() {
-  const [sequence, setSequence] = useState(Sequence.fromNothing(
-    new Filter(
-      "lowpass",
-      1000,
-      1,
-      null,
-      [
-        new Envelope(
-          {
-            attack: 0.01,
-            decay: 0.2,
-            sustain: 0.2,
-            release: 0.5,
-          },
-          [
-            new Wave('triangle'),
-            //new Noise(),
-          ],
-        ),
-      ]
-    )
-  ));
-
+  const [sequence, setSequence] = useState(Sequence.fromNothing());
   return [sequence, setSequence];
 }
 
