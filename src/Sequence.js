@@ -51,10 +51,11 @@ class Expiration {
     this.expiresOn = expiresOn;
   }
   expiresBy(moment) {
-    return moment > this.expiresOn;
+    const doesExpire = moment > this.expiresOn;
+    return doesExpire;
   }
   expire() {
-    this.binding.stop();
+    this.binding.release();
   }
 }
 

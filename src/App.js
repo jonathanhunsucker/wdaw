@@ -255,7 +255,7 @@ function useKeyboard(audioContext, destination, voice) {
     setPressed((p) => {
       const candidates = p.filter(pitchMatches);
       if (candidates.length > 0) {
-        candidates[0][1].stop(audioContext);
+        candidates[0][1].release(audioContext);
       }
       return p.filter(removeFirst(pitchMatches));
     });
