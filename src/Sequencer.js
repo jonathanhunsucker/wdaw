@@ -2,7 +2,7 @@ import { Binding, stageFactory, Gain, Envelope, Wave } from "@jonathanhunsucker/
 import { Note } from "@jonathanhunsucker/music-js";
 import Beat from "./music/Beat.js";
 import TimeSignature from "./music/TimeSignature.js";
-import { range, flatten } from "./math.js";
+import { range, flatten, rationalEquals, rationalSum, rationalGreaterEqual, rationalLess, rationalDifference, rationalAsFloat } from "./math.js";
 
 class Expiration {
   /**
@@ -25,20 +25,41 @@ export class Hit {
   /**
    * @param {Note} note
    * @param {Beat} beat
+   * @param {[integer, integer]} duration
    */
-  constructor(note, beat) {
+  constructor(note, beat, duration) {
     this.note = note;
     this.beat = beat;
+    this.duration = duration;
   }
   static parse(object) {
     const parsed = new Hit(
       Note.parse(object.note),
-      Beat.parse(object.beat)
+      Beat.parse(object.beat),
+      object.duration,
     );
     return parsed;
   }
+  beginningAsRational() {
+    return this.beat.toRational();
+  }
+  endingAsRational() {
+    return rationalSum(this.beginningAsRational(), this.duration);
+  }
+  spans(beat) {
+    const startsOnOrAfter = rationalGreaterEqual(beat.toRational(), this.beginningAsRational());
+    const endsStrictlyBefore = rationalLess(beat.toRational(), this.endingAsRational());
+
+    return startsOnOrAfter && endsStrictlyBefore;
+  }
+  beginsOn(beat) {
+    return this.beat.equals(beat);
+  }
+  endsOn(beat) {
+    return rationalEquals(this.endingAsRational(), beat.toRational());
+  }
   equals(hit) {
-    return this.note.equals(hit.note) && this.beat.equals(hit.beat);
+    return this.note.equals(hit.note) && this.beat.equals(hit.beat) && rationalEquals(this.duration, hit.duration);
   }
 }
 
