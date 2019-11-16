@@ -399,6 +399,7 @@ const layout = [
 ];
 
 function useMainMix(audioContext) {
+  // BUG changes are not immediatly applied
   const [level, setLevel] = useState(0.3);
 
   const destination = useRef(null);
