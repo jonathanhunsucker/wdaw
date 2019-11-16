@@ -6,7 +6,7 @@ import { Sequencer, Hit } from "./Sequencer.js";
 import useInterval from "./useInterval.js";
 import { Note } from "@jonathanhunsucker/music-js";
 import Beat from "./music/Beat.js";
-import { flatten, rationalDifference } from "./math.js";
+import { flatten, rationalEquals, rationalDifference, rationalGreater, rationalLessEqual } from "./math.js";
 import { DumpJson } from "./debug.js";
 
 import { Gain, Binding, Filter, Envelope, Wave, Noise, silentPingToWakeAutoPlayGates } from "@jonathanhunsucker/audio-js";
@@ -257,7 +257,27 @@ function App() {
       }
     } else if (value === 'indeterminate') {
       // sustain an existing note further
-      // TODO
+      const endsBeforeBeat = track.hits.filter((hit) => {
+        return hit.note.equals(note) && rationalLessEqual(hit.endingAsRational(), beat.toRational());
+      });
+
+      const hitWithClosestEnd = endsBeforeBeat.reduce((lastSoFar, candidate) => {
+        if (lastSoFar === null) {
+          return candidate;
+        }
+
+        const shouldTakeCandidate = rationalGreater(candidate.endingAsRational(), lastSoFar.endingAsRational());
+        return shouldTakeCandidate ? candidate : lastSoFar;
+      }, null);
+
+      const duration = rationalDifference(
+        beat.plus(sequencer.tickSize, sequencer.timeSignature).toRational(),
+        hitWithClosestEnd.beginningAsRational()
+      );
+      const adjusted = hitWithClosestEnd.adjustDurationTo(duration);
+
+      toRemove.push(spanningHit);
+      toAdd.push(adjusted);
     } else if (value === false) {
       // remove a hit, or shorten it
       if (spanningHit) {
