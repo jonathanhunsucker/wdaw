@@ -1,28 +1,47 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 
 import { silentPingToWakeAutoPlayGates } from "@jonathanhunsucker/audio-js";
 
 import Beat from "./music/Beat.js";
 import useExcisedUponRemovalList from "./useExcisedUponRemovalList.js";
-import { flatten, rationalEquals, rationalDifference, rationalGreater, rationalLessEqual } from "./math.js";
+import { flatten, rationalAsFloat, rationalEquals, rationalDifference, rationalGreater, rationalLessEqual } from "./math.js";
 
 import { Hit } from "./Sequence.js";
 
 import useInterval from "./useInterval.js";
 import Checkbox from "./Checkbox.js";
 
+function useWebAudioAPIClock(context, tick) {
+  const tickReference = useRef();
+  tickReference.current = tick;
+  const node = useMemo(() => {
+    const node = context.createScriptProcessor(256, 1, 1);
+    node.connect(context.destination);
+    node.onaudioprocess = () => tickReference.current();
+    return node;
+  }, [context, tick]);
+  const clock = useRef(node);
+}
+
+
 function usePlayer(audioContext, destination, sequence) {
-  const [currentBeat, setCurrentBeat] = useState(new Beat(1, [0, 0]));
-  const [isPlaying, setIsPlaying] = useState(false);
-  const exciseByPolicyAndAppend = useExcisedUponRemovalList((expiration) => expiration.expire());
+  const startedAtRef = useRef();
+  const lastTickedAtRef = useRef(0);
 
-  const all = (expiration) => true;
-  const expired = (expiration) => expiration.expiresBy(audioContext.currentTime);
-
-  const tick = () => {
+  useWebAudioAPIClock(audioContext, () => {
     if (isPlaying === false) {
       return;
     }
+
+    const now = audioContext.currentTime;
+    const divisionDurationInSeconds = sequence.secondsPerBeat() / sequence.divisions;
+    const shouldPlayNextBeat = divisionDurationInSeconds < now - lastTickedAtRef.current;
+
+    if (shouldPlayNextBeat === false) {
+      return;
+    }
+
+    lastTickedAtRef.current = now;
 
     // BUG timing is off when the main thread is locked up, eg. when doing lots of re-renders
     // FIXIDEA keep track of main thread utilization, and spend time optimizing it when it gets bad
@@ -30,11 +49,22 @@ function usePlayer(audioContext, destination, sequence) {
     const newPendingExpirations = sequence.play(audioContext, destination, currentBeat);
     exciseByPolicyAndAppend(expired, newPendingExpirations);
 
-    const nextBeat = currentBeat.plus(sequence.tickSize, sequence.timeSignature);
-    setCurrentBeat(nextBeat);
-  };
+    setCurrentBeat(currentBeat.plus(sequence.tickSize, sequence.timeSignature));
+  });
 
-  useInterval(tick, sequence.secondsPerBeat() / sequence.divisions * 1000);
+  const [currentBeat, setCurrentBeat] = useState(new Beat(1, [0, 0]));
+  const [isPlaying, setIsPlayingInternal] = useState(false);
+  const setIsPlaying = (isPlaying) => {
+    if (isPlaying === true) {
+      startedAtRef.current = audioContext.currentTime;
+    }
+
+    setIsPlayingInternal(isPlaying);
+  };
+  const exciseByPolicyAndAppend = useExcisedUponRemovalList((expiration) => expiration.expire());
+
+  const all = (expiration) => true;
+  const expired = (expiration) => expiration.expiresBy(audioContext.currentTime);
 
   return [
     currentBeat,
