@@ -20,6 +20,10 @@ function usePlayer(audioContext, destination, sequence) {
   const expired = (expiration) => expiration.expiresBy(audioContext.currentTime);
 
   const tick = () => {
+    if (isPlaying === false) {
+      return;
+    }
+
     // BUG timing is off when the main thread is locked up, eg. when doing lots of re-renders
     // FIXIDEA keep track of main thread utilization, and spend time optimizing it when it gets bad
     // FIXIDEA replacement setTimeout-based timing with scheduled playing
@@ -30,7 +34,7 @@ function usePlayer(audioContext, destination, sequence) {
     setCurrentBeat(nextBeat);
   };
 
-  useInterval(tick, isPlaying ? sequence.secondsPerBeat() / sequence.divisions * 1000 : null);
+  useInterval(tick, sequence.secondsPerBeat() / sequence.divisions * 1000);
 
   return [
     currentBeat,
