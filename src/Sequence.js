@@ -232,31 +232,53 @@ export class Sequence {
       };
     }
 
+    const synth = new Filter(
+      "lowpass",
+      1000,
+      1,
+      null,
+      [
+        new Envelope(
+          {
+            attack: 0.01,
+            decay: 0.2,
+            sustain: 0.2,
+            release: 0.5,
+          },
+          [
+            new Wave('triangle'),
+          ],
+        ),
+      ]
+    );
+
+    const hat = new Filter(
+      "bandpass",
+      12000,
+      1,
+      null,
+      [
+        new Envelope(
+          {
+            attack: 0.001,
+            decay: 0.050,
+            sustain: 0,
+            release: 0.050,
+          },
+          [
+            new Noise(),
+          ]
+        ),
+      ]
+    );
+
     return new Sequence(
       120,
       [
         new Track(
           "Track 1",
           'keys',
-          new Filter(
-            "lowpass",
-            1000,
-            1,
-            null,
-            [
-              new Envelope(
-                {
-                  attack: 0.01,
-                  decay: 0.2,
-                  sustain: 0.2,
-                  release: 0.5,
-                },
-                [
-                  new Wave('triangle'),
-                ],
-              ),
-            ]
-          ),
+          synth,
           flatten([
             on(2, [0, 0]).play(['C2', 'D#2', 'G2']).for([1, 1]),
             on(3, [2, 4]).play(['C3']).for([1, 4]),
@@ -269,25 +291,7 @@ export class Sequence {
         new Track(
           "Track 2",
           'drums',
-          new Filter(
-            "bandpass",
-            12000,
-            1,
-            null,
-            [
-              new Envelope(
-                {
-                  attack: 0.001,
-                  decay: 0.050,
-                  sustain: 0,
-                  release: 0.050,
-                },
-                [
-                  new Noise(),
-                ]
-              ),
-            ]
-          ),
+          hat,
           flatten([
             on(1, [0, 0]).hit(['Kick']).for([0, 0]),
             on(1, [0, 0]).hit(['ClosedHat']).for([0, 0]),
