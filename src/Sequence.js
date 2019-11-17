@@ -111,10 +111,10 @@ export class Hit {
 }
 
 class Track {
-  constructor(name, kind, voice, hits, notes) {
+  constructor(name, kind, patch, hits, notes) {
     this.name = name;
     this.kind = kind;
-    this.voice = voice;
+    this.patch = patch;
     this.hits = hits;
     this.notes = notes;
   }
@@ -122,13 +122,13 @@ class Track {
     return new Track(
       object.name || 'Untitled track',
       object.kind,
-      stageFactory(object.voice),
+      stageFactory(object.patch),
       object.hits.map((hit) => Hit.parse(hit)),
       object.notes.map((note) => UniversalNoteParser.parse(note))
     );
   }
   patchForNote(note) {
-    return this.voice;
+    return this.patch;
   }
   supports(feature) {
     if (feature === 'sustain') return this.kind === 'keys';
@@ -161,7 +161,7 @@ class Track {
     return new Track(
       this.name,
       this.kind,
-      this.voice,
+      this.patch,
       this.hits.concat(hit),
       this.notes
     );
@@ -170,7 +170,7 @@ class Track {
     return new Track(
       this.name,
       this.kind,
-      this.voice,
+      this.patch,
       this.hits.filter((hit) => subject.equals(hit) === false),
       this.notes
     );
@@ -179,16 +179,16 @@ class Track {
     return new Track(
       this.name,
       this.kind,
-      this.voice,
+      this.patch,
       this.hits.filter((hit) => hit !== toRemove),
       this.notes
     );
   }
-  setVoice(voice) {
+  setPatch(patch) {
     return new Track(
       this.name,
       this.kind,
-      voice,
+      patch,
       this.hits,
       this.notes
     );
@@ -358,8 +358,8 @@ export class Sequence {
     const expirations = flatten(
       this.tracks.map((track) => {
         return track.hitsOnBeat(beat).map((hit) => {
-          const boundVoice = track.voice.bind(hit.note.frequency);
-          // BUG 50ms breathing room, should be determined by the track's voice, not hardcoded
+          const boundPatch = track.patch.bind(hit.note.frequency);
+          // BUG 50ms breathing room, should be determined by the track's patch, not hardcoded
           const expiresOn = now + Math.max(rationalAsFloat(hit.duration) * this.secondsPerBeat(), 0.050);
 
           return new Expiration(boundVoice, expiresOn);
@@ -398,11 +398,11 @@ export function useSequenceState() {
 
   const [selectedTrack, setSelectedTrack] = useState(sequence.tracks[0]);
 
-  const selectedPatch = selectedTrack.voice;
+  const selectedPatch = selectedTrack.patch;
   const setSelectedPatch = useMemo(
     () => {
       return (patch) => {
-        const replacement = selectedTrack.setVoice(patch);
+        const replacement = selectedTrack.setPatch(patch);
         setSequence(sequence.replaceTrack(selectedTrack, replacement));
         setSelectedTrack(replacement);
       };
