@@ -15,6 +15,7 @@ function useWebAudioAPIClock(context, tick) {
   const tickReference = useRef();
   tickReference.current = tick;
   const node = useMemo(() => {
+    // BUG createScriptProcessor is a deprecated API
     const node = context.createScriptProcessor(256, 1, 1);
     node.connect(context.destination);
     node.onaudioprocess = () => tickReference.current();
@@ -43,9 +44,6 @@ function usePlayer(audioContext, destination, sequence) {
 
     lastTickedAtRef.current = now;
 
-    // BUG timing is off when the main thread is locked up, eg. when doing lots of re-renders
-    // FIXIDEA keep track of main thread utilization, and spend time optimizing it when it gets bad
-    // FIXIDEA replacement setTimeout-based timing with scheduled playing
     const newPendingExpirations = sequence.play(audioContext, destination, currentBeat);
     exciseByPolicyAndAppend(expired, newPendingExpirations);
 
