@@ -14,7 +14,7 @@ import { key, offset, Keyboard } from "./Keyboard.js";
 import PatchEditor, { ScaledInput } from "./PatchEditor.js";
 import { Percentage } from "./string.js";
 import { Mapping, Handler } from "./KeyCommand.js";
-import { Sequence, Hit, Percussion } from "./Sequence.js";
+import { Sequence, Hit, Percussion, useSequenceState } from "./Sequence.js";
 import { Sequencer } from "./Sequencer.js";
 
 function useAudioContext() {
@@ -109,37 +109,6 @@ function useMainMix(audioContext) {
     level,
     setLevel,
     destination.current,
-  ];
-}
-
-function useSequenceState() {
-  const [sequence, setSequenceInternal] = useState(Sequence.fromNothing());
-  const setSequence = useMemo(() => {
-    return (replacement) => {
-      const index = sequence.tracks.indexOf(selectedTrack);
-      setSequenceInternal(replacement);
-      setSelectedTrack(replacement.tracks[index]);
-    };
-  }, [sequence]);
-
-  const [selectedTrack, setSelectedTrack] = useState(sequence.tracks[0]);
-
-  const selectedPatch = selectedTrack.voice;
-  const setSelectedPatch = useMemo(
-    () => {
-      return (patch) => {
-        const replacement = selectedTrack.setVoice(patch);
-        setSequence(sequence.replaceTrack(selectedTrack, replacement));
-        setSelectedTrack(replacement);
-      };
-    },
-    [sequence, selectedTrack]
-  );
-
-  return [
-    [sequence, setSequence],
-    [selectedTrack, setSelectedTrack],
-    [selectedPatch, setSelectedPatch],
   ];
 }
 

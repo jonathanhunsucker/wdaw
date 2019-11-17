@@ -4,6 +4,8 @@ import Beat from "./music/Beat.js";
 import TimeSignature from "./music/TimeSignature.js";
 import { range, flatten, rationalEquals, rationalSum, rationalGreaterEqual, rationalLess, rationalDifference, rationalAsFloat } from "./math.js";
 
+import { useState, useMemo } from "react";
+
 // will walk and talk like a note, but for representing percusive notes instead of scientific pitch notation
 // eventually, should be rolled back into music-js
 export class Percussion {
@@ -375,4 +377,35 @@ export class Sequence {
       this.timeSignature
     );
   }
+};
+
+export function useSequenceState() {
+  const [sequence, setSequenceInternal] = useState(Sequence.fromNothing());
+  const setSequence = useMemo(() => {
+    return (replacement) => {
+      const index = sequence.tracks.indexOf(selectedTrack);
+      setSequenceInternal(replacement);
+      setSelectedTrack(replacement.tracks[index]);
+    };
+  }, [sequence]);
+
+  const [selectedTrack, setSelectedTrack] = useState(sequence.tracks[0]);
+
+  const selectedPatch = selectedTrack.voice;
+  const setSelectedPatch = useMemo(
+    () => {
+      return (patch) => {
+        const replacement = selectedTrack.setVoice(patch);
+        setSequence(sequence.replaceTrack(selectedTrack, replacement));
+        setSelectedTrack(replacement);
+      };
+    },
+    [sequence, selectedTrack]
+  );
+
+  return [
+    [sequence, setSequence],
+    [selectedTrack, setSelectedTrack],
+    [selectedPatch, setSelectedPatch],
+  ];
 };
