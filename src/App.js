@@ -11,7 +11,8 @@ import useKeyboard from "./useKeyboard.js";
 
 import { DumpJson } from "./debug.js";
 import { key, offset, Keyboard } from "./Keyboard.js";
-import PatchEditor, { ScaledInput, Percentage } from "./PatchEditor.js";
+import PatchEditor, { ScaledInput } from "./PatchEditor.js";
+import { Percentage } from "./string.js";
 import { Mapping, Handler } from "./KeyCommand.js";
 import { Sequence, Hit, Percussion } from "./Sequence.js";
 import { Sequencer } from "./Sequencer.js";
