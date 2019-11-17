@@ -14,7 +14,7 @@ function removeFirst(criteria) {
 }
 
 /**
- * Take an audioContext, destination, and voice, and return a list of:
+ * Take an audioContext, destination, and track, and return a list of:
  *  - currently pressed pitch/binding pairs
  *  - function to press a note
  *  - function to release a note
@@ -25,11 +25,11 @@ function removeFirst(criteria) {
  *
  * @returns {[{0: string, 1: Binding}[], func(Note), function(Note)]}
  */
-export default function useKeyboard(audioContext, destination, voice) {
+export default function useKeyboard(audioContext, destination, track) {
   const [pressed, setPressed] = useState([]);
 
   const press = (note) => {
-    const binding = voice.bind(note.frequency);
+    const binding = track.patchForNote(note).bind(note.frequency);
     binding.play(audioContext, destination);
     setPressed((p) => p.concat([[note.pitch, binding]]));
   };

@@ -127,6 +127,9 @@ class Track {
       object.notes.map((note) => UniversalNoteParser.parse(note))
     );
   }
+  patchForNote(note) {
+    return this.voice;
+  }
   supports(feature) {
     if (feature === 'sustain') return this.kind === 'keys';
     throw new Error(`Unknown feature \`${feature}\``);
