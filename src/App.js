@@ -234,11 +234,11 @@ function App() {
         setSelectedPitch={setSelectedPitch}
       />
 
-      <h2>Keyboard</h2>
-      <Keyboard layout={layout} mapping={mapping} pressed={keysDownCurrently} onPress={onPress} onRelease={onRelease} />
-
       <h2>Patch</h2>
       <PatchEditor patch={selectedPatch} setPatch={setSelectedPatch} />
+
+      <h2>Keyboard</h2>
+      <Keyboard layout={layout} mapping={mapping} pressed={keysDownCurrently} onPress={onPress} onRelease={onRelease} />
     </div>
   );
 }
