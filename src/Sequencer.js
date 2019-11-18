@@ -212,13 +212,13 @@ export const Sequencer = React.memo(function Sequencer(props) {
                     <label htmlFor={`track-${trackIndex}`}>{track.name}</label>
                   </td>}
                   <td style={rightAlignStyles}>
-                    {props.selectedTrack.patchForPitch(note.pitch) && <input type="radio"
+                    {track === props.selectedTrack && track.supports('multipatch') && <input type="radio"
                       type="radio"
                       id={`track-${trackIndex}-pitch-${note.pitch}`}
                       checked={note.pitch === props.selectedPitch}
                       onChange={() => props.setSelectedPitch(note.pitch)}
                     />}
-                    {note.pitch}
+                    <label htmlFor={`track-${trackIndex}-pitch-${note.pitch}`}>{note.pitch}</label>
                   </td>
                   {sequence.beats.map((beat) =>
                     <td key={beat.key} style={currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>

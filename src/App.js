@@ -119,8 +119,8 @@ function App() {
   const [
     [sequence, setSequence],
     [selectedTrack, setSelectedTrack],
-    [selectedPatch, setSelectedPatch],
     [selectedPitch, setSelectedPitch],
+    [selectedPatch, setSelectedPatch],
   ] = useSequenceState();
 
   const [pressed, press, release] = useKeyboard(audioContext, destination, selectedTrack);

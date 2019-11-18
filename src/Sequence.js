@@ -149,6 +149,7 @@ class Track {
   }
   supports(feature) {
     if (feature === 'sustain') return this.kind === 'keys';
+    if (feature === 'multipatch') return this.kind === 'drums';
     throw new Error(`Unknown feature \`${feature}\``);
   }
   getDefaultHitDuration() {
@@ -423,41 +424,60 @@ export class Sequence {
   }
 };
 
+const defaultSequence = Sequence.fromNothing();
+const defaultTrackFromSequence = (sequence) => sequence.tracks[0];
+const defaultPatchFromTrack = (track) => Object.entries(track.patches)[0][1];
+const defaultPitchFromTrack = (track) => Object.keys(track.patches)[0];
+
 export function useSequenceState() {
-  const [sequence, setSequenceInternal] = useState(Sequence.fromNothing());
-  const setSequence = useMemo(() => {
-    return (replacement) => {
-      const index = sequence.tracks.indexOf(selectedTrack);
-      setSequenceInternal(replacement);
-      setSelectedTrack(replacement.tracks[index]);
-    };
-  }, [sequence]);
+  const [state, setState] = useState({
+    sequence: defaultSequence,
+    selectedTrack: 0,
+    selectedPitch: defaultPitchFromTrack(defaultTrackFromSequence(defaultSequence)),
+  });
+  const selectedTrack = state.sequence.tracks[state.selectedTrack];
+  const selectedPatch = selectedTrack.patchForPitch(state.selectedPitch);
 
-  const [selectedTrack, setSelectedTrackInternal] = useState(sequence.tracks[0]);
-  const setSelectedTrack = useMemo(() => {
-    return (replacement) => {
-      setSelectedTrackInternal(replacement);
-      setSelectedPitch(Object.keys(replacement.patches)[0]);
-    };
-  }, [sequence, selectedTrack]);
+  const setSequence = (replacementSequence) => {
+    setState({
+      sequence: replacementSequence,
+      selectedTrack: state.selectedTrack,
+      selectedPitch: Object.keys(selectedTrack.patches).includes(state.selectedPitch) ? state.selectedPitch : defaultPitchFromTrack(selectedTrack),
+    });
+  };
 
-  const [selectedPitch, setSelectedPitch] = useState(Object.keys(selectedTrack.patches)[0]);
+  const setSelectedTrack = (replacementTrack) => {
+    setState({
+      sequence: state.sequence,
+      selectedTrack: state.sequence.tracks.indexOf(replacementTrack),
+      selectedPitch: defaultPitchFromTrack(replacementTrack),
+    });
+  };
 
-  const selectedPatch = selectedTrack.patchForPitch(selectedPitch);
-  const setSelectedPatch = useMemo(
-    () => {
-      return (patch) => {
-        const replacement = selectedTrack.replacePatch(selectedPatch, patch);
-        setSequence(sequence.replaceTrack(selectedTrack, replacement));
-      };
-    },
-    [sequence, selectedTrack, selectedPatch]
-  );
+  const setSelectedPitch = (replacementPitch) => {
+    setState({
+      sequence: state.sequence,
+      selectedTrack: state.selectedTrack,
+      selectedPitch: replacementPitch,
+    });
+  };
+
+  const setSelectedPatch = (patch) => {
+    const replacementSequence = state.sequence.replaceTrack(
+      selectedTrack,
+      selectedTrack.replacePatch(selectedPatch, patch)
+    );
+    setState({
+      sequence: replacementSequence,
+      selectedTrack: state.selectedTrack,
+      selectedPitch: state.selectedPitch,
+    });
+  };
 
   return [
-    [sequence, setSequence],
+    [state.sequence, setSequence],
     [selectedTrack, setSelectedTrack],
+    [state.selectedPitch, setSelectedPitch],
     [selectedPatch, setSelectedPatch],
-    [selectedPitch, setSelectedPitch],
   ];
 };
