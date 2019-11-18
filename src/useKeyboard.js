@@ -29,7 +29,7 @@ export default function useKeyboard(audioContext, destination, track) {
   const [pressed, setPressed] = useState([]);
 
   const press = (note) => {
-    const binding = track.patchForNote(note).bind(note.frequency);
+    const binding = track.patchForPitch(note.pitch).bind(note.frequency);
     binding.play(audioContext, destination);
     setPressed((p) => p.concat([[note.pitch, binding]]));
   };

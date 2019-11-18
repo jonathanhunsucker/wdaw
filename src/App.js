@@ -120,6 +120,7 @@ function App() {
     [sequence, setSequence],
     [selectedTrack, setSelectedTrack],
     [selectedPatch, setSelectedPatch],
+    [selectedPitch, setSelectedPitch],
   ] = useSequenceState();
 
   const [pressed, press, release] = useKeyboard(audioContext, destination, selectedTrack);
@@ -180,7 +181,7 @@ function App() {
     });
   } else if (selectedTrack.kind === 'drums') {
     const percussionHandler = (pitch, label) => new Handler(label || pitch, () => {
-      press(pitch);
+      press(new Percussion(pitch));
       return () => {};
     });
     var mapping = new Mapping({
@@ -229,6 +230,8 @@ function App() {
         setSequence={setSequence}
         selectedTrack={selectedTrack}
         setSelectedTrack={setSelectedTrack}
+        selectedPitch={selectedPitch}
+        setSelectedPitch={setSelectedPitch}
       />
 
       <h2>Keyboard</h2>

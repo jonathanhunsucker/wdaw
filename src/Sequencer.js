@@ -211,7 +211,15 @@ export const Sequencer = React.memo(function Sequencer(props) {
                     />{' '}
                     <label htmlFor={`track-${trackIndex}`}>{track.name}</label>
                   </td>}
-                  <td style={rightAlignStyles}>{note.pitch}</td>
+                  <td style={rightAlignStyles}>
+                    {props.selectedTrack.patchForPitch(note.pitch) && <input type="radio"
+                      type="radio"
+                      id={`track-${trackIndex}-pitch-${note.pitch}`}
+                      checked={note.pitch === props.selectedPitch}
+                      onChange={() => props.setSelectedPitch(note.pitch)}
+                    />}
+                    {note.pitch}
+                  </td>
                   {sequence.beats.map((beat) =>
                     <td key={beat.key} style={currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
                       <Checkbox

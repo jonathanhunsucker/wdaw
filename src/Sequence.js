@@ -6,6 +6,15 @@ import { range, flatten, rationalEquals, rationalSum, rationalGreaterEqual, rati
 
 import { useState, useMemo } from "react";
 
+function zip(accumulation, entry) {
+  if (!accumulation) {
+    accumulation = {};
+  }
+
+  accumulation[entry[0]] = entry[1];
+  return accumulation;
+}
+
 // will walk and talk like a note, but for representing percusive notes instead of scientific pitch notation
 // eventually, should be rolled back into music-js
 export class Percussion {
@@ -111,10 +120,10 @@ export class Hit {
 }
 
 class Track {
-  constructor(name, kind, patch, hits, notes) {
+  constructor(name, kind, patches, hits, notes) {
     this.name = name;
     this.kind = kind;
-    this.patch = patch;
+    this.patches = patches;
     this.hits = hits;
     this.notes = notes;
   }
@@ -122,13 +131,21 @@ class Track {
     return new Track(
       object.name || 'Untitled track',
       object.kind,
-      stageFactory(object.patch),
+      object.patches.entries().map(([key, value]) => [key, stageFactory(value)]).reduce(zip, {}),
       object.hits.map((hit) => Hit.parse(hit)),
       object.notes.map((note) => UniversalNoteParser.parse(note))
     );
   }
-  patchForNote(note) {
-    return this.patch;
+  patchForPitch(pitch) {
+    if (pitch && this.patches.hasOwnProperty(pitch)) {
+      return this.patches[pitch];
+    }
+
+    if (this.patches.hasOwnProperty('*')) {
+      return this.patches['*'];
+    }
+
+    return false;
   }
   supports(feature) {
     if (feature === 'sustain') return this.kind === 'keys';
@@ -161,7 +178,7 @@ class Track {
     return new Track(
       this.name,
       this.kind,
-      this.patch,
+      this.patches,
       this.hits.concat(hit),
       this.notes
     );
@@ -170,7 +187,7 @@ class Track {
     return new Track(
       this.name,
       this.kind,
-      this.patch,
+      this.patches,
       this.hits.filter((hit) => subject.equals(hit) === false),
       this.notes
     );
@@ -179,16 +196,16 @@ class Track {
     return new Track(
       this.name,
       this.kind,
-      this.patch,
+      this.patches,
       this.hits.filter((hit) => hit !== toRemove),
       this.notes
     );
   }
-  setPatch(patch) {
+  replacePatch(before, after) {
     return new Track(
       this.name,
       this.kind,
-      patch,
+      Object.entries(this.patches).map(([key, value]) => [key, value === before ? after : value]).reduce(zip, {}),
       this.hits,
       this.notes
     );
@@ -203,7 +220,7 @@ export class Sequence {
     this.divisions = 4;
     this.tickSize = [1, 4];
   }
-  static fromNothing(patch) {
+  static fromNothing() {
     const notes = (pitches) => {
       return pitches.map((pitch) => UniversalNoteParser.parse(pitch));
     };
@@ -272,13 +289,33 @@ export class Sequence {
       ]
     );
 
+    const snare = new Filter(
+      "bandpass",
+      5000,
+      1,
+      null,
+      [
+        new Envelope(
+          {
+            attack: 0.001,
+            decay: 0.050,
+            sustain: 0,
+            release: 0.050,
+          },
+          [
+            new Noise(),
+          ]
+        ),
+      ]
+    );
+
     return new Sequence(
       120,
       [
         new Track(
           "Track 1",
           'keys',
-          synth,
+          {'*': synth},
           flatten([
             on(2, [0, 0]).play(['C2', 'D#2', 'G2']).for([1, 1]),
             on(3, [2, 4]).play(['C3']).for([1, 4]),
@@ -291,7 +328,7 @@ export class Sequence {
         new Track(
           "Track 2",
           'drums',
-          hat,
+          {'ClosedHat': hat, 'Kick': hat, 'Snare': snare},
           flatten([
             on(1, [0, 0]).hit(['Kick']).for([0, 0]),
             on(1, [0, 0]).hit(['ClosedHat']).for([0, 0]),
@@ -358,11 +395,11 @@ export class Sequence {
     const expirations = flatten(
       this.tracks.map((track) => {
         return track.hitsOnBeat(beat).map((hit) => {
-          const boundPatch = track.patch.bind(hit.note.frequency);
+          const boundPatch = track.patchForPitch(hit.note.pitch).bind(hit.note.frequency);
           // BUG 50ms breathing room, should be determined by the track's patch, not hardcoded
           const expiresOn = now + Math.max(rationalAsFloat(hit.duration) * this.secondsPerBeat(), 0.050);
 
-          return new Expiration(boundVoice, expiresOn);
+          return new Expiration(boundPatch, expiresOn);
         });
       })
     );
@@ -396,23 +433,31 @@ export function useSequenceState() {
     };
   }, [sequence]);
 
-  const [selectedTrack, setSelectedTrack] = useState(sequence.tracks[0]);
+  const [selectedTrack, setSelectedTrackInternal] = useState(sequence.tracks[0]);
+  const setSelectedTrack = useMemo(() => {
+    return (replacement) => {
+      setSelectedTrackInternal(replacement);
+      setSelectedPitch(Object.keys(replacement.patches)[0]);
+    };
+  }, [sequence, selectedTrack]);
 
-  const selectedPatch = selectedTrack.patch;
+  const [selectedPitch, setSelectedPitch] = useState(Object.keys(selectedTrack.patches)[0]);
+
+  const selectedPatch = selectedTrack.patchForPitch(selectedPitch);
   const setSelectedPatch = useMemo(
     () => {
       return (patch) => {
-        const replacement = selectedTrack.setPatch(patch);
+        const replacement = selectedTrack.replacePatch(selectedPatch, patch);
         setSequence(sequence.replaceTrack(selectedTrack, replacement));
-        setSelectedTrack(replacement);
       };
     },
-    [sequence, selectedTrack]
+    [sequence, selectedTrack, selectedPatch]
   );
 
   return [
     [sequence, setSequence],
     [selectedTrack, setSelectedTrack],
     [selectedPatch, setSelectedPatch],
+    [selectedPitch, setSelectedPitch],
   ];
 };
