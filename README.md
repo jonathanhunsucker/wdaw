@@ -70,7 +70,8 @@
     - http://w3c.github.io/musicxml/
     - https://ieee1599.lim.di.unimi.it/index.php
     - https://www.midi.org/specifications-old/item/gm-level-1-sound-set
-
+- Local-first applications
+    - https://blog.acolyer.org/2019/11/20/local-first-software/
 
 
 should have done market analysis first.
