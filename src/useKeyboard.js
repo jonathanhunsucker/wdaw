@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
 function removeFirst(criteria) {
   var hasRemoved = false;
@@ -11,6 +11,15 @@ function removeFirst(criteria) {
 
     return true;
   };
+}
+
+// public interface of useState, but backed by a ref, and only supports functional updates
+// avoids inducing re-renders in parent component
+function useStatelikeRef(initialValue) {
+  const reference = useRef(initialValue);
+  const setter = (operation) => reference.current = operation(reference.current);
+
+  return [reference.current, setter];
 }
 
 /**
@@ -26,7 +35,7 @@ function removeFirst(criteria) {
  * @returns {[{0: string, 1: Binding}[], func(Note), function(Note)]}
  */
 export default function useKeyboard(audioContext, destination, track) {
-  const [pressed, setPressed] = useState([]);
+  const [pressed, setPressed] = useStatelikeRef([]);
 
   const press = (note) => {
     const binding = track.patchForPitch(note.pitch).bind(note.frequency);
