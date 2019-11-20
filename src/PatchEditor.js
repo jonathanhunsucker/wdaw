@@ -3,6 +3,7 @@ import React from "react";
 import { Wave, Gain, Envelope, Filter } from "@jonathanhunsucker/audio-js";
 
 import { Percentage, Seconds, Frequency } from "./string.js";
+import { LinearScaleUnitInput, CubicScaleUnitInput, CubicScalePositiveInput } from "./input.js";
 
 function WaveControls(wave, handleControlChange) {
   return (
@@ -18,49 +19,30 @@ function WaveControls(wave, handleControlChange) {
   );
 }
 
-export function ScaledInput(props) {
-  const base = props.base || 3;
-  const scale = (value) => Math.pow(value, base);
-  const unscale = (value) => Math.pow(value, 1 / base);
-
-  return (
-    <input
-      type="range"
-      style={{verticalAlign: "middle"}}
-      value={unscale(props.value)}
-      min={unscale(props.min)}
-      step={0.01}
-      max={unscale(props.max)}
-      onChange={(e) => props.onChange(scale(e.target.valueAsNumber))}
-    />
-  );
-}
-
 function EnvelopeControls(envelope, handleControlChange) {
   return (
     <React.Fragment>
       <label htmlFor="attack">Attack</label>:{' '}
-      <ScaledInput
-        value={envelope.attack} min={0} max={1}
+      <CubicScaleUnitInput
+        value={envelope.attack}
         onChange={(value) => handleControlChange("attack", value)}
       />{' '}{Seconds(envelope.attack)}
       <br />
       <label htmlFor="decay">Decay</label>:{' '}
-      <ScaledInput
-        value={envelope.decay} min={0} max={1}
+      <CubicScaleUnitInput
+        value={envelope.decay}
         onChange={(value) => handleControlChange("decay", value)}
       />{' '}{Seconds(envelope.decay)}
       <br />
       <label htmlFor="sustain">Sustain</label>:{' '}
-      <ScaledInput
-        base={1}
-        value={envelope.sustain} min={0} max={1}
+      <LinearScaleUnitInput
+        value={envelope.sustain}
         onChange={(value) => handleControlChange("sustain", value)}
       />{' '}{Percentage(envelope.sustain)}
       <br />
       <label htmlFor="Release">Release</label>:{' '}
-      <ScaledInput
-        value={envelope.release} min={0} max={1}
+      <CubicScaleUnitInput
+        value={envelope.release}
         onChange={(value) => handleControlChange("release", value)}
       />{' '}{Seconds(envelope.release)}
     </React.Fragment>
@@ -78,8 +60,9 @@ function FilterControls(filter, handleControlChange) {
       </select>
       <br />
       <label htmlFor="frequency">Frequency</label>:{' '}
-      <ScaledInput
-        value={filter.frequency} min={0} max={16000}
+      <CubicScalePositiveInput
+        value={filter.frequency}
+        max={16000}
         onChange={(value) => handleControlChange("frequency", value)}
       />{' '}{Frequency(filter.frequency)}
     </React.Fragment>

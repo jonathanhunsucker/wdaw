@@ -5,7 +5,8 @@ import useMainMix from "./useMainMix.js";
 import { useSequenceState } from "./Sequence.js";
 
 import { Keyboard } from "./Keyboard.js";
-import PatchEditor, { ScaledInput } from "./PatchEditor.js";
+import PatchEditor from "./PatchEditor.js";
+import { LinearScaleUnitInput } from "./input.js";
 import { Percentage } from "./string.js";
 import { Sequencer } from "./Sequencer.js";
 
@@ -24,11 +25,7 @@ function App() {
     <div className="App">
       <h1>Workstation</h1>
       <p>Level:{' '}
-        <ScaledInput
-          base={1}
-          value={level} min={0} max={1}
-          onChange={(value) => setLevel(value)}
-        />{' '}{Percentage(level)}
+        <LinearScaleUnitInput value={level} onChange={(value) => setLevel(value)} />{' '}{Percentage(level)}
       </p>
 
       <h2>Sequencer</h2>
