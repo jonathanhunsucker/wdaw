@@ -95,9 +95,6 @@ function sum(accumulator, item) {
   return accumulator + item;
 }
 
-export function KeyboardInternal(props) {
-}
-
 export const Keyboard = React.memo(function Keyboard(props) {
   const [keysDownCurrently, add, remove] = useSet([]);
   const [put, read] = useDestructiveReadMap({});

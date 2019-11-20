@@ -193,7 +193,6 @@ function App() {
     throw new Error(`Unknown track kind \`${selectedTrack.kind}\``);
   }
 
-
   return (
     <div className="App">
       <h1>Workstation</h1>
