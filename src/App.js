@@ -18,29 +18,20 @@ function useAudioContext() {
 }
 
 function useMainMix(audioContext) {
-  // BUG changes are not immediatly applied
   const [level, setLevel] = useState(0.3);
 
-  const destination = useRef(null);
-
-  const rebuildBinding = () => {
-    destination.current = (new Binding(
+  const destination = useMemo(() => {
+    return (new Binding(
       new Gain(level),
       null,
       []
     )).play(audioContext, audioContext.destination);
-  };
-
-  if (destination.current === null) {
-    rebuildBinding();
-  }
-
-  useEffect(rebuildBinding, [audioContext, level]);
+  }, [level, audioContext]);
 
   return [
     level,
     setLevel,
-    destination.current,
+    destination,
   ];
 }
 
