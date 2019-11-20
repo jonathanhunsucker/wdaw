@@ -1,31 +1,12 @@
 import React, { useState, useMemo } from "react";
 
-import { Gain, Binding } from "@jonathanhunsucker/audio-js";
-
 import { key, offset, Keyboard } from "./Keyboard.js";
 import useAudioContext from "./useAudioContext.js";
+import useMainMix from "./useMainMix.js";
 import PatchEditor, { ScaledInput } from "./PatchEditor.js";
 import { Percentage } from "./string.js";
 import { Sequence, Hit, Percussion, useSequenceState } from "./Sequence.js";
 import { Sequencer } from "./Sequencer.js";
-
-function useMainMix(audioContext) {
-  const [level, setLevel] = useState(0.3);
-
-  const destination = useMemo(() => {
-    return (new Binding(
-      new Gain(level),
-      null,
-      []
-    )).play(audioContext, audioContext.destination);
-  }, [level, audioContext]);
-
-  return [
-    level,
-    setLevel,
-    destination,
-  ];
-}
 
 function App() {
   const audioContext = useAudioContext();
