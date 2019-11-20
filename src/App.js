@@ -193,23 +193,6 @@ function App() {
     throw new Error(`Unknown track kind \`${selectedTrack.kind}\``);
   }
 
-  const [keysDownCurrently, add, remove] = useSet([]);
-  const [put, read] = useDestructiveReadMap({});
-
-  const onPress = (code) => {
-    add(code);
-    put(code, mapping.onPress(code));
-  };
-
-  const onRelease = (code) => {
-    remove(code);
-    const handler = read(code);
-    if (handler) {
-      handler();
-    }
-  };
-
-  useKeystrokeMonitor(onPress, onRelease);
 
   return (
     <div className="App">
@@ -238,7 +221,7 @@ function App() {
       <PatchEditor patch={selectedPatch} setPatch={setSelectedPatch} />
 
       <h2>Keyboard</h2>
-      <Keyboard layout={layout} mapping={mapping} pressed={keysDownCurrently} onPress={onPress} onRelease={onRelease} />
+      <Keyboard layout={layout} mapping={mapping} />
     </div>
   );
 }

@@ -1,5 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
 
+import useKeystrokeMonitor from "./useKeystrokeMonitor.js";
+import useSet from "./useSet.js";
+import useDestructiveReadMap from "./useDestructiveReadMap.js";
+
 const MARGIN = 0.1;
 
 function codeToColor(mapping, pressed, code) {
@@ -91,7 +95,28 @@ function sum(accumulator, item) {
   return accumulator + item;
 }
 
-export function Keyboard(props) {
+export function KeyboardInternal(props) {
+}
+
+export const Keyboard = React.memo(function Keyboard(props) {
+  const [keysDownCurrently, add, remove] = useSet([]);
+  const [put, read] = useDestructiveReadMap({});
+
+  const onPress = (code) => {
+    add(code);
+    put(code, props.mapping.onPress(code));
+  };
+
+  const onRelease = (code) => {
+    remove(code);
+    const handler = read(code);
+    if (handler) {
+      handler();
+    }
+  };
+
+  useKeystrokeMonitor(onPress, onRelease);
+
   const maxWidth = props.layout
     .map((row) => row.map((item) => item.span).reduce(sum, 0) + row.length * MARGIN)
     .reduce(max, 0);
@@ -102,12 +127,12 @@ export function Keyboard(props) {
         return (
           <div key={i} style={{overflow: "auto", with: "100%"}}>
             {row.map((item, j) => {
-              return square(maxWidth, props.mapping, props.pressed, props.onPress, props.onRelease, item);
+              return square(maxWidth, props.mapping, keysDownCurrently, onPress, onRelease, item);
             })}
           </div>
         );
       })}
     </div>
   );
-}
+});
 
