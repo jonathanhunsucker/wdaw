@@ -1,21 +1,13 @@
-import React, { Component, useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 
 import { Gain, Binding } from "@jonathanhunsucker/audio-js";
 
-import { DumpJson } from "./debug.js";
 import { key, offset, Keyboard } from "./Keyboard.js";
+import useAudioContext from "./useAudioContext.js";
 import PatchEditor, { ScaledInput } from "./PatchEditor.js";
 import { Percentage } from "./string.js";
 import { Sequence, Hit, Percussion, useSequenceState } from "./Sequence.js";
 import { Sequencer } from "./Sequencer.js";
-
-function useAudioContext() {
-  const value = useMemo(() => {
-    return new (window.webkitAudioContext || window.AudioContext)();
-  });
-  const ref = useRef(value);
-  return ref.current;
-}
 
 function useMainMix(audioContext) {
   const [level, setLevel] = useState(0.3);
