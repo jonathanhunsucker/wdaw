@@ -1,11 +1,12 @@
-import React, { useState, useMemo } from "react";
+import React from "react";
 
-import { key, offset, Keyboard } from "./Keyboard.js";
 import useAudioContext from "./useAudioContext.js";
 import useMainMix from "./useMainMix.js";
+import { useSequenceState } from "./Sequence.js";
+
+import { Keyboard } from "./Keyboard.js";
 import PatchEditor, { ScaledInput } from "./PatchEditor.js";
 import { Percentage } from "./string.js";
-import { Sequence, Hit, Percussion, useSequenceState } from "./Sequence.js";
 import { Sequencer } from "./Sequencer.js";
 
 function App() {
