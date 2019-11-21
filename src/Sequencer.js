@@ -11,6 +11,11 @@ import { Hit } from "./Sequence.js";
 import useInterval from "./useInterval.js";
 import Checkbox from "./Checkbox.js";
 
+const cellStyles = {borderStyle: 'ridge'};
+const currentBeatStyles = Object.assign({}, {backgroundColor: 'lightgrey'}, cellStyles);
+const rightAlignStyles = Object.assign({}, {textAlign: 'right'}, cellStyles);
+
+
 function useWebAudioAPIClock(context, tick) {
   const tickReference = useRef();
   tickReference.current = tick;
@@ -77,13 +82,12 @@ function usePlayer(audioContext, destination, sequence) {
   ];
 }
 
-export const Sequencer = React.memo(function Sequencer(props) {
-  const sequence = props.sequence;
+export const Sequencer = React.memo(function Sequencer({ audioContext, destination, sequence, setSequence, selectedTrack, setSelectedTrack, selectedPitch, setSelectedPitch }) {
 
   const [
     currentBeat,
     [isPlaying, playerSetIsPlaying],
-  ] = usePlayer(props.audioContext, props.destination, sequence);
+  ] = usePlayer(audioContext, destination, sequence);
 
   function hitValue(track, note, beat) {
     const spanningHit = track.findHits({spans: beat, note: note})[0]
@@ -157,7 +161,7 @@ export const Sequencer = React.memo(function Sequencer(props) {
       }
     }
 
-    props.setSequence(
+    setSequence(
       sequence.replaceTrack(
         track,
         toAdd.reduce(
@@ -169,26 +173,21 @@ export const Sequencer = React.memo(function Sequencer(props) {
   }
 
   function setTempo(newTempo) {
-    props.setSequence(sequence.setTempo(newTempo));
+    setSequence(sequence.setTempo(newTempo));
   }
 
   function setIsPlaying(newIsPlaying) {
-    silentPingToWakeAutoPlayGates(props.audioContext);
+    silentPingToWakeAutoPlayGates(audioContext);
     playerSetIsPlaying(newIsPlaying);
   }
-
-  const cellStyles = {borderStyle: 'ridge'};
-  const currentBeatStyles = Object.assign({}, {backgroundColor: 'lightgrey'}, cellStyles);
-  const rightAlignStyles = Object.assign({}, {textAlign: 'right'}, cellStyles);
 
   return (
     <React.Fragment>
       <p><button onClick={() => setIsPlaying(!isPlaying)}>{isPlaying ? 'pause' : 'play'}</button></p>
-      <p><input type="number" value={sequence.tempo} onChange={(e) => setTempo(parseInt(e.target.value, 10))} /></p>
-      <table className="Sequencer" style={{borderCollapse: 'collapse'}}>
+      <p>Tempo: <input type="number" value={sequence.tempo} onChange={(e) => setTempo(parseInt(e.target.value, 10))} /></p>
+      <table style={{borderCollapse: 'collapse'}}>
         <thead>
           <tr>
-            <th style={cellStyles}></th>
             <th style={cellStyles}></th>
             {sequence.beats.map((beat) =>
               <th key={beat.key} style={currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
@@ -206,26 +205,14 @@ export const Sequencer = React.memo(function Sequencer(props) {
                     <input
                       type="radio"
                       id={`track-${trackIndex}`}
-                      checked={track === props.selectedTrack}
-                      onChange={() => props.setSelectedTrack(track)}
+                      checked={track === selectedTrack}
+                      onChange={() => setSelectedTrack(track)}
                     />{' '}
                     <label htmlFor={`track-${trackIndex}`}>{track.name}</label>
                   </td>}
-                  <td style={rightAlignStyles}>
-                    {track === props.selectedTrack && track.supports('multipatch') && <input type="radio"
-                      type="radio"
-                      id={`track-${trackIndex}-pitch-${note.pitch}`}
-                      checked={note.pitch === props.selectedPitch}
-                      onChange={() => props.setSelectedPitch(note.pitch)}
-                    />}
-                    <label htmlFor={`track-${trackIndex}-pitch-${note.pitch}`}>{note.pitch}</label>
-                  </td>
                   {sequence.beats.map((beat) =>
                     <td key={beat.key} style={currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
-                      <Checkbox
-                        value={hitValue(track, note, beat)}
-                        onChange={(value) => toggleHit(track, note, beat, value)}
-                      />
+                      <Checkbox value={hitValue(track, note, beat)} />
                     </td>
                   )}
                 </tr>
@@ -234,7 +221,54 @@ export const Sequencer = React.memo(function Sequencer(props) {
           })}
         </tbody>
       </table>
+
+      <h3>Section</h3>
+      <Section track={selectedTrack} beats={sequence.beats} currentBeat={currentBeat} hitValue={hitValue} toggleHit={toggleHit} selectedPitch={selectedPitch} />
     </React.Fragment>
   );
 });
 
+
+function Section({ track, beats, currentBeat, hitValue, toggleHit, selectedPitch }) {
+  return (
+    <table style={{borderCollapse: 'collapse'}}>
+      <thead>
+        <tr>
+          <th style={cellStyles}></th>
+          <th style={cellStyles}></th>
+          {beats.map((beat) =>
+            <th key={beat.key} style={currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
+              {rationalEquals(beat.rational, [0, 0]) ? beat.beat : ''}
+            </th>
+          )}
+        </tr>
+      </thead>
+      <tbody>
+        {track.notes.map((note, index) => (
+          <tr key={note.pitch}>
+            {index === 0 && <td style={cellStyles} rowSpan={track.notes.length}>
+              <label htmlFor={`track`}>{track.name}</label>
+            </td>}
+            <td style={rightAlignStyles}>
+              {track.supports('multipatch') && <input type="radio"
+                type="radio"
+                id={`pitch-${note.pitch}`}
+                checked={note.pitch === selectedPitch}
+                onChange={() => setSelectedPitch(note.pitch)}
+              />}
+              <label htmlFor={`pitch-${note.pitch}`}>{note.pitch}</label>
+            </td>
+            {beats.map((beat) =>
+              <td key={beat.key} style={currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
+                <Checkbox
+                  value={hitValue(track, note, beat)}
+                  onChange={(value) => toggleHit(track, note, beat, value)}
+                />
+              </td>
+            )}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
