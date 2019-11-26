@@ -502,9 +502,18 @@ export function useSequenceState() {
     });
   };
 
+  const selectedPhrase = selectedTrack.placements[0].phrase;
+  const setSelectedPhrase = (updatedPhrase) => {
+    const originalPlacement = selectedTrack.placements[0];
+    const updatedPlacement = originalPlacement.setPhrase(updatedPhrase);
+    const updatedTrack = selectedTrack.replacePlacement(originalPlacement, updatedPlacement);
+    setSequence(state.sequence.replaceTrack(selectedTrack, updatedTrack));
+  };
+
   return [
     [state.sequence, setSequence],
     [selectedTrack, setSelectedTrack],
+    [selectedPhrase, setSelectedPhrase],
     [state.selectedPitch, setSelectedPitch],
     [selectedPatch, setSelectedPatch],
   ];

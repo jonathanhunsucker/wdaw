@@ -11,10 +11,7 @@ import { UniversalNoteParser, Hit } from "./Sequence.js";
 import useInterval from "./useInterval.js";
 import Checkbox from "./Checkbox.js";
 
-const cellStyles = {borderStyle: 'ridge'};
-const currentBeatStyles = Object.assign({}, {backgroundColor: 'lightgrey'}, cellStyles);
-const rightAlignStyles = Object.assign({}, {textAlign: 'right'}, cellStyles);
-
+import { cellStyles, currentBeatStyles, rightAlignStyles } from "./styles.js";
 
 function useWebAudioAPIClock(context, tick) {
   const tickReference = useRef();
@@ -181,19 +178,6 @@ export const Sequencer = React.memo(function Sequencer({ audioContext, destinati
     playerSetIsPlaying(newIsPlaying);
   }
 
-  const [
-    phrase,
-    setPhrase,
-  ] = [
-    selectedTrack.placements[0].phrase,
-    (updatedPhrase) => {
-      const originalPlacement = selectedTrack.placements[0];
-      const updatedPlacement = originalPlacement.setPhrase(updatedPhrase);
-      const updatedTrack = selectedTrack.replacePlacement(originalPlacement, updatedPlacement);
-      setSequence(sequence.replaceTrack(selectedTrack, updatedTrack));
-    },
-  ];
-
   return (
     <React.Fragment>
       <p><button onClick={() => setIsPlaying(!isPlaying)}>{isPlaying ? 'pause' : 'play'}</button></p>
@@ -234,125 +218,8 @@ export const Sequencer = React.memo(function Sequencer({ audioContext, destinati
           })}
         </tbody>
       </table>
-
-      <h3>Phrase</h3>
-      <Phrase phrase={phrase} setPhrase={setPhrase} />
     </React.Fragment>
   );
 });
 
 
-function Phrase({ phrase, setPhrase }) {
-  const divisions = 4;
-  const stepSize = [1, divisions]; 
-
-  const hitValue = (beat, note) => {
-    const spanningHit = phrase.findHits({spans: beat, note: note})[0]
-    if (spanningHit) {
-      return spanningHit.period.beginsOn(beat) ? true : 'indeterminate';
-    } else {
-      return !!phrase.findHits({beginningOn: beat, note: note})[0];
-    }
-  };
-
-  const toggleHit = (beat, note, value) => {
-    const supportsSustain = phrase.supports('sustain');
-    const defaultDuration = [1, 4]; // TODO
-    if (supportsSustain === false && value === 'indeterminate') {
-      return;
-    }
-
-    let spanningHit = phrase.findHits({spans: beat, note: note})[0];
-    if (supportsSustain === false && !spanningHit) {
-      spanningHit = phrase.findHits({beginningOn: beat, note: note})[0];
-    }
-
-    const toRemove = [];
-    const toAdd = [];
-
-    if (value === true) {
-      // add a note on beat
-      if (spanningHit) {
-        throw new Error('tried to add note to beat which is already spanned');
-      } else {
-        toAdd.push(new Hit(note, beat, defaultDuration));
-      }
-    } else if (value === 'indeterminate') {
-      // sustain an existing note further
-      const hitWithClosestEnd = phrase.findHits({note: note, endsOnOrBefore: beat}).reduce((lastSoFar, candidate) => {
-        if (lastSoFar === null) {
-          return candidate;
-        }
-
-        const shouldTakeCandidate = rationalGreater(candidate.endingAsRational(), lastSoFar.endingAsRational());
-        return shouldTakeCandidate ? candidate : lastSoFar;
-      }, null);
-
-      const duration = rationalDifference(
-        rationalSum(beat.toRational(), stepSize),
-        hitWithClosestEnd.beginningAsRational()
-      );
-      const adjusted = hitWithClosestEnd.adjustDurationTo(duration);
-
-      toRemove.push(spanningHit);
-      toAdd.push(adjusted);
-    } else if (value === false) {
-      // remove a hit, or shorten it
-      if (spanningHit) {
-        toRemove.push(spanningHit);
-        if (spanningHit.period.beginsOn(beat) === false) {
-          const duration = rationalDifference(beat.toRational(), spanningHit.beginningAsRational());
-          const adjusted = spanningHit.adjustDurationTo(duration);
-          toAdd.push(adjusted);
-        }
-      } else {
-        throw new Error('tried to remove a note for which no spanning hit could be found');
-      }
-    }
-
-    const phraseSansRemovals = toRemove.reduce((phrase, hit) => phrase.removeHit(hit), phrase);
-    const phraseWithAdditions = toAdd.reduce((phrase, hit) => phrase.addHit(hit), phraseSansRemovals);
-
-    setPhrase(phraseWithAdditions);
-  }
-
-  const beats = flatten(
-    range(1, 4).map((beat) => {
-      return range(0, divisions - 1).map((numerator) => new Beat(beat, [numerator, divisions]));
-    })
-  );
-
-  const pitched = ['C3', 'A#3', 'G#2', 'G2', 'F2', 'D#2', 'D2', 'C2'];
-  const percussive = ['ClosedHat', 'Snare', 'Kick'];
-  const notes = (phrase.kind === 'keys' ? pitched : percussive).map((pitch) => UniversalNoteParser.parse(pitch));
-
-  return (
-    <table style={{borderCollapse: 'collapse'}}>
-      <thead>
-        <tr>
-          <th style={cellStyles}></th>
-          {beats.map((beat) =>
-            <th key={beat.key} style={cellStyles}>
-              {rationalEquals(beat.rational, [0, 0]) ? beat.beat : ''}
-            </th>
-          )}
-        </tr>
-      </thead>
-      <tbody>
-        {notes.map((note, index) => (
-          <tr key={note.pitch}>
-            <td style={cellStyles}>{note.pitch}</td>
-            {beats.map((beat) =>
-              <td key={beat.key} style={cellStyles}>
-                <Checkbox
-                  value={hitValue(beat, note)}
-                  onChange={(value) => toggleHit(beat, note, value)}
-                />
-              </td>
-            )}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-}

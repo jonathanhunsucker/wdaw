@@ -9,6 +9,7 @@ import PatchEditor from "./PatchEditor.js";
 import { LinearScaleUnitInput } from "./input.js";
 import { Percentage } from "./string.js";
 import { Sequencer } from "./Sequencer.js";
+import { Phrase } from "./Phrase.js";
 
 function App() {
   const audioContext = useAudioContext();
@@ -17,6 +18,7 @@ function App() {
   const [
     [sequence, setSequence],
     [selectedTrack, setSelectedTrack],
+    [selectedPhrase, setSelectedPhrase],
     [selectedPitch, setSelectedPitch],
     [selectedPatch, setSelectedPatch],
   ] = useSequenceState();
@@ -39,6 +41,9 @@ function App() {
         selectedPitch={selectedPitch}
         setSelectedPitch={setSelectedPitch}
       />
+
+      <h2>Phrase</h2>
+      <Phrase phrase={selectedPhrase} setPhrase={setSelectedPhrase} />
 
       <h2>Patch</h2>
       <PatchEditor patch={selectedPatch} setPatch={setSelectedPatch} />
