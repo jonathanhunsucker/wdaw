@@ -480,17 +480,17 @@ export class Sequence {
 };
 
 const defaultSequence = Sequence.fromNothing();
-const defaultTrackFromSequence = (sequence) => sequence.tracks[0];
-const defaultPatchFromTrack = (track) => Object.entries(track.patches)[0][1];
-const defaultPitchFromTrack = (track) => Object.keys(track.patches)[0];
+const defaultSelectedTrack = 1;
 const defaultPhraseFromTrack = (track) => Object.keys(track.phrases)[0];
+const defaultPitchFromTrack = (track) => Object.keys(track.patches)[0];
+const defaultPatchFromTrack = (track) => Object.entries(track.patches)[0][1];
 
 export function useSequenceState() {
   const [state, setState] = useState({
     sequence: defaultSequence,
-    selectedTrack: 0,
-    selectedPhrase: defaultPhraseFromTrack(defaultTrackFromSequence(defaultSequence)),
-    selectedPitch: defaultPitchFromTrack(defaultTrackFromSequence(defaultSequence)),
+    selectedTrack: defaultSelectedTrack,
+    selectedPhrase: defaultPhraseFromTrack(defaultSequence.tracks[defaultSelectedTrack]),
+    selectedPitch: defaultPitchFromTrack(defaultSequence.tracks[defaultSelectedTrack]),
   });
   const selectedTrack = state.sequence.tracks[state.selectedTrack];
   const selectedPatch = selectedTrack.patchForPitch(state.selectedPitch);

@@ -41,7 +41,7 @@ function App() {
       <h2>Phrase</h2>
       <p>
         Track:{' '}
-        <select onChange={(e) => selectTrack(parseInt(e.target.value, 10))}>
+        <select value={sequence.tracks.indexOf(selectedTrack)} onChange={(e) => selectTrack(parseInt(e.target.value, 10))}>
           {sequence.tracks.map((track, trackIndex) => {
             return (
               <option key={trackIndex} value={trackIndex}>{track.name}</option>
