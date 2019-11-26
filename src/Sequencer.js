@@ -13,7 +13,7 @@ import Checkbox from "./Checkbox.js";
 
 import { buildCellStyles } from "./styles.js";
 
-const { cellStyles, currentBeatStyles, rightAlignStyles } = buildCellStyles({});
+const { cellStyles, currentBeatStyles, rightAlignStyles } = buildCellStyles({ minWidth: '1vw'});
 
 function useWebAudioAPIClock(context, tick) {
   const tickReference = useRef();
@@ -119,11 +119,20 @@ export const Sequencer = React.memo(function Sequencer({ audioContext, destinati
                   {index === 0 && <td style={cellStyles} rowSpan={track.placements.length}>
                     <label htmlFor={`track-${trackIndex}`}>{track.name}</label>
                   </td>}
-                  {sequence.beats.map((beat) =>
-                    <td key={beat.key} style={currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
-                      {track.getPeriodFromPlacement(placement).spans(beat) ? '#' : '_'}
-                    </td>
-                  )}
+                  {sequence.beats.map((beat) => {
+                    const period = track.getPeriodFromPlacement(placement);
+
+                    if (!period.beginsOn(beat) && period.spans(beat)) {
+                      return null;
+                    }
+
+                    const colSpan = period.beginsOn(beat) ? rationalAsFloat(period.duration) / rationalAsFloat(sequence.tickSize) : 1;
+                    return (
+                      <td key={beat.key} colSpan={colSpan} style={currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
+                        {period.beginsOn(beat) ? placement.phraseId : null}
+                      </td>
+                    );
+                  })}
                 </tr>
               )
             );
