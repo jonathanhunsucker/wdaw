@@ -4,6 +4,8 @@ import Beat from "./music/Beat.js";
 import TimeSignature from "./music/TimeSignature.js";
 import { range, flatten, rationalEquals, rationalSum, rationalGreaterEqual, rationalLess, rationalLessEqual, rationalDifference, rationalAsFloat } from "./math.js";
 
+import { assert, instanceOf, anInteger, aString, any } from "./types.js";
+
 import { useState, useMemo } from "react";
 
 function zip(accumulation, entry) {
@@ -129,9 +131,9 @@ export class Hit {
   }
 }
 
-function repack(object) {
+function repackObject(object) {
   return {
-    replace: (before, after) => {
+    replaceValue: (before, after) => {
       return Object.entries(object).map(([key, value]) => [key, value === before ? after : value]).reduce(zip, {});
     },
   };
@@ -139,35 +141,33 @@ function repack(object) {
 
 function repackArray(array) {
   return {
-    replace: (before, after) => {
+    replaceItem: (before, after) => {
       return array.map((item) => item === before ? after : item);
     },
   };
 }
 
 class Placement {
-  constructor(beat, phrase) {
+  constructor(beat, phraseId) {
     this.beat = beat;
-    this.phrase = phrase;
+    this.phraseId = phraseId;
   }
-  get period() {
-    return new Period(this.beat, [this.phrase.duration, 1]);
-  }
-  setPhrase(replacementPhrase) {
+  setPhrase(replacementPhraseId) {
     const replacement = new Placement(
       this.beat,
-      replacementPhrase
+      replacementPhraseId
     );
     return replacement;
   }
 }
 
 class Track {
-  constructor(name, kind, patches, placements, notes) {
+  constructor(name, kind, patches, placements, phrases) {
     this.name = name;
     this.kind = kind;
     this.patches = patches;
     this.placements = placements;
+    this.phrases = phrases;
   }
   patchForPitch(pitch) {
     if (pitch && this.patches.hasOwnProperty(pitch)) {
@@ -179,6 +179,9 @@ class Track {
     }
 
     return false;
+  }
+  getPeriodFromPlacement(placement) {
+    return new Period(placement.beat, [this.phrases[placement.phraseId].duration, 1]);
   }
   supports(feature) {
     if (feature === 'sustain') return this.kind === 'keys';
@@ -194,8 +197,21 @@ class Track {
     return new Track(
       this.name,
       this.kind,
-      repack(this.patch).replace(before, after),
+      repackObject(this.patches).replaceValue(before, after),
+      this.placements,
       this.phrases
+    );
+  }
+  replacePhrase(before, after) {
+    assert(before, instanceOf(Phrase));
+    assert(after, instanceOf(Phrase));
+
+    return new Track(
+      this.name,
+      this.kind,
+      this.patches,
+      this.placements,
+      repackObject(this.phrases).replaceValue(before, after)
     );
   }
   replacePlacement(before, after) {
@@ -203,13 +219,14 @@ class Track {
       this.name,
       this.kind,
       this.patches,
-      repackArray(this.placements).replace(before, after),
+      repackArray(this.placements).replaceItem(before, after),
+      this.phrases
     );
     return replaced;
   }
 }
 
-class Phrase {
+export class Phrase {
   constructor(kind, hits) {
     this.name = 'my phrase';
     this.kind = kind;
@@ -340,6 +357,9 @@ export class Sequence {
         on(4, [1, 4]).play(['C3']).for([1, 4]),
         on(4, [1, 2]).play(['C3']).for([1, 4]),
       ])),
+      cMinor: new Phrase('keys', flatten([
+        on(2, [0, 0]).play(['C2', 'D#2', 'G2']).for([1, 1]),
+      ])),
       march: new Phrase('drums', flatten([
         on(1, [0, 0]).hit(['Kick']).for([0, 0]),
         on(1, [0, 0]).hit(['ClosedHat']).for([0, 0]),
@@ -363,16 +383,15 @@ export class Sequence {
         "Track 1",
         'keys',
         {'*': synth},
-        [
-          new Placement(new Beat(2, [0, 0]), phrases.cMinorToUpperC),
-          new Placement(new Beat(3, [0, 0]), phrases.cMinorToUpperC),
-        ]
+        [new Placement(new Beat(1, [0, 0]), 'cMinorToUpperC'), new Placement(new Beat(5, [0, 0]), 'cMinor')],
+        {'cMinorToUpperC': phrases.cMinorToUpperC, 'cMinor': phrases.cMinor}
       ),
       new Track(
         "Track 2",
         'drums',
         {'ClosedHat': hat, 'Kick': hat, 'Snare': snare},
-        [new Placement(new Beat(1, [0, 0]), phrases.march)]
+        [new Placement(new Beat(1, [0, 0]), 'march')],
+        {'march': phrases.march}
       ),
     ];
 
@@ -402,7 +421,7 @@ export class Sequence {
   replaceTrack(before, after) {
     return new Sequence(
       this.tempo,
-      repackArray(this.tracks).replace(before, after),
+      repackArray(this.tracks).replaceItem(before, after),
       this.timeSignature
     );
   }
@@ -423,12 +442,20 @@ export class Sequence {
 
     const expirations = flatten(
       this.tracks.map((track) => {
-        return track.hitsOnBeat(beat).map((hit) => {
-          const boundPatch = track.patchForPitch(hit.note.pitch).bind(hit.note.frequency);
-          // BUG 50ms breathing room, should be determined by the track's patch, not hardcoded
-          const expiresOn = now + Math.max(rationalAsFloat(hit.duration) * this.secondsPerBeat(), 0.050);
+        return track.placements.map((placement) => {
+          const period = track.getPeriodFromPlacement(placement);
+          if (period.spans(beat) === false) {
+            return [];
+          }
 
-          return new Expiration(boundPatch, expiresOn);
+          const relativeBeat = beat.minus(placement.beat);
+
+          return track.phrases[placement.phraseId].findHits({beginningOn: relativeBeat}).map((hit) => {
+            const boundPatch = track.patchForPitch(hit.note.pitch).bind(hit.note.frequency);
+            // BUG 50ms breathing room, should be determined by the track's patch, not hardcoded
+            const expiresOn = now + Math.max(rationalAsFloat(hit.duration) * this.secondsPerBeat(), 0.050);
+            return new Expiration(boundPatch, expiresOn);
+          });
         });
       })
     );
@@ -456,29 +483,73 @@ const defaultSequence = Sequence.fromNothing();
 const defaultTrackFromSequence = (sequence) => sequence.tracks[0];
 const defaultPatchFromTrack = (track) => Object.entries(track.patches)[0][1];
 const defaultPitchFromTrack = (track) => Object.keys(track.patches)[0];
+const defaultPhraseFromTrack = (track) => Object.keys(track.phrases)[0];
 
 export function useSequenceState() {
   const [state, setState] = useState({
     sequence: defaultSequence,
     selectedTrack: 0,
+    selectedPhrase: defaultPhraseFromTrack(defaultTrackFromSequence(defaultSequence)),
     selectedPitch: defaultPitchFromTrack(defaultTrackFromSequence(defaultSequence)),
   });
   const selectedTrack = state.sequence.tracks[state.selectedTrack];
   const selectedPatch = selectedTrack.patchForPitch(state.selectedPitch);
+  const selectedPhrase = selectedTrack.phrases[state.selectedPhrase];
 
   const setSequence = (replacementSequence) => {
     setState({
       sequence: replacementSequence,
       selectedTrack: state.selectedTrack,
+      selectedPhrase: selectedTrack.phrases.hasOwnProperty(state.selectedPhrase) ? state.selectedPhrase : defaultPhraseFromTrack(selectedTrack),
       selectedPitch: Object.keys(selectedTrack.patches).includes(state.selectedPitch) ? state.selectedPitch : defaultPitchFromTrack(selectedTrack),
     });
   };
 
-  const setSelectedTrack = (replacementTrack) => {
+  const selectTrack = (index) => {
+    assert(index, anInteger());
+    const newlySelectedTrack = state.sequence.tracks[index];
+    assert(newlySelectedTrack, instanceOf(Track));
+
     setState({
       sequence: state.sequence,
-      selectedTrack: state.sequence.tracks.indexOf(replacementTrack),
-      selectedPitch: defaultPitchFromTrack(replacementTrack),
+      selectedTrack: state.sequence.tracks.indexOf(newlySelectedTrack),
+      selectedPhrase: defaultPhraseFromTrack(newlySelectedTrack),
+      selectedPitch: defaultPitchFromTrack(newlySelectedTrack),
+    });
+  };
+
+  const setSelectedTrack = (replacementTrack) => {
+    setSequence(state.sequence.replaceTrack(selectedTrack, replacementTrack));
+  };
+
+  const selectPhrase = (newlySelectedPhraseId) => {
+    assert(newlySelectedPhraseId, aString());
+    const newlySelectedPhrase = selectedTrack.phrases[newlySelectedPhraseId];
+    assert(newlySelectedPhrase, instanceOf(Phrase));
+
+    setState({
+      sequence: state.sequence,
+      selectedTrack: state.selectedTrack,
+      selectedPhrase: newlySelectedPhraseId,
+      selectedPitch: state.selectedPitch,
+    });
+  };
+
+  const setSelectedPhrase = (updatedPhrase) => {
+    const updatedTrack = selectedTrack.replacePhrase(selectedPhrase, updatedPhrase);
+    setSequence(state.sequence.replaceTrack(selectedTrack, updatedTrack));
+  };
+
+  const selectPitch = (newlySelectedPitch) => {
+    assert(newlySelectedPitch, aString());
+    const newlySelectedPatch = selectedTrack.patches[newlySelectedPitch];
+    assert(newlySelectedPatch, any([Gain, Envelope, Wave, Filter, Noise].map((stage) => instanceOf(stage))));
+
+    setState({
+      sequence: state.sequence,
+      selectedTrack: state.selectedTrack,
+      selectedPhrase: state.selectedPhrase,
+      selectedPitch: newlySelectedPitch,
     });
   };
 
@@ -486,6 +557,7 @@ export function useSequenceState() {
     setState({
       sequence: state.sequence,
       selectedTrack: state.selectedTrack,
+      selectedPhrase: state.selectedPhrase,
       selectedPitch: replacementPitch,
     });
   };
@@ -498,23 +570,18 @@ export function useSequenceState() {
     setState({
       sequence: replacementSequence,
       selectedTrack: state.selectedTrack,
+      selectedPhrase: state.selectedPhrase,
       selectedPitch: state.selectedPitch,
     });
   };
 
-  const selectedPhrase = selectedTrack.placements[0].phrase;
-  const setSelectedPhrase = (updatedPhrase) => {
-    const originalPlacement = selectedTrack.placements[0];
-    const updatedPlacement = originalPlacement.setPhrase(updatedPhrase);
-    const updatedTrack = selectedTrack.replacePlacement(originalPlacement, updatedPlacement);
-    setSequence(state.sequence.replaceTrack(selectedTrack, updatedTrack));
-  };
-
+  assert(selectedTrack, instanceOf(Track));
+  assert(selectedPhrase, instanceOf(Phrase));
   return [
     [state.sequence, setSequence],
-    [selectedTrack, setSelectedTrack],
-    [selectedPhrase, setSelectedPhrase],
-    [state.selectedPitch, setSelectedPitch],
-    [selectedPatch, setSelectedPatch],
+    [selectedTrack, selectTrack, setSelectedTrack],
+    [selectedPhrase, selectPhrase, setSelectedPhrase],
+    [state.selectedPitch, selectPitch, setSelectedPitch],
+    [selectedPatch, () => {}, setSelectedPatch],
   ];
 };

@@ -9,7 +9,7 @@ import PatchEditor from "./PatchEditor.js";
 import { LinearScaleUnitInput } from "./input.js";
 import { Percentage } from "./string.js";
 import { Sequencer } from "./Sequencer.js";
-import { Phrase } from "./Phrase.js";
+import { PhraseEditor } from "./Phrase.js";
 
 function App() {
   const audioContext = useAudioContext();
@@ -17,10 +17,10 @@ function App() {
 
   const [
     [sequence, setSequence],
-    [selectedTrack, setSelectedTrack],
-    [selectedPhrase, setSelectedPhrase],
-    [selectedPitch, setSelectedPitch],
-    [selectedPatch, setSelectedPatch],
+    [selectedTrack, selectTrack, setSelectedTrack],
+    [selectedPhrase, selectPhrase, setSelectedPhrase],
+    [selectedPitch, selectPitch, setSelectedPitch],
+    [selectedPatch, selectPatch, setSelectedPatch],
   ] = useSequenceState();
 
   return (
@@ -36,16 +36,42 @@ function App() {
         destination={destination}
         sequence={sequence}
         setSequence={setSequence}
-        selectedTrack={selectedTrack}
-        setSelectedTrack={setSelectedTrack}
-        selectedPitch={selectedPitch}
-        setSelectedPitch={setSelectedPitch}
       />
 
       <h2>Phrase</h2>
-      <Phrase phrase={selectedPhrase} setPhrase={setSelectedPhrase} />
+      <p>
+        Track:{' '}
+        <select onChange={(e) => selectTrack(parseInt(e.target.value, 10))}>
+          {sequence.tracks.map((track, trackIndex) => {
+            return (
+              <option key={trackIndex} value={trackIndex}>{track.name}</option>
+            );
+          })}
+        </select>
+      </p>
+      <p>
+        Phrase:{' '}
+        <select onChange={(e) => selectPhrase(e.target.value)}>
+          {Object.entries(selectedTrack.phrases).map(([phraseId, phrase]) => {
+            return (
+              <option key={phraseId} value={phraseId}>{phrase.name} ({phraseId})</option>
+            );
+          })}
+        </select>
+      </p>
+      <PhraseEditor phrase={selectedPhrase} setPhrase={setSelectedPhrase} />
 
       <h2>Patch</h2>
+      <p>
+        Pitch:{' '}
+        <select onChange={(e) => selectPitch(e.target.value)}>
+          {Object.entries(selectedTrack.patches).map(([pitch, patch]) => {
+            return (
+              <option key={pitch} value={pitch}>{pitch}</option>
+            );
+          })}
+        </select>
+      </p>
       <PatchEditor patch={selectedPatch} setPatch={setSelectedPatch} />
 
       <h2>Keyboard</h2>
