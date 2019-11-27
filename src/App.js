@@ -2,7 +2,7 @@ import React from "react";
 
 import useAudioContext from "./useAudioContext.js";
 import useMainMix from "./useMainMix.js";
-import { useSequenceState } from "./Sequence.js";
+import useSequenceState from "./useSequenceState.js";
 
 import { Keyboard } from "./Keyboard.js";
 import PatchEditor from "./PatchEditor.js";
