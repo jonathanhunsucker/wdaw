@@ -6,15 +6,7 @@ import { range, flatten, rationalEquals, rationalSum, rationalGreaterEqual, rati
 import Beat from "./music/Beat.js";
 import TimeSignature from "./music/TimeSignature.js";
 import { assert, instanceOf } from "./types.js";
-
-function zip(accumulation, entry) {
-  if (!accumulation) {
-    accumulation = {};
-  }
-
-  accumulation[entry[0]] = entry[1];
-  return accumulation;
-}
+import { zip, unique, repackObject, repackArray, memo } from "./functional.js";
 
 // will walk and talk like a note, but for representing percusive notes instead of scientific pitch notation
 // eventually, should be rolled back into music-js
@@ -39,18 +31,6 @@ export class UniversalNoteParser {
       return new Percussion(object);
     }
   }
-}
-
-const unique = (item, index, list) => {
-  return list.indexOf(item) === index;
-};
-
-const memo = (that, property, getter) => {
-  if (that.hasOwnProperty(property) === false) {
-    that[property] = getter();
-  }
-
-  return that[property];
 }
 
 class Expiration {
@@ -128,22 +108,6 @@ export class Hit {
       duration
     );
   }
-}
-
-function repackObject(object) {
-  return {
-    replaceValue: (before, after) => {
-      return Object.entries(object).map(([key, value]) => [key, value === before ? after : value]).reduce(zip, {});
-    },
-  };
-}
-
-function repackArray(array) {
-  return {
-    replaceItem: (before, after) => {
-      return array.map((item) => item === before ? after : item);
-    },
-  };
 }
 
 export class Placement {
