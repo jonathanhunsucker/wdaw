@@ -70,8 +70,6 @@ function usePlayer(audioContext, destination, sequence) {
     }
 
     toSchedule.map(({beat, time}) => {
-      console.log('it is time', now, 'and beat', currentBeat, 'and i just scheduled', beat, 'for', time);
-
       const newPendingExpirations = sequence.schedule(audioContext, destination, beat, time);
       exciseByPolicyAndAppend(expired, newPendingExpirations);
     });
