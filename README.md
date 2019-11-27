@@ -58,6 +58,7 @@
     - https://smus.com/filter-playground/
     - http://rtoy.github.io/webaudio-hacks/
     - http://rtoy.github.io/webaudio-hacks/demos/shiny-drum-machine.html
+    - https://musiclab.chromeexperiments.com/Song-Maker/song/5121132346736640
 - Music communities
     - https://www.reddit.com/r/LofiHipHop/
     - https://www.reddit.com/r/Drumkits/
