@@ -1,6 +1,6 @@
 import { assert, anInteger } from "./../types.js";
 
-import { rationalEquals, reduceRational, rationalSum, rationalToMixed, rationalDifference, rationalGreaterEqual, aRational } from "./../math.js";
+import { rationalEquals, reduceRational, rationalSum, rationalToMixed, rationalDifference, rationalGreaterEqual, aRational, rationalLess } from "./../math.js";
 
 export default class Beat {
   /**
@@ -45,5 +45,8 @@ export default class Beat {
   }
   equals(beat) {
     return this.beat === beat.beat && rationalEquals(this.rational, beat.rational);
+  }
+  before(beat) {
+    return rationalLess(this.toRational(), beat.toRational());
   }
 }

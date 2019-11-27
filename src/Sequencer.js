@@ -30,8 +30,9 @@ function useWebAudioAPIClock(context, tick) {
 
 
 function usePlayer(audioContext, destination, sequence) {
-  const startedAtRef = useRef();
-  const lastTickedAtRef = useRef(0);
+  const lastTickedAtRef = useRef({time: 0, beat: new Beat(1, [0, 0])});
+  const lastScheduledAtRef = useRef({time: 0, beat: new Beat(1, [0, 0])}); // farthest out in time we've seen
+  const lookaheadInSeconds = .500;
 
   useWebAudioAPIClock(audioContext, () => {
     if (isPlaying === false) {
@@ -40,27 +41,45 @@ function usePlayer(audioContext, destination, sequence) {
 
     const now = audioContext.currentTime;
     const divisionDurationInSeconds = sequence.secondsPerBeat() / sequence.divisions;
-    const shouldPlayNextBeat = divisionDurationInSeconds < now - lastTickedAtRef.current;
+    const relativeAdvancementInSeconds = now - lastTickedAtRef.current.time;
 
-    if (shouldPlayNextBeat === false) {
-      return;
+    const shouldPlayNextBeat = divisionDurationInSeconds < relativeAdvancementInSeconds;
+    if (shouldPlayNextBeat) {
+      const latestBeat = currentBeat.plus(sequence.tickSize);
+      if (!latestBeat.modulo(sequence.timeSignature).equals(latestBeat)) {
+        setIsPlaying(false);
+        return;
+      }
+
+      setCurrentBeat(latestBeat);
     }
 
-    lastTickedAtRef.current = now;
+    const horizonTime = now + lookaheadInSeconds;
+    const budget = horizonTime - lastScheduledAtRef.current.time;
+    if (budget > divisionDurationInSeconds) {
+      const toSchedule = lastScheduledAtRef.current.beat.plus(sequence.tickSize);
+      const scheduledAt = lastScheduledAtRef.current.time + divisionDurationInSeconds;
+      lastScheduledAtRef.current = {time: scheduledAt, beat: toSchedule};
 
-    const newPendingExpirations = sequence.play(audioContext, destination, currentBeat);
-    exciseByPolicyAndAppend(expired, newPendingExpirations);
-
-    setCurrentBeat(currentBeat.plus(sequence.tickSize).modulo(sequence.timeSignature));
+      const newPendingExpirations = sequence.schedule(audioContext, destination, toSchedule, scheduledAt);
+      exciseByPolicyAndAppend(expired, newPendingExpirations);
+    }
   });
 
-  const [currentBeat, setCurrentBeat] = useState(new Beat(1, [0, 0]));
+  const [currentBeat, setCurrentBeatInternal] = useState(new Beat(1, [0, 0]));
+  const setCurrentBeat = (beat) => {
+    lastTickedAtRef.current = {time: audioContext.currentTime, beat: beat};
+    setCurrentBeatInternal(beat);
+  };
   const [isPlaying, setIsPlayingInternal] = useState(false);
   const setIsPlaying = (isPlaying) => {
-    if (isPlaying === true) {
-      startedAtRef.current = audioContext.currentTime;
+    if (isPlaying) {
+      const beat = currentBeat.plus(sequence.tickSize);
+      setCurrentBeat(beat);
+      lastScheduledAtRef.current = {time: audioContext.currentTime, beat: beat};
+    } else {
+      setCurrentBeat(new Beat(1, [0, 0]));
     }
-
     setIsPlayingInternal(isPlaying);
   };
   const exciseByPolicyAndAppend = useExcisedUponRemovalList((expiration) => expiration.expire());

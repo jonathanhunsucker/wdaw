@@ -22,7 +22,7 @@
     "webpack-dev-server": "^3.8.2"
   },
   "dependencies": {
-    "@jonathanhunsucker/audio-js": "^1.0.6",
+    "@jonathanhunsucker/audio-js": "^1.0.7",
     "@jonathanhunsucker/music-js": "^1.0.0",
     "babel-polyfill": "^6.26.0",
     "react": "^16.5.2",

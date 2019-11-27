@@ -434,12 +434,11 @@ export class Sequence {
    * @param {AudioContext} audioContext
    * @param {AudioNode} destination
    * @param {Beat} beat
+   * @param {float} time
    *
    * @returns {Expiration[]}
    */
-  play(audioContext, destination, beat) {
-    const now = audioContext.currentTime;
-
+  schedule(audioContext, destination, beat, time) {
     const expirations = flatten(
       this.tracks.map((track) => {
         return track.placements.map((placement) => {
@@ -453,7 +452,7 @@ export class Sequence {
           return track.phrases[placement.phraseId].findHits({beginningOn: relativeBeat}).map((hit) => {
             const boundPatch = track.patchForPitch(hit.note.pitch).bind(hit.note.frequency);
             // BUG 50ms breathing room, should be determined by the track's patch, not hardcoded
-            const expiresOn = now + Math.max(rationalAsFloat(hit.duration) * this.secondsPerBeat(), 0.050);
+            const expiresOn = time + Math.max(rationalAsFloat(hit.duration) * this.secondsPerBeat(), 0.050);
             return new Expiration(boundPatch, expiresOn);
           });
         });
@@ -466,7 +465,7 @@ export class Sequence {
       expirations.map((expiration) => expiration.binding)
     );
 
-    binding.play(audioContext, destination);
+    binding.play(audioContext, destination, time);
 
     return expirations;
   }
