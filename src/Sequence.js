@@ -360,6 +360,12 @@ export class Sequence {
       cMinor: new Phrase('keys', flatten([
         on(2, [0, 0]).play(['C2', 'D#2', 'G2']).for([1, 1]),
       ])),
+      keyTick: new Phrase('keys', flatten([
+        on(1, [0, 0]).play(['C4']).for([1, 4]),
+        on(2, [0, 0]).play(['C3']).for([1, 4]),
+        on(3, [0, 0]).play(['C3']).for([1, 4]),
+        on(4, [0, 0]).play(['C3']).for([1, 4]),
+      ])),
       march: new Phrase('drums', flatten([
         on(1, [0, 0]).hit(['Kick']).for([0, 0]),
         on(1, [0, 0]).hit(['ClosedHat']).for([0, 0]),
@@ -376,6 +382,24 @@ export class Sequence {
         on(4, [0, 0]).hit(['ClosedHat']).for([0, 0]),
         on(4, [1, 2]).hit(['ClosedHat']).for([0, 0]),
       ])),
+      drumTick: new Phrase('drums', flatten([
+        on(1, [0, 0]).hit(['Kick']).for([0, 0]),
+        on(2, [0, 0]).hit(['Kick']).for([0, 0]),
+        on(3, [0, 0]).hit(['Kick']).for([0, 0]),
+        on(4, [0, 0]).hit(['Kick']).for([0, 0]),
+        on(1, [1, 2]).hit(['Kick']).for([0, 0]),
+        on(2, [1, 2]).hit(['Kick']).for([0, 0]),
+        on(3, [1, 2]).hit(['Kick']).for([0, 0]),
+        on(4, [1, 2]).hit(['Kick']).for([0, 0]),
+        on(1, [1, 4]).hit(['Kick']).for([0, 0]),
+        on(2, [1, 4]).hit(['Kick']).for([0, 0]),
+        on(3, [1, 4]).hit(['Kick']).for([0, 0]),
+        on(4, [1, 4]).hit(['Kick']).for([0, 0]),
+        on(1, [3, 4]).hit(['Kick']).for([0, 0]),
+        on(2, [3, 4]).hit(['Kick']).for([0, 0]),
+        on(3, [3, 4]).hit(['Kick']).for([0, 0]),
+        on(4, [3, 4]).hit(['Kick']).for([0, 0]),
+      ])),
     };
 
     const tracks = [
@@ -384,14 +408,14 @@ export class Sequence {
         'keys',
         {'*': synth},
         [new Placement(new Beat(1, [0, 0]), 'cMinorToUpperC'), new Placement(new Beat(5, [0, 0]), 'cMinor')],
-        {'cMinorToUpperC': phrases.cMinorToUpperC, 'cMinor': phrases.cMinor}
+        {'cMinorToUpperC': phrases.keyTick, 'cMinor': phrases.keyTick}
       ),
       new Track(
         "Track 2",
         'drums',
         {'ClosedHat': hat, 'Kick': hat, 'Snare': snare},
-        [new Placement(new Beat(1, [0, 0]), 'march')],
-        {'march': phrases.march}
+        [new Placement(new Beat(1, [0, 0]), 'march'), new Placement(new Beat(5, [0, 0]), 'march')],
+        {'march': phrases.drumTick}
       ),
     ];
 
