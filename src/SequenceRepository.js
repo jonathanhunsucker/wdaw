@@ -5,7 +5,7 @@ import Beat from "./music/Beat.js";
 import TimeSignature from "./music/TimeSignature.js";
 
 import { flatten } from "./math.js";
-import { Phrase, UniversalNoteParser, Hit, Sequence, Percussion, Track, Placement } from "./Sequence.js";
+import { Phrase, Hit, Sequence, Percussion, Track, Placement } from "./Sequence.js";
   
 /**
  * Factory method for building a list of hits on this beat, for a list of notes.

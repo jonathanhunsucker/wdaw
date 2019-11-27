@@ -6,8 +6,6 @@ import Beat from "./music/Beat.js";
 import useExcisedUponRemovalList from "./useExcisedUponRemovalList.js";
 import { range, flatten, rationalAsFloat, rationalEquals, rationalSum, rationalDifference, rationalGreater, rationalLessEqual } from "./math.js";
 
-import { UniversalNoteParser, Hit } from "./Sequence.js";
-
 import useInterval from "./useInterval.js";
 import Checkbox from "./Checkbox.js";
 
