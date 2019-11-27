@@ -30,8 +30,8 @@ function useWebAudioAPIClock(context, tick) {
 
 
 function usePlayer(audioContext, destination, sequence) {
-  const lastTickedAtRef = useRef({time: 0, beat: new Beat(1, [0, 0])});
-  const lastScheduledAtRef = useRef({time: 0, beat: new Beat(1, [0, 0])}); // farthest out in time we've seen
+  const lastTickedAtRef = useRef({time: null, beat: null});
+  const lastScheduledAtRef = useRef({time: null, beat: null}); // farthest out in time we've seen
   const lookaheadInSeconds = .500;
 
   useWebAudioAPIClock(audioContext, () => {
@@ -55,18 +55,29 @@ function usePlayer(audioContext, destination, sequence) {
     }
 
     const horizonTime = now + lookaheadInSeconds;
-    const budget = horizonTime - lastScheduledAtRef.current.time;
-    if (budget > divisionDurationInSeconds) {
-      const toSchedule = lastScheduledAtRef.current.beat.plus(sequence.tickSize);
-      const scheduledAt = lastScheduledAtRef.current.time + divisionDurationInSeconds;
-      lastScheduledAtRef.current = {time: scheduledAt, beat: toSchedule};
+    const toSchedule = [];
+    while (true) {
+      const beat = lastScheduledAtRef.current.beat !== null ? lastScheduledAtRef.current.beat.plus(sequence.tickSize) : new Beat(1, [0, 0]);
+      const at = lastScheduledAtRef.current.time !== null ? lastScheduledAtRef.current.time + divisionDurationInSeconds : 0;
 
-      const newPendingExpirations = sequence.schedule(audioContext, destination, toSchedule, scheduledAt);
-      exciseByPolicyAndAppend(expired, newPendingExpirations);
+      if (at >= horizonTime) {
+        break;
+      }
+
+      const scheduled = { beat: beat, time: at };
+      toSchedule.push(scheduled);
+      lastScheduledAtRef.current = scheduled;
     }
+
+    toSchedule.map(({beat, time}) => {
+      console.log('it is time', now, 'and beat', currentBeat, 'and i just scheduled', beat, 'for', time);
+
+      const newPendingExpirations = sequence.schedule(audioContext, destination, beat, time);
+      exciseByPolicyAndAppend(expired, newPendingExpirations);
+    });
   });
 
-  const [currentBeat, setCurrentBeatInternal] = useState(new Beat(1, [0, 0]));
+  const [currentBeat, setCurrentBeatInternal] = useState(null);
   const setCurrentBeat = (beat) => {
     lastTickedAtRef.current = {time: audioContext.currentTime, beat: beat};
     setCurrentBeatInternal(beat);
@@ -74,9 +85,9 @@ function usePlayer(audioContext, destination, sequence) {
   const [isPlaying, setIsPlayingInternal] = useState(false);
   const setIsPlaying = (isPlaying) => {
     if (isPlaying) {
-      const beat = currentBeat.plus(sequence.tickSize);
+      const beat = currentBeat === null ? new Beat(1, [0, 0]) : currentBeat.plus(sequence.tickSize);
       setCurrentBeat(beat);
-      lastScheduledAtRef.current = {time: audioContext.currentTime, beat: beat};
+      lastScheduledAtRef.current = {time: audioContext.currentTime, beat: null};
     } else {
       setCurrentBeat(new Beat(1, [0, 0]));
     }
@@ -124,7 +135,7 @@ export const Sequencer = React.memo(function Sequencer({ audioContext, destinati
           <tr>
             <th style={cellStyles}></th>
             {sequence.beats.map((beat) =>
-              <th key={beat.key} style={currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
+              <th key={beat.key} style={currentBeat && currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
                 {rationalEquals(beat.rational, [0, 0]) ? beat.beat : ''}
               </th>
             )}
@@ -147,7 +158,7 @@ export const Sequencer = React.memo(function Sequencer({ audioContext, destinati
 
                     const colSpan = period.beginsOn(beat) ? rationalAsFloat(period.duration) / rationalAsFloat(sequence.tickSize) : 1;
                     return (
-                      <td key={beat.key} colSpan={colSpan} style={currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
+                      <td key={beat.key} colSpan={colSpan} style={currentBeat && currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
                         {period.beginsOn(beat) ? placement.phraseId : null}
                       </td>
                     );
