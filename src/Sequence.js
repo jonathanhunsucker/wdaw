@@ -2,9 +2,10 @@ import { useState, useMemo } from "react";
 
 import { Binding, Gain } from "@jonathanhunsucker/audio-js";
 
-import { range, flatten, rationalEquals, rationalSum, rationalGreaterEqual, rationalLess, rationalLessEqual, rationalAsFloat } from "./math.js";
 import Beat from "./music/Beat.js";
 import TimeSignature from "./music/TimeSignature.js";
+
+import { range, flatten, rationalEquals, rationalSum, rationalGreaterEqual, rationalLess, rationalLessEqual, rationalAsFloat } from "./math.js";
 import { assert, instanceOf } from "./types.js";
 import { zip, unique, repackObject, repackArray, memo } from "./functional.js";
 

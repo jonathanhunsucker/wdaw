@@ -5,6 +5,7 @@ import Beat from "./music/Beat.js";
 import TimeSignature from "./music/TimeSignature.js";
 
 import { flatten } from "./math.js";
+
 import { Phrase, Hit, Sequence, Percussion, Track, Placement } from "./Sequence.js";
   
 /**

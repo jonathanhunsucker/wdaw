@@ -3,10 +3,12 @@ import React, { useRef, useState, useEffect, useMemo } from "react";
 import { silentPingToWakeAutoPlayGates } from "@jonathanhunsucker/audio-js";
 
 import Beat from "./music/Beat.js";
+
 import useExcisedUponRemovalList from "./useExcisedUponRemovalList.js";
+import useInterval from "./useInterval.js";
+
 import { range, flatten, rationalAsFloat, rationalEquals, rationalSum, rationalDifference, rationalGreater, rationalLessEqual } from "./math.js";
 
-import useInterval from "./useInterval.js";
 import Checkbox from "./Checkbox.js";
 
 import { buildCellStyles } from "./styles.js";

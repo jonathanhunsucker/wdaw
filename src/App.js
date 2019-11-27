@@ -5,7 +5,7 @@ import useMainMix from "./useMainMix.js";
 import useSequenceState from "./useSequenceState.js";
 
 import { Keyboard } from "./Keyboard.js";
-import PatchEditor from "./PatchEditor.js";
+import { PatchEditor } from "./PatchEditor.js";
 import { LinearScaleUnitInput } from "./input.js";
 import { Percentage } from "./string.js";
 import { Sequencer } from "./Sequencer.js";

@@ -6,8 +6,8 @@ import useKeystrokeMonitor from "./useKeystrokeMonitor.js";
 import useSet from "./useSet.js";
 import useDestructiveReadMap from "./useDestructiveReadMap.js";
 import useKeyboard from "./useKeyboard.js";
-import { Percussion } from "./Sequence.js";
 
+import { Percussion } from "./Sequence.js";
 import { Mapping, Handler } from "./KeyCommand.js";
 
 const MARGIN = 0.1;

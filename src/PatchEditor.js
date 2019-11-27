@@ -3,6 +3,7 @@ import React from "react";
 import { Wave, Gain, Envelope, Filter } from "@jonathanhunsucker/audio-js";
 
 import { Percentage, Seconds, Frequency } from "./string.js";
+
 import { LinearScaleUnitInput, CubicScaleUnitInput, CubicScalePositiveInput } from "./input.js";
 
 function WaveControls(wave, handleControlChange) {
@@ -130,8 +131,6 @@ function StageTree(stage, setStage) {
   );
 }
 
-const PatchEditor = React.memo(function PatchEditor(props) {
+export const PatchEditor = React.memo(function PatchEditor(props) {
   return StageTree(props.patch, props.setPatch);
 });
-
-export default PatchEditor;
