@@ -17,10 +17,11 @@ import square, { MARGIN } from "./square.js";
 const Keyboard = React.memo(function Keyboard({ audioContext, destination, selectedTrack }) {
   const [pressed, press, release] = useKeyboard(audioContext, destination, selectedTrack);
 
+  const [shift, setShift] = useState(0);
+  const [mod, setMod] = useState(false);
+  const nudgeSize = mod ? 1 : 12;
+
   if (selectedTrack.kind === 'keys') {
-    const [shift, setShift] = useState(0);
-    const [mod, setMod] = useState(false);
-    const nudgeSize = mod ? 1 : 12;
 
     const translate = (note) => {
       return Note.fromStepsFromMiddleA(note.stepsFromMiddleA + shift);
