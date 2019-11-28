@@ -1,5 +1,5 @@
 import { assert, anInteger } from "@/utility/type.js";
-import { equals, reduce, sum, toMixed, difference, greaterEqual, aRational, less } from "@/utility/rational.js";
+import { equals, reduce, sum, toMixed, difference, greater, greaterEqual, aRational, less } from "@/utility/rational.js";
 
 export default class Beat {
   /**
