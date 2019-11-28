@@ -3,7 +3,6 @@ import React, { useRef, useState } from "react";
 import { Binding, Gain } from "@jonathanhunsucker/audio-js";
 
 import { flatten } from "@/utility/math.js";
-import { asFloat } from "@/utility/rational.js";
 
 import Beat from "@/music/Beat.js";
 
@@ -38,7 +37,7 @@ export default function usePlayer(audioContext, destination, sequence) {
           return track.phrases[placement.phraseId].findHits({beginningOn: relativeBeat}).map((hit) => {
             const boundPatch = track.patchForPitch(hit.note.pitch).bind(hit.note.frequency);
             // BUG 50ms breathing room, should be determined by the track's patch, not hardcoded
-            const expiresOn = time + Math.max(asFloat(hit.duration) * sequence.secondsPerBeat(), 0.050);
+            const expiresOn = time + Math.max(hit.period.durationInFloatingBeats() * sequence.secondsPerBeat(), 0.050);
             return new Expiration(boundPatch, expiresOn);
           });
         });

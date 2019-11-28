@@ -1,3 +1,5 @@
+import { asFloat } from "@/utility/rational.js";
+
 /**
  * Represents a length of time beginning on a beat and lasting for a duration
  */
@@ -20,6 +22,12 @@ export default class Period {
   }
   beginsOn(beat) {
     return this.beat.equals(beat);
+  }
+  divide(duration) {
+    return asFloat(this.duration) / asFloat(duration);
+  }
+  durationInFloatingBeats() {
+    return asFloat(this.duration);
   }
   spans(beat) {
     const startsOnOrAfter = beat.after(this.beat) || beat.equals(this.beat);

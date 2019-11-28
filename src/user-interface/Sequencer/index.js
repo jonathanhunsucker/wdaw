@@ -3,7 +3,6 @@ import React from "react";
 import { silentPingToWakeAutoPlayGates } from "@jonathanhunsucker/audio-js";
 
 import { flatten } from "@/utility/math.js";
-import { asFloat, equals } from "@/utility/rational.js";
 
 import usePlayer from "./usePlayer.js";
 
@@ -36,7 +35,7 @@ const Sequencer = React.memo(function Sequencer({ audioContext, destination, seq
             <th style={cellStyles}></th>
             {sequence.beats.map((beat) =>
               <th key={beat.key} style={currentBeat && currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
-                {equals(beat.rational, [0, 0]) ? beat.beat : ''}
+                {beat.isRound() ? beat.beat : ''}
               </th>
             )}
           </tr>
@@ -56,7 +55,7 @@ const Sequencer = React.memo(function Sequencer({ audioContext, destination, seq
                       return null;
                     }
 
-                    const colSpan = period.beginsOn(beat) ? asFloat(period.duration) / asFloat(sequence.tickSize) : 1;
+                    const colSpan = period.beginsOn(beat) ? period.divide(sequence.tickSize) : 1;
                     return (
                       <td key={beat.key} colSpan={colSpan} style={currentBeat && currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
                         {period.beginsOn(beat) ? placement.phraseId : null}
