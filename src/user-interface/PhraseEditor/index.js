@@ -2,7 +2,7 @@ import React from "react";
 
 import { assert, instanceOf } from "@/utility/type.js";
 import { flatten, range } from "@/utility/math.js";
-import { equals } from "@/utility/rational.js";
+import { equals, difference, sum, greater } from "@/utility/rational.js";
 
 import Phrase from "@/composition/Phrase.js";
 import Hit from "@/composition/Hit.js";
@@ -68,18 +68,19 @@ export default function PhraseEditor({ phrase, setPhrase }) {
       }
     } else if (value === 'indeterminate') {
       // sustain an existing note further
-      const hitWithClosestEnd = phrase.findHits({note: note, endsOnOrBefore: beat}).reduce((lastSoFar, candidate) => {
+      const spanningHits = phrase.findHits({note: note, endsOnOrBefore: beat});
+      const hitWithClosestEnd = spanningHits.reduce((lastSoFar, candidate) => {
         if (lastSoFar === null) {
           return candidate;
         }
 
-        const shouldTakeCandidate = rationalGreater(candidate.endingAsRational(), lastSoFar.endingAsRational());
+        const shouldTakeCandidate = greater(candidate.endingAsRational(), lastSoFar.endingAsRational());
         return shouldTakeCandidate ? candidate : lastSoFar;
       }, null);
 
-      const duration = rationalDifference(
-        rationalSum(beat.toRational(), stepSize),
-        hitWithClosestEnd.beginningAsRational()
+      const duration = difference(
+        sum(beat.toRational(), stepSize),
+        hitWithClosestEnd.period.beginningAsRational()
       );
       const adjusted = hitWithClosestEnd.adjustDurationTo(duration);
 
@@ -90,7 +91,7 @@ export default function PhraseEditor({ phrase, setPhrase }) {
       if (spanningHit) {
         toRemove.push(spanningHit);
         if (spanningHit.period.beginsOn(beat) === false) {
-          const duration = rationalDifference(beat.toRational(), spanningHit.beginningAsRational());
+          const duration = difference(beat.toRational(), spanningHit.beginningAsRational());
           const adjusted = spanningHit.adjustDurationTo(duration);
           toAdd.push(adjusted);
         }
