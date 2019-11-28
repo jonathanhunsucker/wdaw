@@ -25,15 +25,29 @@ export default class Beat {
   toRational() {
     return sum([this.beat, 1], this.rational);
   }
+  /**
+   * @param [[Number, Number]] tickSize - In beats
+   *
+   * @return Beat
+   */
   plus(tickSize) {
+    if (equals(tickSize, [0, 0])) return this;
+
     let nextBeat = this.beat;
-    let nextRational = sum(tickSize, this.rational);
-    if (greaterEqual(nextRational, [1, 1])) {
-      nextRational = [0, 0];
+    var remaining = tickSize;
+    while (greaterEqual(remaining, [1, 1])) {
+      remaining = difference(remaining, [1, 1]);
       nextBeat += 1;
     }
 
-    return new Beat(nextBeat, nextRational);
+    remaining = sum(remaining, this.rational);
+    if (greaterEqual(remaining, [1, 1])) {
+      remaining = difference(remaining, [1, 1]);
+      nextBeat += 1;
+    }
+
+    const result = new Beat(nextBeat, remaining)
+    return result;
   }
   minus(beat) {
     return Beat.fromRational(difference(this.toRational(), beat.toRational()));
