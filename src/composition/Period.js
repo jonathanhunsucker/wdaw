@@ -1,5 +1,3 @@
-import { equals, sum, greaterEqual, less } from "@/utility/rational.js";
-
 /**
  * Represents a length of time beginning on a beat and lasting for a duration
  */
@@ -12,18 +10,21 @@ export default class Period {
     return this.beat.toRational();
   }
   endingAsRational() {
-    return sum(this.beginningAsRational(), this.duration);
+    return this.ending().toRational();
+  }
+  ending() {
+    return this.beat.plus(this.duration);
   }
   beginsOn(beat) {
     return this.beat.equals(beat);
   }
   spans(beat) {
-    const startsOnOrAfter = greaterEqual(beat.toRational(), this.beginningAsRational());
-    const endsStrictlyBefore = less(beat.toRational(), this.endingAsRational());
+    const startsOnOrAfter = beat.after(this.beat) || beat.equals(this.beat);
+    const endsStrictlyBefore = beat.before(this.beat.plus(this.duration));
 
     return startsOnOrAfter && endsStrictlyBefore;
   }
   equals(period) {
-    return this.beat.equals(period.beat) && equals(this.duration, period.duration);
+    return this.beat.equals(period.beat) && this.ending().equals(period.ending());
   }
 }
