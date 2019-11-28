@@ -4,12 +4,13 @@ import useAudioContext from "./useAudioContext.js";
 import useMainMix from "./useMainMix.js";
 import useSequenceState from "./useSequenceState.js";
 
-import { Keyboard } from "./Keyboard.js";
-import { PatchEditor } from "./PatchEditor.js";
-import { LinearScaleUnitInput } from "./input.js";
-import { Percentage } from "./string.js";
-import { Sequencer } from "./Sequencer.js";
-import { PhraseEditor } from "./Phrase.js";
+import { Percentage } from "@/utility/string.js";
+
+import { LinearScaleUnitInput } from "@/user-interface/input.js";
+import Keyboard from "@/user-interface/Keyboard/index.js";
+import PatchEditor from "@/user-interface/PatchEditor/index.js";
+import Sequencer from "@/user-interface/Sequencer/index.js";
+import PhraseEditor from "@/user-interface/PhraseEditor/index.js";
 
 function App() {
   const audioContext = useAudioContext();

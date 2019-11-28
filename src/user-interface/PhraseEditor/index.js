@@ -1,18 +1,35 @@
 import React from "react";
 
-import { flatten, range, rationalEquals } from "./math.js";
+import { assert, instanceOf } from "@/utility/type.js";
+import { flatten, range } from "@/utility/math.js";
+import { equals } from "@/utility/rational.js";
 
-import { buildCellStyles } from "./styles.js";
+import Phrase from "@/composition/Phrase.js";
+import Hit from "@/composition/Hit.js";
 
-import { Phrase, UniversalNoteParser, Hit } from "./Sequence.js";
-import Beat from "./music/Beat.js";
-import Checkbox from "./Checkbox.js";
+import Beat from "@/music/Beat.js";
+import Percussion from "@/music/Percussion.js";
 
-import { assert, instanceOf } from "./types.js";
+import { Checkbox}  from "../input.js";
+import { buildCellStyles } from "../style.js";
 
 const { cellStyles, currentBeatStyles, rightAlignStyles } = buildCellStyles({  });
 
-export function PhraseEditor({ phrase, setPhrase }) {
+// front for Percussion or Note
+class UniversalNoteParser {
+  constructor() {
+    throw new Error('Abstract class');
+  }
+  static parse(object) {
+    try {
+      return new Note(object);
+    } catch (e) {
+      return new Percussion(object);
+    }
+  }
+}
+
+export default function PhraseEditor({ phrase, setPhrase }) {
   assert(phrase, instanceOf(Phrase));
 
   const divisions = 4;
@@ -105,7 +122,7 @@ export function PhraseEditor({ phrase, setPhrase }) {
           <th style={cellStyles}></th>
           {beats.map((beat) =>
             <th key={beat.key} style={cellStyles}>
-              {rationalEquals(beat.rational, [0, 0]) ? beat.beat : ''}
+              {equals(beat.rational, [0, 0]) ? beat.beat : ''}
             </th>
           )}
         </tr>

@@ -24,6 +24,8 @@ export function notNull() {
 };
 
 export function instanceOf(cls) {
+  notUndefined().enforce(cls);
+  notNull().enforce(cls);
   return new Matcher((value) => {
     notUndefined().enforce(value);
     notNull().enforce(value);

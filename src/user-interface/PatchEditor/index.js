@@ -2,9 +2,9 @@ import React from "react";
 
 import { Wave, Gain, Envelope, Filter } from "@jonathanhunsucker/audio-js";
 
-import { Percentage, Seconds, Frequency } from "./string.js";
+import { Percentage, Seconds, Frequency } from "@/utility/string.js";
 
-import { LinearScaleUnitInput, CubicScaleUnitInput, CubicScalePositiveInput } from "./input.js";
+import { LinearScaleUnitInput, CubicScaleUnitInput, CubicScalePositiveInput } from "../input.js";
 
 function WaveControls(wave, handleControlChange) {
   return (
@@ -131,6 +131,7 @@ function StageTree(stage, setStage) {
   );
 }
 
-export const PatchEditor = React.memo(function PatchEditor(props) {
+const PatchEditor = React.memo(function PatchEditor(props) {
   return StageTree(props.patch, props.setPatch);
 });
+export default PatchEditor;

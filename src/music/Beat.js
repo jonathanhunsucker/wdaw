@@ -1,6 +1,5 @@
-import { assert, anInteger } from "./../types.js";
-
-import { rationalEquals, reduceRational, rationalSum, rationalToMixed, rationalDifference, rationalGreaterEqual, aRational, rationalLess } from "./../math.js";
+import { assert, anInteger } from "@/utility/type.js";
+import { equals, reduce, sum, toMixed, difference, greaterEqual, aRational, less } from "@/utility/rational.js";
 
 export default class Beat {
   /**
@@ -11,25 +10,25 @@ export default class Beat {
     assert(beat, anInteger());
     assert(rational, aRational());
     this.beat = beat;
-    this.rational = reduceRational(rational);
+    this.rational = reduce(rational);
   }
   static parse(object) {
     return new Beat(object.beat, object.rational);
   }
   static fromRational(rational) {
-    const [beat, remainder] = rationalToMixed(rational);
+    const [beat, remainder] = toMixed(rational);
     return new Beat(beat + 1, remainder);
   }
   get key() {
     return `${this.beat}.${this.rational[0]}.${this.rational[1]}`;
   }
   toRational() {
-    return rationalSum([this.beat, 1], this.rational);
+    return sum([this.beat, 1], this.rational);
   }
   plus(tickSize) {
     let nextBeat = this.beat;
-    let nextRational = rationalSum(tickSize, this.rational);
-    if (rationalGreaterEqual(nextRational, [1, 1])) {
+    let nextRational = sum(tickSize, this.rational);
+    if (greaterEqual(nextRational, [1, 1])) {
       nextRational = [0, 0];
       nextBeat += 1;
     }
@@ -37,16 +36,16 @@ export default class Beat {
     return new Beat(nextBeat, nextRational);
   }
   minus(beat) {
-    return Beat.fromRational(rationalDifference(this.toRational(), beat.toRational()));
+    return Beat.fromRational(difference(this.toRational(), beat.toRational()));
   }
   modulo(timeSignature) {
     const beat = this.beat > timeSignature.beats ? 1 : this.beat;
     return new Beat(beat, this.rational);
   }
   equals(beat) {
-    return this.beat === beat.beat && rationalEquals(this.rational, beat.rational);
+    return this.beat === beat.beat && equals(this.rational, beat.rational);
   }
   before(beat) {
-    return rationalLess(this.toRational(), beat.toRational());
+    return less(this.toRational(), beat.toRational());
   }
 }

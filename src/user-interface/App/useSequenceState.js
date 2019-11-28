@@ -2,12 +2,14 @@ import { useState } from "react";
 
 import { Gain, Envelope, Wave, Filter, Noise } from "@jonathanhunsucker/audio-js";
 
-import { assert, instanceOf, anInteger, aString, any } from "./types.js";
+import { assert, instanceOf, anInteger, aString, any } from "@/utility/type.js";
 
-import SequenceRepository from "./SequenceRepository.js";
-import { Track, Phrase } from "./Sequence.js";
+import { basic } from "@/repository/Sequences.js";
 
-const defaultSequence = SequenceRepository.basic();
+import Track from "@/composition/Track.js";
+import Phrase from "@/composition/Phrase.js";
+
+const defaultSequence = basic();
 const defaultSelectedTrack = 1;
 const defaultPhraseFromTrack = (track) => Object.keys(track.phrases)[0];
 const defaultPitchFromTrack = (track) => Object.keys(track.patches)[0];
