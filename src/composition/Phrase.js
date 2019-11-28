@@ -23,7 +23,11 @@ export default class Phrase {
       if (filters.hasOwnProperty('note') && !hit.note.equals(filters.note)) return false;
       if (filters.hasOwnProperty('spans') && !hit.period.spans(filters.spans)) return false;
       if (filters.hasOwnProperty('beginningOn') && !hit.period.beginsOn(filters.beginningOn)) return false;
-      if (filters.hasOwnProperty('endsOnOrBefore') && !lessEqual(hit.endingAsRational(), filters.endsOnOrBefore.toRational())) return false;
+      if (filters.hasOwnProperty('endsOnOrBefore')) {
+        if (!(filters.endsOnOrBefore.after(hit.period.ending()) || filters.endsOnOrBefore.equals(hit.period.ending()))) {
+          return false;
+        }
+      }
 
       return true;
     });
