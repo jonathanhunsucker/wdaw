@@ -82,6 +82,14 @@ export function greaterEqual(left, right) {
   assert(left, aRational());
   assert(right, aRational());
 
+  if (isZero(right)) {
+    return true;
+  }
+
+  if (isZero(left) && !isZero(right)) {
+    return false;
+  }
+
   return left[0] * right[1] >= left[1] * right[0];
 }
 
