@@ -73,6 +73,15 @@
     - https://www.midi.org/specifications-old/item/gm-level-1-sound-set
 - Local-first applications
     - https://blog.acolyer.org/2019/11/20/local-first-software/
+- To analyze
+    - https://www.youtube.com/watch?v=kOTPjh6oA84
+- Threaded off of Steve Duda's conversation at the loop
+    - http://ldesoras.free.fr/prod.html
+    - https://cytomic.com/#
+    - The Quest for the perfect resampler http://ldesoras.free.fr/doc/articles/resampler-en.pdf
+    - https://twitter.com/andrewsimper
+    - https://lancethackeray.com/gui/serum/
+    - https://vogerdesign.com/pages/our-story
 
 
 should have done market analysis first.
