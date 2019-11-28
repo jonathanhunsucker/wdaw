@@ -1,7 +1,8 @@
 import { assert, instanceOf } from "@/utility/type.js";
 import { repackObject, repackArray } from "@/utility/functional.js";
 
-import Period from "./Period.js";
+import Period from "@/music/Period.js";
+
 import Phrase from "./Phrase.js";
 
 export default class Track {

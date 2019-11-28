@@ -1,4 +1,4 @@
-import Period from "./Period.js";
+import Period from "@/music/Period.js";
 
 export default class Hit {
   /**
