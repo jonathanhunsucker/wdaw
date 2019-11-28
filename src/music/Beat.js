@@ -62,4 +62,7 @@ export default class Beat {
   before(beat) {
     return less(this.toRational(), beat.toRational());
   }
+  after(beat) {
+    return greater(this.toRational(), beat.toRational());
+  }
 }
