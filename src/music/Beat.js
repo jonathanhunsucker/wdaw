@@ -22,8 +22,11 @@ export default class Beat {
   get key() {
     return `${this.beat}.${this.rational[0]}.${this.rational[1]}`;
   }
+  isRound() {
+    return equals(this.rational, [0, 0]);
+  }
   toRational() {
-    return sum([this.beat, 1], this.rational);
+    return sum([this.beat - 1, 1], this.rational);
   }
   /**
    * @param [[Number, Number]] tickSize - In beats

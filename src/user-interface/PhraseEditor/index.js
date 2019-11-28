@@ -2,7 +2,6 @@ import React from "react";
 
 import { assert, instanceOf } from "@/utility/type.js";
 import { flatten, range } from "@/utility/math.js";
-import { equals, difference, sum, greater } from "@/utility/rational.js";
 
 import Phrase from "@/composition/Phrase.js";
 import Hit from "@/composition/Hit.js";
@@ -74,15 +73,12 @@ export default function PhraseEditor({ phrase, setPhrase }) {
           return candidate;
         }
 
-        const shouldTakeCandidate = greater(candidate.endingAsRational(), lastSoFar.endingAsRational());
+        const shouldTakeCandidate = candidate.period.ending().after(lastSoFar.period.ending());
         return shouldTakeCandidate ? candidate : lastSoFar;
       }, null);
 
-      const duration = difference(
-        sum(beat.toRational(), stepSize),
-        hitWithClosestEnd.period.beginningAsRational()
-      );
-      const adjusted = hitWithClosestEnd.adjustDurationTo(duration);
+      const duration = beat.plus(stepSize).minus(hitWithClosestEnd.period.beginning());
+      const adjusted = hitWithClosestEnd.adjustDurationToBeat(duration);
 
       toRemove.push(spanningHit);
       toAdd.push(adjusted);
@@ -91,8 +87,8 @@ export default function PhraseEditor({ phrase, setPhrase }) {
       if (spanningHit) {
         toRemove.push(spanningHit);
         if (spanningHit.period.beginsOn(beat) === false) {
-          const duration = difference(beat.toRational(), spanningHit.beginningAsRational());
-          const adjusted = spanningHit.adjustDurationTo(duration);
+          const duration = beat.minus(spanningHit.period.beginning());
+          const adjusted = spanningHit.adjustDurationToBeat(duration);
           toAdd.push(adjusted);
         }
       } else {
@@ -123,7 +119,7 @@ export default function PhraseEditor({ phrase, setPhrase }) {
           <th style={cellStyles}></th>
           {beats.map((beat) =>
             <th key={beat.key} style={cellStyles}>
-              {equals(beat.rational, [0, 0]) ? beat.beat : ''}
+              {beat.isRound() ? beat.beat : ''}
             </th>
           )}
         </tr>

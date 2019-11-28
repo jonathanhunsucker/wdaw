@@ -9,6 +9,9 @@ export default class Period {
   beginningAsRational() {
     return this.beat.toRational();
   }
+  beginning() {
+    return this.beat;
+  }
   endingAsRational() {
     return this.ending().toRational();
   }

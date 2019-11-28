@@ -32,4 +32,11 @@ export default class Hit {
       duration
     );
   }
+  adjustDurationToBeat(beat) {
+    return new Hit(
+      this.note,
+      this.beat,
+      beat.toRational()
+    );
+  }
 }
