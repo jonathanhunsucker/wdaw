@@ -1,4 +1,5 @@
-import { asFloat } from "@/utility/rational.js";
+import { asFloat } from "./rational.js";
+import BarsBeatsSixteenths from "./BarsBeatsSixteenths.js";
 
 /**
  * Represents a length of time beginning on a beat and lasting for a duration
@@ -8,14 +9,8 @@ export default class Period {
     this.beat = beat;
     this.duration = duration;
   }
-  beginningAsRational() {
-    return this.beat.toRational();
-  }
   beginning() {
     return this.beat;
-  }
-  endingAsRational() {
-    return this.ending().toRational();
   }
   ending() {
     return this.beat.plus(this.duration);
@@ -31,7 +26,8 @@ export default class Period {
   }
   spans(beat) {
     const startsOnOrAfter = beat.after(this.beat) || beat.equals(this.beat);
-    const endsStrictlyBefore = beat.before(this.beat.plus(this.duration));
+    const end = this.beat.plus(this.duration);
+    const endsStrictlyBefore = beat.before(end);
 
     return startsOnOrAfter && endsStrictlyBefore;
   }

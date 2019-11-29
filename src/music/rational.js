@@ -1,4 +1,4 @@
-import { Matcher, assert, anInteger } from "./type.js";
+import { Matcher, assert, anInteger } from "@/utility/type.js";
 
 function scaleDown(list, factor) {
   return list.map((item) => item / factor);

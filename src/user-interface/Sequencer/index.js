@@ -58,7 +58,7 @@ const Sequencer = React.memo(function Sequencer({ audioContext, destination, seq
                     const colSpan = period.beginsOn(beat) ? period.divide(sequence.tickSize) : 1;
                     return (
                       <td key={beat.key} colSpan={colSpan} style={currentBeat && currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
-                        {period.beginsOn(beat) ? placement.phraseId : null}
+                        {period.beginsOn(beat) ? placement.phraseId : ''}
                       </td>
                     );
                   })}

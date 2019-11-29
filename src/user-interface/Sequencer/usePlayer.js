@@ -67,7 +67,7 @@ export default function usePlayer(audioContext, destination, sequence) {
     const shouldPlayNextBeat = divisionDurationInSeconds < relativeAdvancementInSeconds;
     if (shouldPlayNextBeat) {
       const latestBeat = currentBeat.plus(sequence.tickSize);
-      if (!latestBeat.modulo(sequence.timeSignature).equals(latestBeat)) {
+      if (latestBeat.after(new Beat(sequence.timeSignature.beats, [3, 4]))) {
         setIsPlaying(false);
         return;
       }

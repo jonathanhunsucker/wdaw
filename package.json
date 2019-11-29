@@ -25,6 +25,7 @@
     "@jonathanhunsucker/audio-js": "^1.0.7",
     "@jonathanhunsucker/music-js": "^1.0.0",
     "babel-polyfill": "^6.26.0",
+    "musictime": "^2.0.3",
     "react": "^16.5.2",
     "react-dom": "^16.5.2"
   }

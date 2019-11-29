@@ -2,6 +2,11 @@ export function assert(value, matcher) {
   matcher.enforce(value);
 };
 
+export function enforce(value, matcher) {
+  if (matcher.matches(value)) return;
+  throw new TypeError();
+}
+
 export class Matcher {
   constructor(predicate) {
     this.predicate = predicate;
@@ -35,6 +40,10 @@ export function instanceOf(cls) {
 
 export function anInteger() {
   return new Matcher((value) => Number.isInteger(value));
+};
+
+export function aNonNegativeInteger() {
+  return new Matcher((value) => !(value < 0));
 };
 
 export function aString() {
