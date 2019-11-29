@@ -1,6 +1,6 @@
 import { Note } from "@jonathanhunsucker/music-js";
 
-import BarsBeatsSixteenths from "@/music/BarsBeatsSixteenths.js";
+import BarsBeatsSixteenths, { whole, quarter } from "@/music/BarsBeatsSixteenths.js";
 import Period from "@/music/Period.js";
 import Percussion from "@/music/Percussion.js";
 
@@ -8,10 +8,11 @@ import { flatten } from "@/utility/math.js";
 
 import Hit from "@/composition/Hit.js";
 import Phrase from "@/composition/Phrase.js";
+
 /**
  * Factory method for building a list of hits on this beat, for a list of notes.
  *
- * eg. `on(2).hit(['C2']).for([1, 4])`
+ * eg. `on(2).hit(['C2']).for(quarter)`
  *
  * @param {Number} beat
  * @param {[Number, Number]} rational
@@ -21,12 +22,12 @@ const on = (beat, rational) => {
   return {
     hit: (pitches) => {
       return {
-        for: (duration) => pitches.map((pitch) => new Hit(new Percussion(pitch), Period.fromBeatDuration(new BarsBeatsSixteenths(0, beat - 1, rational[0] === 0 ? 0 : rational[0] / rational[1] * 16), duration))),
+        for: (duration) => pitches.map((pitch) => new Hit(new Percussion(pitch), new Period(new BarsBeatsSixteenths(0, beat - 1, rational[0] === 0 ? 0 : rational[0] / rational[1] * 16), duration))),
       };
     },
     play: (pitches) => {
       return {
-        for: (duration) => pitches.map((pitch) => new Hit(new Note(pitch), Period.fromBeatDuration(new BarsBeatsSixteenths(0, beat - 1, rational[0] === 0 ? 0 : rational[0] / rational[1] * 16), duration))),
+        for: (duration) => pitches.map((pitch) => new Hit(new Note(pitch), new Period(new BarsBeatsSixteenths(0, beat - 1, rational[0] === 0 ? 0 : rational[0] / rational[1] * 16), duration))),
       };
     },
   };
@@ -34,66 +35,66 @@ const on = (beat, rational) => {
 
 export const cMinorToUpperC = () => {
   return new Phrase('keys', flatten([
-    on(2, [0, 0]).play(['C2', 'D#2', 'G2']).for([1, 1]),
-    on(3, [2, 4]).play(['C3']).for([1, 4]),
-    on(4, [0, 0]).play(['C3']).for([1, 4]),
-    on(4, [1, 4]).play(['C3']).for([1, 4]),
-    on(4, [1, 2]).play(['C3']).for([1, 4]),
+    on(2, [0, 0]).play(['C2', 'D#2', 'G2']).for(whole),
+    on(3, [2, 4]).play(['C3']).for(quarter),
+    on(4, [0, 0]).play(['C3']).for(quarter),
+    on(4, [1, 4]).play(['C3']).for(quarter),
+    on(4, [1, 2]).play(['C3']).for(quarter),
   ]));
 };
 
 export const cMinor = () => {
   return new Phrase('keys', flatten([
-    on(2, [0, 0]).play(['C2', 'D#2', 'G2']).for([1, 1]),
+    on(2, [0, 0]).play(['C2', 'D#2', 'G2']).for(whole),
   ]));
 };
 
 export const keyTick = () => {
   return new Phrase('keys', flatten([
-    on(1, [0, 0]).play(['C4']).for([1, 4]),
-    on(2, [0, 0]).play(['C3']).for([1, 4]),
-    on(3, [0, 0]).play(['C3']).for([1, 4]),
-    on(4, [0, 0]).play(['C3']).for([1, 4]),
+    on(1, [0, 0]).play(['C4']).for(quarter),
+    on(2, [0, 0]).play(['C3']).for(quarter),
+    on(3, [0, 0]).play(['C3']).for(quarter),
+    on(4, [0, 0]).play(['C3']).for(quarter),
   ]));
 };
 
 export const march = () => {
   return new Phrase('drums', flatten([
-    on(1, [0, 0]).hit(['Kick']).for([0, 0]),
-    on(1, [0, 0]).hit(['ClosedHat']).for([0, 0]),
-    on(1, [1, 2]).hit(['ClosedHat']).for([0, 0]),
-    on(2, [0, 0]).hit(['Kick']).for([0, 0]),
-    on(2, [0, 0]).hit(['Snare']).for([0, 0]),
-    on(2, [0, 0]).hit(['ClosedHat']).for([0, 0]),
-    on(2, [1, 2]).hit(['ClosedHat']).for([0, 0]),
-    on(3, [0, 0]).hit(['Kick']).for([0, 0]),
-    on(3, [0, 0]).hit(['ClosedHat']).for([0, 0]),
-    on(3, [1, 2]).hit(['ClosedHat']).for([0, 0]),
-    on(4, [0, 0]).hit(['Kick']).for([0, 0]),
-    on(4, [0, 0]).hit(['Snare']).for([0, 0]),
-    on(4, [0, 0]).hit(['ClosedHat']).for([0, 0]),
-    on(4, [1, 2]).hit(['ClosedHat']).for([0, 0]),
+    on(1, [0, 0]).hit(['Kick']).for(whole),
+    on(1, [0, 0]).hit(['ClosedHat']).for(whole),
+    on(1, [1, 2]).hit(['ClosedHat']).for(whole),
+    on(2, [0, 0]).hit(['Kick']).for(whole),
+    on(2, [0, 0]).hit(['Snare']).for(whole),
+    on(2, [0, 0]).hit(['ClosedHat']).for(whole),
+    on(2, [1, 2]).hit(['ClosedHat']).for(whole),
+    on(3, [0, 0]).hit(['Kick']).for(whole),
+    on(3, [0, 0]).hit(['ClosedHat']).for(whole),
+    on(3, [1, 2]).hit(['ClosedHat']).for(whole),
+    on(4, [0, 0]).hit(['Kick']).for(whole),
+    on(4, [0, 0]).hit(['Snare']).for(whole),
+    on(4, [0, 0]).hit(['ClosedHat']).for(whole),
+    on(4, [1, 2]).hit(['ClosedHat']).for(whole),
   ]));
 };
 
 export const drumTick = () => {
   return new Phrase('drums', flatten([
-    on(1, [0, 0]).hit(['Kick']).for([0, 0]),
-    on(2, [0, 0]).hit(['Kick']).for([0, 0]),
-    on(3, [0, 0]).hit(['Kick']).for([0, 0]),
-    on(4, [0, 0]).hit(['Kick']).for([0, 0]),
-    on(1, [1, 2]).hit(['Kick']).for([0, 0]),
-    on(2, [1, 2]).hit(['Kick']).for([0, 0]),
-    on(3, [1, 2]).hit(['Kick']).for([0, 0]),
-    on(4, [1, 2]).hit(['Kick']).for([0, 0]),
-    on(1, [1, 4]).hit(['Kick']).for([0, 0]),
-    on(2, [1, 4]).hit(['Kick']).for([0, 0]),
-    on(3, [1, 4]).hit(['Kick']).for([0, 0]),
-    on(4, [1, 4]).hit(['Kick']).for([0, 0]),
-    on(1, [3, 4]).hit(['Kick']).for([0, 0]),
-    on(2, [3, 4]).hit(['Kick']).for([0, 0]),
-    on(3, [3, 4]).hit(['Kick']).for([0, 0]),
-    on(4, [3, 4]).hit(['Kick']).for([0, 0]),
+    on(1, [0, 0]).hit(['Kick']).for(whole),
+    on(2, [0, 0]).hit(['Kick']).for(whole),
+    on(3, [0, 0]).hit(['Kick']).for(whole),
+    on(4, [0, 0]).hit(['Kick']).for(whole),
+    on(1, [1, 2]).hit(['Kick']).for(whole),
+    on(2, [1, 2]).hit(['Kick']).for(whole),
+    on(3, [1, 2]).hit(['Kick']).for(whole),
+    on(4, [1, 2]).hit(['Kick']).for(whole),
+    on(1, [1, 4]).hit(['Kick']).for(whole),
+    on(2, [1, 4]).hit(['Kick']).for(whole),
+    on(3, [1, 4]).hit(['Kick']).for(whole),
+    on(4, [1, 4]).hit(['Kick']).for(whole),
+    on(1, [3, 4]).hit(['Kick']).for(whole),
+    on(2, [3, 4]).hit(['Kick']).for(whole),
+    on(3, [3, 4]).hit(['Kick']).for(whole),
+    on(4, [3, 4]).hit(['Kick']).for(whole),
   ]));
 };
 

@@ -46,7 +46,7 @@ export default function PhraseEditor({ phrase, setPhrase }) {
 
   const toggleHit = (beat, note, value) => {
     const supportsSustain = phrase.supports('sustain');
-    const defaultDuration = [1, 4]; // TODO
+    const defaultDuration = new BarsBeatsSixteenths(0, 0, 4);
     if (supportsSustain === false && value === 'indeterminate') {
       return;
     }
@@ -64,7 +64,7 @@ export default function PhraseEditor({ phrase, setPhrase }) {
       if (spanningHit) {
         throw new Error('tried to add note to beat which is already spanned');
       } else {
-        toAdd.push(new Hit(note, Period.fromBeatDuration(beat, defaultDuration)));
+        toAdd.push(new Hit(note, new Period(beat, defaultDuration)));
       }
     } else if (value === 'indeterminate') {
       // sustain an existing note further

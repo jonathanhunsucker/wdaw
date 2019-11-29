@@ -78,3 +78,8 @@ export default class BarsBeatsSixteenths {
     return this.sixteenths % 16 === 0;
   }
 }
+
+export const bar = new BarsBeatsSixteenths(1, 0, 0);
+export const whole = new BarsBeatsSixteenths(0, 1, 0);
+export const quarter = new BarsBeatsSixteenths(0, 0, 4);
+export const none = new BarsBeatsSixteenths(0, 0, 0);

@@ -13,9 +13,6 @@ export default class Period {
     this.beat = beat;
     this.duration = duration;
   }
-  static fromBeatDuration(beat, duration) {
-    return new Period(beat, BarsBeatsSixteenths.fromTick(duration));
-  }
   beginning() {
     return this.beat;
   }

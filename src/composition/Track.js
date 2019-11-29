@@ -1,6 +1,7 @@
 import { assert, instanceOf } from "@/utility/type.js";
 import { repackObject, repackArray } from "@/utility/functional.js";
 
+import BarsBeatsSixteenths, { whole, quarter, none } from "@/music/BarsBeatsSixteenths.js";
 import Period from "@/music/Period.js";
 
 import Phrase from "./Phrase.js";
@@ -25,7 +26,7 @@ export default class Track {
     return false;
   }
   getPeriodFromPlacement(placement) {
-    return Period.fromBeatDuration(placement.beat, [this.phrases[placement.phraseId].duration, 1]);
+    return new Period(placement.beat, this.phrases[placement.phraseId].duration);
   }
   supports(feature) {
     if (feature === 'sustain') return this.kind === 'keys';
@@ -33,8 +34,8 @@ export default class Track {
     throw new Error(`Unknown feature \`${feature}\``);
   }
   getDefaultHitDuration() {
-    if (this.kind === 'keys') return [1, 4];
-    if (this.kind === 'drums') return [0, 0];
+    if (this.kind === 'keys') return quarter;
+    if (this.kind === 'drums') return none;
     throw new Error(`Unknown track kind \`${this.kind}\``);
   }
   replacePatch(before, after) {

@@ -1,9 +1,11 @@
+import BarsBeatsSixteenths, { bar } from "@/music/BarsBeatsSixteenths.js";
+
 export default class Phrase {
   constructor(kind, hits) {
     this.name = 'my phrase';
     this.kind = kind;
     this.hits = hits;
-    this.duration = 4;
+    this.duration = bar;
   }
   supports(feature) {
     if (feature === 'sustain') return this.kind === 'keys';
