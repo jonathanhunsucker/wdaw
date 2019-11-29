@@ -13,7 +13,6 @@ import TrackEditor from "@/user-interface/TrackEditor/index.js";
 
 import useAudioContext from "./useAudioContext.js";
 import useMainMix from "./useMainMix.js";
-import useSequenceState from "./useSequenceState.js";
 
 import useSelectionState from "../useSelectionState.js";
 
