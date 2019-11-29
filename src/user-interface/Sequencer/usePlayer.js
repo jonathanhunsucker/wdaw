@@ -4,7 +4,6 @@ import { Binding, Gain } from "@jonathanhunsucker/audio-js";
 
 import { flatten } from "@/utility/math.js";
 
-import Beat from "@/music/Beat.js";
 import BarsBeatsSixteenths from "@/music/BarsBeatsSixteenths.js";
 
 import Expiration, { policy } from "./Expiration.js";
@@ -23,7 +22,7 @@ export default function usePlayer(audioContext, destination, sequence) {
   const lookaheadInSeconds = .500;
 
   /**
-   * @param {Beat} beat
+   * @param {BarsBeatsSixteenths} beat
    * @param {float} time
    *
    * @returns {Expiration[]}
@@ -83,7 +82,7 @@ export default function usePlayer(audioContext, destination, sequence) {
     const horizonTime = now + lookaheadInSeconds;
     const toSchedule = [];
     while (true) {
-      const beat = lastScheduledAtRef.current.beat !== null ? lastScheduledAtRef.current.beat.plus(sequence.tickSize) : new Beat(1, [0, 0]);
+      const beat = lastScheduledAtRef.current.beat !== null ? lastScheduledAtRef.current.beat.plus(sequence.tickSize) : new BarsBeatsSixteenths(0, 0, 0);
       const at = lastScheduledAtRef.current.time !== null ? lastScheduledAtRef.current.time + divisionDurationInSeconds : 0;
 
       if (at >= horizonTime) {
@@ -109,11 +108,11 @@ export default function usePlayer(audioContext, destination, sequence) {
   const [isPlaying, setIsPlayingInternal] = useState(false);
   const setIsPlaying = (isPlaying) => {
     if (isPlaying) {
-      const beat = currentBeat === null ? new Beat(1, [0, 0]) : currentBeat.plus(sequence.tickSize);
+      const beat = currentBeat === null ? new BarsBeatsSixteenths(0, 0, 0) : currentBeat.plus(sequence.tickSize);
       setCurrentBeat(beat);
       lastScheduledAtRef.current = {time: audioContext.currentTime, beat: null};
     } else {
-      setCurrentBeat(new Beat(1, [0, 0]));
+      setCurrentBeat(new BarsBeatsSixteenths(0, 0, 0));
     }
     setIsPlayingInternal(isPlaying);
   };

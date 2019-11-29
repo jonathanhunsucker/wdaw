@@ -1,4 +1,4 @@
-import Beat from "@/music/Beat.js";
+import BarsBeatsSixteenths from "@/music/BarsBeatsSixteenths.js";
 import TimeSignature from "@/music/TimeSignature.js";
 
 import Placement from "@/composition/Placement.js";
@@ -16,14 +16,14 @@ export const basic = () => {
         "Track 1",
         'keys',
         {'*': synth()},
-        [new Placement((new Beat(1, [0, 0])).toBbs(), 'cMinorToUpperC'), new Placement((new Beat(5, [0, 0])).toBbs(), 'cMinor')],
+        [new Placement(new BarsBeatsSixteenths(0, 0, 0), 'cMinorToUpperC'), new Placement(new BarsBeatsSixteenths(1, 0, 0), 'cMinor')],
         {'cMinorToUpperC': cMinorToUpperC(), 'cMinor': cMinor()}
       ),
       new Track(
         "Track 2",
         'drums',
         {'ClosedHat': hat(), 'Kick': hat(), 'Snare': snare()},
-        [new Placement((new Beat(1, [0, 0])).toBbs(), 'march'), new Placement((new Beat(5, [0, 0])).toBbs(), 'march')],
+        [new Placement(new BarsBeatsSixteenths(0, 0, 0), 'march'), new Placement(new BarsBeatsSixteenths(1, 0, 0), 'march')],
         {'march': march()}
       ),
     ],
@@ -39,14 +39,14 @@ export const timingExercise = () => {
         "Track 1",
         'keys',
         {'*': synth()},
-        [new Placement((new Beat(1, [0, 0])).toBbs(), 'cMinorToUpperC'), new Placement((new Beat(5, [0, 0])).toBbs(), 'cMinor')],
+        [new Placement(new BarsBeatsSixteenths(0, 0, 0), 'cMinorToUpperC'), new Placement(new BarsBeatsSixteenths(1, 0, 0), 'cMinor')],
         {'cMinorToUpperC': keyTick(), 'cMinor': keyTick()}
       ),
       new Track(
         "Track 2",
         'drums',
         {'ClosedHat': hat(), 'Kick': hat(), 'Snare': snare()},
-        [new Placement((new Beat(1, [0, 0])).toBbs(), 'march'), new Placement((new Beat(5, [0, 0])).toBbs(), 'march')],
+        [new Placement(new BarsBeatsSixteenths(0, 0, 0), 'march'), new Placement(new BarsBeatsSixteenths(1, 0, 0), 'march')],
         {'march': drumTick()}
       ),
     ],

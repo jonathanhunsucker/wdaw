@@ -2,7 +2,6 @@ import { assert, instanceOf } from "@/utility/type.js";
 
 import { asFloat, aRational } from "./rational.js";
 import BarsBeatsSixteenths from "./BarsBeatsSixteenths.js";
-import Beat from "./Beat.js";
 
 /**
  * Represents a length of time beginning on a beat and lasting for a duration

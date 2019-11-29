@@ -1,6 +1,5 @@
 import { Note } from "@jonathanhunsucker/music-js";
 
-import Beat from "@/music/Beat.js";
 import BarsBeatsSixteenths from "@/music/BarsBeatsSixteenths.js";
 
 import { range, flatten } from "@/utility/math.js";
@@ -27,7 +26,7 @@ export default class Sequence {
   get beats() {
     return flatten(
       range(1, this.timeSignature.beats).map((beat) => {
-        return range(0, this.divisions - 1).map((numerator) => (new Beat(beat, [numerator, this.divisions])).toBbs());
+        return range(0, this.divisions - 1).map((numerator) => new BarsBeatsSixteenths(0, beat - 1, numerator * 4));
       })
     );
   }

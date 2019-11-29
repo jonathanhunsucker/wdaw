@@ -6,7 +6,6 @@ import { flatten, range } from "@/utility/math.js";
 import Phrase from "@/composition/Phrase.js";
 import Hit from "@/composition/Hit.js";
 
-import Beat from "@/music/Beat.js";
 import BarsBeatsSixteenths from "@/music//BarsBeatsSixteenths.js";
 import Period from "@/music/Period.js";
 import Percussion from "@/music/Percussion.js";
@@ -105,8 +104,8 @@ export default function PhraseEditor({ phrase, setPhrase }) {
   }
 
   const beats = flatten(
-    range(1, 4).map((beat) => {
-      return range(0, divisions - 1).map((numerator) => (new Beat(beat, [numerator, divisions])).toBbs());
+    range(0, 3).map((beat) => {
+      return range(0, divisions - 1).map((numerator) => new BarsBeatsSixteenths(0, beat, numerator * 4));
     })
   );
 

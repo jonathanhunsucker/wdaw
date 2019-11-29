@@ -1,6 +1,6 @@
 import { Note } from "@jonathanhunsucker/music-js";
 
-import Beat from "@/music/Beat.js";
+import BarsBeatsSixteenths from "@/music/BarsBeatsSixteenths.js";
 import Period from "@/music/Period.js";
 import Percussion from "@/music/Percussion.js";
 
@@ -21,12 +21,12 @@ const on = (beat, rational) => {
   return {
     hit: (pitches) => {
       return {
-        for: (duration) => pitches.map((pitch) => new Hit(new Percussion(pitch), Period.fromBeatDuration((new Beat(beat, rational)).toBbs(), duration))),
+        for: (duration) => pitches.map((pitch) => new Hit(new Percussion(pitch), Period.fromBeatDuration(new BarsBeatsSixteenths(0, beat - 1, rational[0] === 0 ? 0 : rational[0] / rational[1] * 16), duration))),
       };
     },
     play: (pitches) => {
       return {
-        for: (duration) => pitches.map((pitch) => new Hit(new Note(pitch), Period.fromBeatDuration((new Beat(beat, rational)).toBbs(), duration))),
+        for: (duration) => pitches.map((pitch) => new Hit(new Note(pitch), Period.fromBeatDuration(new BarsBeatsSixteenths(0, beat - 1, rational[0] === 0 ? 0 : rational[0] / rational[1] * 16), duration))),
       };
     },
   };
