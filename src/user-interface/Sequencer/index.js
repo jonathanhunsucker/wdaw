@@ -4,13 +4,13 @@ import { silentPingToWakeAutoPlayGates } from "@jonathanhunsucker/audio-js";
 
 import { flatten } from "@/utility/math.js";
 
-import usePlayer from "./usePlayer.js";
-
 import BarsBeatsSixteenths from "@/music/BarsBeatsSixteenths.js";
 
 import { defaultDrumTrack, defaultKeyTrack } from "@/repository/Tracks.js";
 
 import { buildCellStyles } from "../style.js";
+
+import usePlayer from "./usePlayer.js";
 
 const { cellStyles, currentBeatStyles, rightAlignStyles } = buildCellStyles({ minWidth: '1vw'});
 

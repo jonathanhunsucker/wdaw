@@ -3,12 +3,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { Percentage } from "@/utility/string.js";
 import { range } from "@/utility/math.js";
 
-import { empty } from "@/repository/Sequences.js";
+import { defaultSequence } from "@/repository/Sequences.js";
 
 import { LinearScaleUnitInput } from "@/user-interface/input.js";
-import PatchEditor from "@/user-interface/PatchEditor/index.js";
 import Sequencer from "@/user-interface/Sequencer/index.js";
-import PhraseEditor from "@/user-interface/PhraseEditor/index.js";
 import TrackEditor from "@/user-interface/TrackEditor/index.js";
 
 import useAudioContext from "./useAudioContext.js";
@@ -20,7 +18,7 @@ function App() {
   const audioContext = useAudioContext();
   const [level, setLevel, destination] = useMainMix(audioContext);
 
-  const [sequence, setSequence] = useState(empty());
+  const [sequence, setSequence] = useState(defaultSequence());
   const [selectedTrackIndex, selectTrackIndex] = useSelectionState(sequence.tracks, (tracks) => tracks.length > 0 ? range(0, tracks.length) : []);
   const selectedTrack = sequence.tracks[selectedTrackIndex] || null;
 
@@ -58,20 +56,6 @@ function App() {
 }
 
 /*
- *
-      <h2>Phrase</h2>
-      <p>
-        Phrase:{' '}
-        <select onChange={(e) => selectPhrase(e.target.value)}>
-          {Object.entries(selectedTrack.phrases).map(([phraseId, phrase]) => {
-            return (
-              <option key={phraseId} value={phraseId}>{phrase.name} ({phraseId})</option>
-            );
-          })}
-        </select>
-      </p>
-      <PhraseEditor phrase={selectedPhrase} setPhrase={setSelectedPhrase} />
-
       <h2>Patch</h2>
       <p>
         Pitch:{' '}

@@ -9,9 +9,9 @@ import { hat, snare } from "./Patches.js";
 import { cMinorToUpperC, cMinor, keyTick, drumTick, march } from "./Phrases.js";
 import { emptyDrumTrack, defaultDrumTrack, emptyKeyTrack, defaultKeyTrack } from "./Tracks.js";
 
-export const empty = () => {
-  return new Sequence(120, [], new TimeSignature(4, 4));
-};
+export const emptySequence = () => new Sequence(120, [], new TimeSignature(4, 4));
+
+export const defaultSequence = () => emptySequence().addTrack(defaultKeyTrack).addTrack(defaultDrumTrack);
 
 export const basic = () => {
   const keys = defaultKeyTrack

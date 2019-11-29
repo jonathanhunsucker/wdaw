@@ -57,6 +57,13 @@ export function aString() {
   return new Matcher((value) => typeof value === 'string');
 };
 
+export function aNonZeroLengthString() {
+  return new Matcher((value) => {
+    aString().enforce(value);
+    return value.length > 0;
+  });
+};
+
 export function anObject() {
   return new Matcher((value) => value instanceof Object);
 };
@@ -73,6 +80,14 @@ export function any(matchers) {
   return new Matcher((value) => {
     return matchers.reduce((accumulation, matcher) => accumulation || matcher.matches(value), false);
   });
+};
+
+export function not(matcher) {
+  return new Matcher((value) => !matcher.matches(value));
+};
+
+export function none(matchers) {
+  return not(any(matchers));
 };
 
 export function aMappingOf(keyMatcher, valueMatcher) {

@@ -33,6 +33,9 @@ const on = (beat, rational) => {
   };
 }
 
+export const emptyKeysPhrase = new Phrase('keys', []);
+export const emptyDrumsPhrase = new Phrase('keys', []);
+
 export const cMinorToUpperC = () => {
   return new Phrase('keys', flatten([
     on(2, [0, 0]).play(['C2', 'D#2', 'G2']).for(whole),
