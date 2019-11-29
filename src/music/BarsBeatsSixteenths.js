@@ -37,11 +37,6 @@ export default class BarsBeatsSixteenths {
     assert(this.beats, aNonNegativeInteger());
     assert(this.sixteenths, aNonNegativeInteger());
   }
-  static fromTick(tick) {
-    assert(tick, aRational());
-    const mixed = toMixed(tick);
-    return new BarsBeatsSixteenths(0, mixed[0], mixed[1][0] === 0 ? 0 : mixed[1][0] / mixed[1][1] * 16);
-  }
   get key() {
     const bars = this.bars + 1;
     const beats = this.beats + 1;
