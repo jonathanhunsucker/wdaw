@@ -6,6 +6,8 @@ import { flatten } from "@/utility/math.js";
 
 import usePlayer from "./usePlayer.js";
 
+import BarsBeatsSixteenths from "@/music/BarsBeatsSixteenths.js";
+
 import { buildCellStyles } from "../style.js";
 
 const { cellStyles, currentBeatStyles, rightAlignStyles } = buildCellStyles({ minWidth: '1vw'});
@@ -34,7 +36,7 @@ const Sequencer = React.memo(function Sequencer({ audioContext, destination, seq
           <tr>
             <th style={cellStyles}></th>
             {sequence.beats.map((beat) =>
-              <th key={beat.key} style={currentBeat && currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
+              <th key={beat.key} style={currentBeat && currentBeat.equals(beat.toBbs()) ? currentBeatStyles : cellStyles}>
                 {beat.isRound() ? beat.beat : ''}
               </th>
             )}
@@ -51,14 +53,14 @@ const Sequencer = React.memo(function Sequencer({ audioContext, destination, seq
                   {sequence.beats.map((beat) => {
                     const period = track.getPeriodFromPlacement(placement);
 
-                    if (!period.beginsOn(beat) && period.spans(beat)) {
+                    if (!period.beginsOn(beat.toBbs()) && period.spans(beat.toBbs())) {
                       return null;
                     }
 
-                    const colSpan = period.beginsOn(beat) ? period.divide(sequence.tickSize) : 1;
+                    const colSpan = period.beginsOn(beat.toBbs()) ? period.divide(sequence.tickSize) : 1;
                     return (
-                      <td key={beat.key} colSpan={colSpan} style={currentBeat && currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
-                        {period.beginsOn(beat) ? placement.phraseId : ''}
+                      <td key={beat.key} colSpan={colSpan} style={currentBeat && currentBeat.equals(beat.toBbs()) ? currentBeatStyles : cellStyles}>
+                        {period.beginsOn(beat.toBbs()) ? placement.phraseId : ''}
                       </td>
                     );
                   })}

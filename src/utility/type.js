@@ -28,6 +28,10 @@ export function notNull() {
   return new Matcher((value) => value !== null);
 };
 
+export function notNaN() {
+  return new Matcher((value) => !Number.isNaN(value));
+};
+
 export function instanceOf(cls) {
   notUndefined().enforce(cls);
   notNull().enforce(cls);
@@ -43,7 +47,10 @@ export function anInteger() {
 };
 
 export function aNonNegativeInteger() {
-  return new Matcher((value) => !(value < 0));
+  return new Matcher((value) => {
+    notNaN().enforce(value);
+    return !(value < 0);
+  });
 };
 
 export function aString() {

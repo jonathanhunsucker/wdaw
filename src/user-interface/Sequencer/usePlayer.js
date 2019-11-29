@@ -5,12 +5,17 @@ import { Binding, Gain } from "@jonathanhunsucker/audio-js";
 import { flatten } from "@/utility/math.js";
 
 import Beat from "@/music/Beat.js";
+import BarsBeatsSixteenths from "@/music/BarsBeatsSixteenths.js";
 
 import Expiration, { policy } from "./Expiration.js";
 
 import useExcisedUponRemovalList from "./useExcisedUponRemovalList.js";
 
 import useWebAudioAPIClock from "./useWebAudioAPIClock.js";
+
+function bbsToFloatingBeats(bbs) {
+  return bbs.bars * 4 + bbs.beats + bbs.sixteenths / 16;
+}
 
 export default function usePlayer(audioContext, destination, sequence) {
   const lastTickedAtRef = useRef({time: null, beat: null});
@@ -32,12 +37,12 @@ export default function usePlayer(audioContext, destination, sequence) {
             return [];
           }
 
-          const relativeBeat = beat.minus(placement.beat);
+          const relativeBeat = beat.minus(placement.beat.toBbs());
 
           return track.phrases[placement.phraseId].findHits({beginningOn: relativeBeat}).map((hit) => {
             const boundPatch = track.patchForPitch(hit.note.pitch).bind(hit.note.frequency);
             // BUG 50ms breathing room, should be determined by the track's patch, not hardcoded
-            const expiresOn = time + Math.max(hit.period.durationInFloatingBeats() * sequence.secondsPerBeat(), 0.050);
+            const expiresOn = time + Math.max(bbsToFloatingBeats(hit.period.duration) * sequence.secondsPerBeat(), 0.050);
             return new Expiration(boundPatch, expiresOn);
           });
         });
@@ -67,7 +72,7 @@ export default function usePlayer(audioContext, destination, sequence) {
     const shouldPlayNextBeat = divisionDurationInSeconds < relativeAdvancementInSeconds;
     if (shouldPlayNextBeat) {
       const latestBeat = currentBeat.plus(sequence.tickSize);
-      if (latestBeat.after(new Beat(sequence.timeSignature.beats, [3, 4]))) {
+      if (latestBeat.after(new BarsBeatsSixteenths(0, sequence.timeSignature.beats, 15))) {
         setIsPlaying(false);
         return;
       }

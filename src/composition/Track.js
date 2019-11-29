@@ -25,7 +25,7 @@ export default class Track {
     return false;
   }
   getPeriodFromPlacement(placement) {
-    return new Period(placement.beat, [this.phrases[placement.phraseId].duration, 1]);
+    return Period.fromBeatDuration(placement.beat, [this.phrases[placement.phraseId].duration, 1]);
   }
   supports(feature) {
     if (feature === 'sustain') return this.kind === 'keys';

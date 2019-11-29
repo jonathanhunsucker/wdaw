@@ -1,6 +1,6 @@
-import { assert, enforce, aNonNegativeInteger } from "@/utility/type.js";
+import { assert, instanceOf, enforce, aNonNegativeInteger } from "@/utility/type.js";
 
-import { toMixed } from "./rational.js";
+import { toMixed, aRational } from "./rational.js";
 
 const BEATS_IN_BAR = 4;
 
@@ -38,24 +38,40 @@ export default class BarsBeatsSixteenths {
     assert(this.sixteenths, aNonNegativeInteger());
   }
   static fromTick(tick) {
+    assert(tick, aRational());
     const mixed = toMixed(tick);
-    return new BarsBeatsSixteenths(1, mixed[0], mixed[1][0]);
+    return new BarsBeatsSixteenths(0, mixed[0], mixed[1][0] === 0 ? 0 : mixed[1][0] / mixed[1][1] * 16);
+  }
+  get key() {
+    const bars = this.bars + 1;
+    const beats = this.beats + 1;
+    const sixteenths = this.sixteenths + 1;
+    return `${bars}.${beats}.${sixteenths}`;
   }
   plus(bbs) {
+    assert(bbs, instanceOf(BarsBeatsSixteenths));
     const sum = new BarsBeatsSixteenths(this.bars + bbs.bars, this.beats + bbs.beats, this.sixteenths + bbs.sixteenths);
     return sum;
   }
   minus(bbs) {
+    assert(bbs, instanceOf(BarsBeatsSixteenths));
     const difference = new BarsBeatsSixteenths(this.bars - bbs.bars, this.beats - bbs.beats, this.sixteenths - bbs.sixteenths);;
     return difference;
   }
+  divide(bbs) {
+    assert(bbs, instanceOf(BarsBeatsSixteenths));
+    return numericValue(this) / numericValue(bbs);
+  }
   after(bbs) {
+    assert(bbs, instanceOf(BarsBeatsSixteenths));
     return numericValue(this) > numericValue(bbs);
   }
   before(bbs) {
+    assert(bbs, instanceOf(BarsBeatsSixteenths));
     return numericValue(this) < numericValue(bbs);
   }
   equals(bbs) {
+    assert(bbs, instanceOf(BarsBeatsSixteenths));
     return numericValue(this) === numericValue(bbs);
   }
   isRound() {

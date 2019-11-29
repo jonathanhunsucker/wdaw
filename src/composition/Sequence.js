@@ -1,6 +1,7 @@
 import { Note } from "@jonathanhunsucker/music-js";
 
 import Beat from "@/music/Beat.js";
+import BarsBeatsSixteenths from "@/music/BarsBeatsSixteenths.js";
 
 import { range, flatten } from "@/utility/math.js";
 import { repackArray } from "@/utility/functional.js";
@@ -14,7 +15,7 @@ export default class Sequence {
     this.tracks = tracks;
     this.timeSignature = timeSignature;
     this.divisions = 4;
-    this.tickSize = [1, 4];
+    this.tickSize = new BarsBeatsSixteenths(0, 0, 4);
   }
   static parse(object) {
     return new Sequence(

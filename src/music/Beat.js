@@ -1,4 +1,4 @@
-import { assert, anInteger } from "@/utility/type.js";
+import { assert, instanceOf, anInteger } from "@/utility/type.js";
 import { equals, reduce, sum, toMixed, difference, greater, greaterEqual, aRational, less } from "./rational.js";
 
 import BarsBeatsSixteenths from "./BarsBeatsSixteenths.js";
@@ -30,16 +30,10 @@ export default class Beat {
     return new Beat(beat, rational);
   }
   get key() {
-    const bars = this.toBbs().bars + 1;
-    const beats = this.toBbs().beats + 1;
-    const sixteenths = this.toBbs().sixteenths + 1;
-    return `${bars}.${beats}.${sixteenths}`;
+    return this.toBbs().key;
   }
   isRound() {
     return this.toBbs().isRound();
-  }
-  toRational() {
-    return sum([this.beat- 1, 1], this.rational);
   }
   /**
    * @param [[Number, Number]] tickSize - In beats
@@ -47,19 +41,23 @@ export default class Beat {
    * @return Beat
    */
   plus(tickSize) {
-    const tickSizeBbs = new BarsBeatsSixteenths(0, 0, tickSize[0] === 0 ? 0 : tickSize[0] / tickSize[1] * 16);
-    return Beat.fromBbs(this.toBbs().plus(tickSizeBbs));
+    assert(tickSize, instanceOf(BarsBeatsSixteenths));
+    return this.toBbs().plus(tickSize);
   }
-  minus(beat) {
-    return Beat.fromBbs(this.toBbs().minus(beat.toBbs()));
+  minus(bbs) {
+    assert(bbs, instanceOf(BarsBeatsSixteenths));
+    return this.toBbs().minus(bbs);
   }
-  equals(beat) {
-    return this.toBbs().equals(beat.toBbs());
+  equals(bbs) {
+    assert(bbs, instanceOf(BarsBeatsSixteenths));
+    return this.toBbs().equals(bbs);
   }
-  before(beat) {
-    return this.toBbs().before(beat.toBbs());
+  before(bbs) {
+    assert(bbs, instanceOf(BarsBeatsSixteenths));
+    return this.toBbs().before(bbs);
   }
-  after(beat) {
-    return this.toBbs().after(beat.toBbs());
+  after(bbs) {
+    assert(bbs, instanceOf(BarsBeatsSixteenths));
+    return this.toBbs().after(bbs);
   }
 }

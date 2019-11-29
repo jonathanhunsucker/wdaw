@@ -1,6 +1,7 @@
 import { Note } from "@jonathanhunsucker/music-js";
 
 import Beat from "@/music/Beat.js";
+import Period from "@/music/Period.js";
 import Percussion from "@/music/Percussion.js";
 
 import { flatten } from "@/utility/math.js";
@@ -20,12 +21,12 @@ const on = (beat, rational) => {
   return {
     hit: (pitches) => {
       return {
-        for: (duration) => pitches.map((pitch) => new Hit(new Percussion(pitch), new Beat(beat, rational), duration)),
+        for: (duration) => pitches.map((pitch) => new Hit(new Percussion(pitch), Period.fromBeatDuration(new Beat(beat, rational), duration))),
       };
     },
     play: (pitches) => {
       return {
-        for: (duration) => pitches.map((pitch) => new Hit(new Note(pitch), new Beat(beat, rational), duration)),
+        for: (duration) => pitches.map((pitch) => new Hit(new Note(pitch), Period.fromBeatDuration(new Beat(beat, rational), duration))),
       };
     },
   };

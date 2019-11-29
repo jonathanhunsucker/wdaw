@@ -7,6 +7,8 @@ import Phrase from "@/composition/Phrase.js";
 import Hit from "@/composition/Hit.js";
 
 import Beat from "@/music/Beat.js";
+import BarsBeatsSixteenths from "@/music//BarsBeatsSixteenths.js";
+import Period from "@/music/Period.js";
 import Percussion from "@/music/Percussion.js";
 
 import { Checkbox}  from "../input.js";
@@ -32,14 +34,14 @@ export default function PhraseEditor({ phrase, setPhrase }) {
   assert(phrase, instanceOf(Phrase));
 
   const divisions = 4;
-  const stepSize = [1, divisions]; 
+  const stepSize = new BarsBeatsSixteenths(0, 0, 16 / divisions); 
 
   const hitValue = (beat, note) => {
     const spanningHit = phrase.findHits({spans: beat, note: note})[0]
     if (spanningHit) {
-      return spanningHit.period.beginsOn(beat) ? true : 'indeterminate';
+      return spanningHit.period.beginsOn(beat.toBbs()) ? true : 'indeterminate';
     } else {
-      return !!phrase.findHits({beginningOn: beat, note: note})[0];
+      return !!phrase.findHits({beginningOn: beat.toBbs(), note: note})[0];
     }
   };
 
@@ -52,7 +54,7 @@ export default function PhraseEditor({ phrase, setPhrase }) {
 
     let spanningHit = phrase.findHits({spans: beat, note: note})[0];
     if (supportsSustain === false && !spanningHit) {
-      spanningHit = phrase.findHits({beginningOn: beat, note: note})[0];
+      spanningHit = phrase.findHits({beginningOn: beat.toBbs(), note: note})[0];
     }
 
     const toRemove = [];
@@ -63,7 +65,7 @@ export default function PhraseEditor({ phrase, setPhrase }) {
       if (spanningHit) {
         throw new Error('tried to add note to beat which is already spanned');
       } else {
-        toAdd.push(new Hit(note, beat, defaultDuration));
+        toAdd.push(new Hit(note, Period.fromBeatDuration(beat, defaultDuration)));
       }
     } else if (value === 'indeterminate') {
       // sustain an existing note further
@@ -77,8 +79,8 @@ export default function PhraseEditor({ phrase, setPhrase }) {
         return shouldTakeCandidate ? candidate : lastSoFar;
       }, null);
 
-      const duration = beat.plus(stepSize).minus(hitWithClosestEnd.period.beginning());
-      const adjusted = hitWithClosestEnd.adjustDurationToBeat(duration);
+      const duration = beat.toBbs().minus(hitWithClosestEnd.period.beginning()).plus(stepSize);
+      const adjusted = hitWithClosestEnd.adjustDurationTo(duration);
 
       toRemove.push(spanningHit);
       toAdd.push(adjusted);
@@ -86,9 +88,9 @@ export default function PhraseEditor({ phrase, setPhrase }) {
       // remove a hit, or shorten it
       if (spanningHit) {
         toRemove.push(spanningHit);
-        if (spanningHit.period.beginsOn(beat) === false) {
-          const duration = beat.minus(spanningHit.period.beginning());
-          const adjusted = spanningHit.adjustDurationToBeat(duration);
+        if (spanningHit.period.beginsOn(beat.toBbs()) === false) {
+          const duration = beat.toBbs().minus(spanningHit.period.beginning());
+          const adjusted = spanningHit.adjustDurationTo(duration);
           toAdd.push(adjusted);
         }
       } else {

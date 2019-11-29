@@ -3,23 +3,19 @@ import Period from "@/music/Period.js";
 export default class Hit {
   /**
    * @param {Note} note
-   * @param {Beat} beat
-   * @param {[integer, integer]} duration
+   * @param {Period} period
    */
-  constructor(note, beat, duration) {
+  constructor(note, period) {
     this.note = note;
-    this.beat = beat;
-    this.duration = duration;
-    this.period = new Period(this.beat, this.duration);
+    this.period = period;
   }
   equals(hit) {
     return this.note.equals(hit.note) && this.period.equals(hit.period);
   }
-  adjustDurationToBeat(beat) {
+  adjustDurationTo(duration) {
     return new Hit(
       this.note,
-      this.beat,
-      beat.toRational()
+      this.period.adjustDurationTo(duration)
     );
   }
 }

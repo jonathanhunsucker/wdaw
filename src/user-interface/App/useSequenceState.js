@@ -10,7 +10,7 @@ import Track from "@/composition/Track.js";
 import Phrase from "@/composition/Phrase.js";
 
 const defaultSequence = basic();
-const defaultSelectedTrack = 1;
+const defaultSelectedTrack = 0;
 const defaultPhraseFromTrack = (track) => Object.keys(track.phrases)[0];
 const defaultPitchFromTrack = (track) => Object.keys(track.patches)[0];
 const defaultPatchFromTrack = (track) => Object.entries(track.patches)[0][1];
