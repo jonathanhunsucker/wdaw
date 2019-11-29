@@ -5,21 +5,22 @@ import Placement from "@/composition/Placement.js";
 import Track from "@/composition/Track.js";
 import Sequence from "@/composition/Sequence.js";
 
-import { synth, hat, snare } from "./Patches.js";
+import { hat, snare } from "./Patches.js";
 import { cMinorToUpperC, cMinor, keyTick, drumTick, march } from "./Phrases.js";
+import { emptyDrumTrack, defaultDrumTrack, emptyKeyTrack, defaultKeyTrack } from "./Tracks.js";
+
+export const empty = () => {
+  return new Sequence(120, [], new TimeSignature(4, 4));
+};
 
 export const basic = () => {
-  const keys = new Track('Track 1', 'keys', {}, [], [])
-    .setPatch('*', synth())
+  const keys = defaultKeyTrack
     .setPhrase('cMinorToUpperC', cMinorToUpperC())
     .setPhrase('cMinor', cMinor())
     .addPlacement(new Placement(new BarsBeatsSixteenths(0, 0, 0), 'cMinorToUpperC'))
     .addPlacement(new Placement(new BarsBeatsSixteenths(1, 0, 0), 'cMinor'));
 
-  const drums = new Track('Track 2', 'drums', {}, [], [])
-    .setPatch('ClosedHat', hat())
-    .setPatch('Kick', hat())
-    .setPatch('Snare', snare())
+  const drums = defaultDrumTrack
     .setPhrase('march', march())
     .addPlacement(new Placement(new BarsBeatsSixteenths(0, 0, 0), 'march'))
     .addPlacement(new Placement(new BarsBeatsSixteenths(1, 0, 0), 'march'));
@@ -30,16 +31,12 @@ export const basic = () => {
 };
 
 export const timingExercise = () => {
-  const keys = new Track('Track 1', 'keys', {}, [], [])
-    .setPatch('*', synth())
+  const keys = defaultKeyTrack
     .setPhrase('keyTick', keyTick())
     .addPlacement(new Placement(new BarsBeatsSixteenths(0, 0, 0), 'keyTick'))
     .addPlacement(new Placement(new BarsBeatsSixteenths(1, 0, 0), 'keyTick'));
 
-  const drums = new Track('Track 2', 'drums', {}, [], [])
-    .setPatch('ClosedHat', hat())
-    .setPatch('Kick', hat())
-    .setPatch('Snare', snare())
+  const drums = defaultDrumTrack
     .setPhrase('tick', drumTick())
     .addPlacement(new Placement(new BarsBeatsSixteenths(0, 0, 0), 'tick'))
     .addPlacement(new Placement(new BarsBeatsSixteenths(1, 0, 0), 'tick'));

@@ -1,28 +1,33 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
+
+import { Percentage } from "@/utility/string.js";
+import { range } from "@/utility/math.js";
+
+import { empty } from "@/repository/Sequences.js";
+
+import { LinearScaleUnitInput } from "@/user-interface/input.js";
+import PatchEditor from "@/user-interface/PatchEditor/index.js";
+import Sequencer from "@/user-interface/Sequencer/index.js";
+import PhraseEditor from "@/user-interface/PhraseEditor/index.js";
+import TrackEditor from "@/user-interface/TrackEditor/index.js";
 
 import useAudioContext from "./useAudioContext.js";
 import useMainMix from "./useMainMix.js";
 import useSequenceState from "./useSequenceState.js";
 
-import { Percentage } from "@/utility/string.js";
-
-import { LinearScaleUnitInput } from "@/user-interface/input.js";
-import Keyboard from "@/user-interface/Keyboard/index.js";
-import PatchEditor from "@/user-interface/PatchEditor/index.js";
-import Sequencer from "@/user-interface/Sequencer/index.js";
-import PhraseEditor from "@/user-interface/PhraseEditor/index.js";
+import useSelectionState from "../useSelectionState.js";
 
 function App() {
   const audioContext = useAudioContext();
   const [level, setLevel, destination] = useMainMix(audioContext);
 
-  const [
-    [sequence, setSequence],
-    [selectedTrack, selectTrack, setSelectedTrack],
-    [selectedPhrase, selectPhrase, setSelectedPhrase],
-    [selectedPitch, selectPitch, setSelectedPitch],
-    [selectedPatch, selectPatch, setSelectedPatch],
-  ] = useSequenceState();
+  const [sequence, setSequence] = useState(empty());
+  const [selectedTrackIndex, selectTrackIndex] = useSelectionState(sequence.tracks, (tracks) => tracks.length > 0 ? range(0, tracks.length) : []);
+  const selectedTrack = sequence.tracks[selectedTrackIndex] || null;
+
+  function setSelectedTrack(newTrack) {
+    setSequence(sequence.replaceTrack(selectedTrack, newTrack));
+  }
 
   return (
     <div className="App">
@@ -32,24 +37,30 @@ function App() {
       </p>
 
       <h2>Sequencer</h2>
-      <Sequencer
-        audioContext={audioContext}
-        destination={destination}
-        sequence={sequence}
-        setSequence={setSequence}
-      />
+      <Sequencer audioContext={audioContext} destination={destination} sequence={sequence} setSequence={setSequence} />
 
+      {selectedTrack === null ? null : <>
+        <h3>Track</h3>
+        <p>
+          Track:{' '}
+          <select value={sequence.tracks.indexOf(selectedTrack)} onChange={(e) => selectTrackIndex(parseInt(e.target.value, 10))}>
+            {sequence.tracks.map((track, trackIndex) => {
+              return (
+                <option key={trackIndex} value={trackIndex}>{track.name}</option>
+              );
+            })}
+          </select>
+        </p>
+
+        <TrackEditor audioContext={audioContext} destination={destination} track={selectedTrack} setTrack={setSelectedTrack} />
+      </>}
+    </div>
+  );
+}
+
+/*
+ *
       <h2>Phrase</h2>
-      <p>
-        Track:{' '}
-        <select value={sequence.tracks.indexOf(selectedTrack)} onChange={(e) => selectTrack(parseInt(e.target.value, 10))}>
-          {sequence.tracks.map((track, trackIndex) => {
-            return (
-              <option key={trackIndex} value={trackIndex}>{track.name}</option>
-            );
-          })}
-        </select>
-      </p>
       <p>
         Phrase:{' '}
         <select onChange={(e) => selectPhrase(e.target.value)}>
@@ -74,11 +85,6 @@ function App() {
         </select>
       </p>
       <PatchEditor patch={selectedPatch} setPatch={setSelectedPatch} />
-
-      <h2>Keyboard</h2>
-      <Keyboard audioContext={audioContext} destination={destination} selectedTrack={selectedTrack} />
-    </div>
-  );
-}
+      */
 
 export default App;

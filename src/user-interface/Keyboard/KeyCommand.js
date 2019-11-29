@@ -1,5 +1,8 @@
+import { assert, instanceOf, aString, aMappingOf } from "@/utility/type.js";
+
 export class Mapping {
   constructor(mapping) {
+    assert(mapping, aMappingOf(aString(), instanceOf(Handler)));
     this.mapping = mapping;
   }
   contains(code) {

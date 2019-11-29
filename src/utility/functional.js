@@ -19,6 +19,9 @@ export function repackObject(object) {
     set: (key, value) => {
       return Object.entries(object).concat([[key, value]]).reduce(zip, {});
     },
+    removeValuesWhere: (predicate) => {
+      return Object.entries(object).filter(([key, value]) => predicate(value) === false).reduce(zip, {});
+    },
   };
 }
 

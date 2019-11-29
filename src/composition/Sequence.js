@@ -2,6 +2,7 @@ import { Note } from "@jonathanhunsucker/music-js";
 
 import BarsBeatsSixteenths from "@/music/BarsBeatsSixteenths.js";
 
+import { assert, instanceOf } from "@/utility/type.js";
 import { range, flatten } from "@/utility/math.js";
 import { repackArray } from "@/utility/functional.js";
 
@@ -34,6 +35,8 @@ export default class Sequence {
     return this.replaceTrack(givenTrack, givenTrack.toggle(hit));
   }
   addTrack(addition) {
+    assert(addition, instanceOf(Track));
+
     return new Sequence(
       this.tempo,
       this.tracks.concat([addition]),

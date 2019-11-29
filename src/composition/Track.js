@@ -23,6 +23,12 @@ export default class Track {
     this.placements = placements;
     this.phrases = phrases;
   }
+  static get KIND_KEYS() {
+    return 'keys';
+  }
+  static get KIND_DRUMS() {
+    return 'drums';
+  }
   patchForPitch(pitch) {
     if (pitch && this.patches.hasOwnProperty(pitch)) {
       return this.patches[pitch];
@@ -38,8 +44,8 @@ export default class Track {
     return new Period(placement.beat, this.phrases[placement.phraseId].duration);
   }
   supports(feature) {
-    if (feature === 'sustain') return this.kind === 'keys';
-    if (feature === 'multipatch') return this.kind === 'drums';
+    if (feature === 'sustain') return this.kind === Track.KIND_KEYS;
+    if (feature === 'multipatch') return this.kind === Track.KIND_DRUMS;
     throw new Error(`Unknown feature \`${feature}\``);
   }
   getDefaultHitDuration() {

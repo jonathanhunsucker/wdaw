@@ -6,23 +6,32 @@ import { assert, instanceOf, anInteger, aString, any } from "@/utility/type.js";
 
 import { aPatch } from "@/audio/Patch.js";
 
-import { basic } from "@/repository/Sequences.js";
+import { empty } from "@/repository/Sequences.js";
 
 import Track from "@/composition/Track.js";
 import Phrase from "@/composition/Phrase.js";
 
-const defaultSequence = basic();
-const defaultSelectedTrack = 0;
-const defaultPhraseFromTrack = (track) => Object.keys(track.phrases)[0];
+const defaultSequence = empty();
+const defaultTrackFromSequence = (sequence) => {
+  return 0;
+};
+const defaultPhraseFromTrack = (track) => {
+  const phraseIds = Object.keys(track.phrases);
+  if (phraseIds.length === 0) {
+    return null;
+  }
+
+  return phraseIds[0];
+};
 const defaultPitchFromTrack = (track) => Object.keys(track.patches)[0];
 const defaultPatchFromTrack = (track) => Object.entries(track.patches)[0][1];
 
 export default function useSequenceState() {
   const [state, setState] = useState({
     sequence: defaultSequence,
-    selectedTrack: defaultSelectedTrack,
-    selectedPhrase: defaultPhraseFromTrack(defaultSequence.tracks[defaultSelectedTrack]),
-    selectedPitch: defaultPitchFromTrack(defaultSequence.tracks[defaultSelectedTrack]),
+    selectedTrack: defaultTrackFromSequence(defaultSequence),
+    selectedPhrase: defaultPhraseFromTrack(defaultSequence.tracks[defaultTrackFromSequence(defaultSequence)]),
+    selectedPitch: defaultPitchFromTrack(defaultSequence.tracks[defaultTrackFromSequence(defaultSequence)]),
   });
   const selectedTrack = state.sequence.tracks[state.selectedTrack];
   const selectedPatch = selectedTrack.patchForPitch(state.selectedPitch);

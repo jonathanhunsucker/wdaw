@@ -3,6 +3,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { Note } from "@jonathanhunsucker/music-js";
 
 import { max, sum } from "@/utility/math.js";
+import { repackObject } from "@/utility/functional.js";
 
 import Percussion from "@/music/Percussion.js";
 
@@ -14,27 +15,30 @@ import useKeyboard from "./useKeyboard.js";
 import { qwerty } from "./Layout.js";
 import square, { MARGIN } from "./square.js";
 
-const Keyboard = React.memo(function Keyboard({ audioContext, destination, selectedTrack }) {
-  const [pressed, press, release] = useKeyboard(audioContext, destination, selectedTrack);
+const Keyboard = React.memo(function Keyboard({ audioContext, destination, track }) {
+  const [pressed, press, release] = useKeyboard(audioContext, destination, track);
 
   const [shift, setShift] = useState(0);
   const [mod, setMod] = useState(false);
   const nudgeSize = mod ? 1 : 12;
 
-  if (selectedTrack.kind === 'keys') {
+  if (track.kind === 'keys') {
 
     const translate = (note) => {
       return Note.fromStepsFromMiddleA(note.stepsFromMiddleA + shift);
     };
 
-    const noteHandler = (note) => new Handler(translate(note).pitch, () => {
-      press(translate(note));
-      return () => {
-        release(translate(note));
-      };
-    });
+    const noteHandler = (note) => {
+      if (track.patchForPitch(translate(note).pitch) === false) return false;
+      return new Handler(translate(note).pitch, () => {
+        press(translate(note));
+        return () => {
+          release(translate(note));
+        };
+      });
+    };
 
-    var mapping = new Mapping({
+    var mapping = new Mapping(repackObject({
       'KeyZ': noteHandler(Note.fromStepsFromMiddleA(3)),
       'KeyS': noteHandler(Note.fromStepsFromMiddleA(4)),
       'KeyX': noteHandler(Note.fromStepsFromMiddleA(5)),
@@ -71,19 +75,22 @@ const Keyboard = React.memo(function Keyboard({ audioContext, destination, selec
       }),
       'Minus': new Handler(`-${nudgeSize}`, () => setShift((s) => s - nudgeSize)),
       'Equal': new Handler(`+${nudgeSize}`, () => setShift((s) => s + nudgeSize)),
-    });
-  } else if (selectedTrack.kind === 'drums') {
-    const percussionHandler = (pitch, label) => new Handler(label || pitch, () => {
-      press(new Percussion(pitch));
-      return () => {};
-    });
-    var mapping = new Mapping({
+    }).removeValuesWhere((value) => value === false));
+  } else if (track.kind === 'drums') {
+    const percussionHandler = (pitch, label) => {
+      if (track.patchForPitch(pitch) === false) return false;
+      return new Handler(label || pitch, () => {
+        press(new Percussion(pitch));
+        return () => {};
+      });
+    };
+    var mapping = new Mapping(repackObject({
       'KeyZ': percussionHandler('Kick'),
       'KeyX': percussionHandler('Snare'),
       'KeyC': percussionHandler('ClosedHat', 'Hat'),
-    });
+    }).removeValuesWhere((value) => value === false));
   } else {
-    throw new Error(`Unknown track kind \`${selectedTrack.kind}\``);
+    throw new Error(`Unknown track kind \`${track.kind}\``);
   }
 
   const [keysDownCurrently, add, remove] = useSet([]);

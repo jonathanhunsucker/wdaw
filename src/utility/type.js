@@ -61,6 +61,10 @@ export function anObject() {
   return new Matcher((value) => value instanceof Object);
 };
 
+export function is(expectedValue) {
+  return new Matcher((value) => value === expectedValue);
+};
+
 export function anArray() {
   return new Matcher((value) => value instanceof Array);
 };

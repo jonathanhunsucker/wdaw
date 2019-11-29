@@ -8,6 +8,8 @@ import usePlayer from "./usePlayer.js";
 
 import BarsBeatsSixteenths from "@/music/BarsBeatsSixteenths.js";
 
+import { defaultDrumTrack, defaultKeyTrack } from "@/repository/Tracks.js";
+
 import { buildCellStyles } from "../style.js";
 
 const { cellStyles, currentBeatStyles, rightAlignStyles } = buildCellStyles({ minWidth: '1vw'});
@@ -44,9 +46,14 @@ const Sequencer = React.memo(function Sequencer({ audioContext, destination, seq
         </thead>
         <tbody>
           {sequence.tracks.map((track, trackIndex) => {
-            return flatten(
+            return (
+              <tr key={`${trackIndex}`}>
+                <td style={cellStyles}>{track.name}</td>
+                <td style={cellStyles} colSpan={sequence.beats.length}></td>
+              </tr>
+            ); [].concat(flatten(
               track.placements.map((placement, index) =>
-                <tr key={index}>
+                <tr key={`${trackIndex}-${index}`}>
                   {index === 0 && <td style={cellStyles} rowSpan={track.placements.length}>
                     <label htmlFor={`track-${trackIndex}`}>{track.name}</label>
                   </td>}
@@ -66,10 +73,12 @@ const Sequencer = React.memo(function Sequencer({ audioContext, destination, seq
                   })}
                 </tr>
               )
-            );
+            ));
           })}
         </tbody>
       </table>
+      <p><button onClick={() => setSequence(sequence.addTrack(defaultDrumTrack))}>Add drum track</button></p>
+      <p><button onClick={() => setSequence(sequence.addTrack(defaultKeyTrack))}>Add key track</button></p>
     </React.Fragment>
   );
 });
