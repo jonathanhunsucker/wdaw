@@ -4,6 +4,8 @@ import { Gain, Envelope, Wave, Filter, Noise } from "@jonathanhunsucker/audio-js
 
 import { assert, instanceOf, anInteger, aString, any } from "@/utility/type.js";
 
+import { aPatch } from "@/audio/Patch.js";
+
 import { basic } from "@/repository/Sequences.js";
 
 import Track from "@/composition/Track.js";
@@ -73,7 +75,7 @@ export default function useSequenceState() {
   const selectPitch = (newlySelectedPitch) => {
     assert(newlySelectedPitch, aString());
     const newlySelectedPatch = selectedTrack.patches[newlySelectedPitch];
-    assert(newlySelectedPatch, any([Gain, Envelope, Wave, Filter, Noise].map((stage) => instanceOf(stage))));
+    assert(newlySelectedPatch, aPatch());
 
     setState({
       sequence: state.sequence,

@@ -33,6 +33,13 @@ export default class Sequence {
   toggleHit(givenTrack, hit) {
     return this.replaceTrack(givenTrack, givenTrack.toggle(hit));
   }
+  addTrack(addition) {
+    return new Sequence(
+      this.tempo,
+      this.tracks.concat([addition]),
+      this.timeSignature
+    );
+  }
   replaceTrack(before, after) {
     return new Sequence(
       this.tempo,

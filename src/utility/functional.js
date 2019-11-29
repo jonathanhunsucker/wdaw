@@ -16,6 +16,9 @@ export function repackObject(object) {
     replaceValue: (before, after) => {
       return Object.entries(object).map(([key, value]) => [key, value === before ? after : value]).reduce(zip, {});
     },
+    set: (key, value) => {
+      return Object.entries(object).concat([[key, value]]).reduce(zip, {});
+    },
   };
 }
 

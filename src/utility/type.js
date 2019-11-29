@@ -57,8 +57,40 @@ export function aString() {
   return new Matcher((value) => typeof value === 'string');
 };
 
+export function anObject() {
+  return new Matcher((value) => value instanceof Object);
+};
+
+export function anArray() {
+  return new Matcher((value) => value instanceof Array);
+};
+
 export function any(matchers) {
   return new Matcher((value) => {
     return matchers.reduce((accumulation, matcher) => accumulation || matcher.matches(value), false);
+  });
+};
+
+export function aMappingOf(keyMatcher, valueMatcher) {
+  return new Matcher((object) => {
+    anObject().enforce(object);
+    for (var key in object) {
+      if (!object.hasOwnProperty(key)) {
+        return false;
+      }
+
+      keyMatcher.enforce(key);
+      valueMatcher.enforce(object[key]);
+    }
+
+    return true;
+  });
+};
+
+export function anArrayOf(valueMatcher) {
+  return new Matcher((value) => {
+    anArray().enforce(value);
+    value.forEach((item) => valueMatcher.enforce(item));
+    return true;
   });
 };

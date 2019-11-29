@@ -9,47 +9,42 @@ import { synth, hat, snare } from "./Patches.js";
 import { cMinorToUpperC, cMinor, keyTick, drumTick, march } from "./Phrases.js";
 
 export const basic = () => {
-  return new Sequence(
-    120,
-    [
-      new Track(
-        "Track 1",
-        'keys',
-        {'*': synth()},
-        [new Placement(new BarsBeatsSixteenths(0, 0, 0), 'cMinorToUpperC'), new Placement(new BarsBeatsSixteenths(1, 0, 0), 'cMinor')],
-        {'cMinorToUpperC': cMinorToUpperC(), 'cMinor': cMinor()}
-      ),
-      new Track(
-        "Track 2",
-        'drums',
-        {'ClosedHat': hat(), 'Kick': hat(), 'Snare': snare()},
-        [new Placement(new BarsBeatsSixteenths(0, 0, 0), 'march'), new Placement(new BarsBeatsSixteenths(1, 0, 0), 'march')],
-        {'march': march()}
-      ),
-    ],
-    new TimeSignature(8, 4)
-  );
+  const keys = new Track('Track 1', 'keys', {}, [], [])
+    .setPatch('*', synth())
+    .setPhrase('cMinorToUpperC', cMinorToUpperC())
+    .setPhrase('cMinor', cMinor())
+    .addPlacement(new Placement(new BarsBeatsSixteenths(0, 0, 0), 'cMinorToUpperC'))
+    .addPlacement(new Placement(new BarsBeatsSixteenths(1, 0, 0), 'cMinor'));
+
+  const drums = new Track('Track 2', 'drums', {}, [], [])
+    .setPatch('ClosedHat', hat())
+    .setPatch('Kick', hat())
+    .setPatch('Snare', snare())
+    .setPhrase('march', march())
+    .addPlacement(new Placement(new BarsBeatsSixteenths(0, 0, 0), 'march'))
+    .addPlacement(new Placement(new BarsBeatsSixteenths(1, 0, 0), 'march'));
+
+  return (new Sequence(120, [], new TimeSignature(8, 4)))
+    .addTrack(keys)
+    .addTrack(drums);
 };
 
 export const timingExercise = () => {
-  return new Sequence(
-    120,
-    [
-      new Track(
-        "Track 1",
-        'keys',
-        {'*': synth()},
-        [new Placement(new BarsBeatsSixteenths(0, 0, 0), 'cMinorToUpperC'), new Placement(new BarsBeatsSixteenths(1, 0, 0), 'cMinor')],
-        {'cMinorToUpperC': keyTick(), 'cMinor': keyTick()}
-      ),
-      new Track(
-        "Track 2",
-        'drums',
-        {'ClosedHat': hat(), 'Kick': hat(), 'Snare': snare()},
-        [new Placement(new BarsBeatsSixteenths(0, 0, 0), 'march'), new Placement(new BarsBeatsSixteenths(1, 0, 0), 'march')],
-        {'march': drumTick()}
-      ),
-    ],
-    new TimeSignature(8, 4)
-  );
+  const keys = new Track('Track 1', 'keys', {}, [], [])
+    .setPatch('*', synth())
+    .setPhrase('keyTick', keyTick())
+    .addPlacement(new Placement(new BarsBeatsSixteenths(0, 0, 0), 'keyTick'))
+    .addPlacement(new Placement(new BarsBeatsSixteenths(1, 0, 0), 'keyTick'));
+
+  const drums = new Track('Track 2', 'drums', {}, [], [])
+    .setPatch('ClosedHat', hat())
+    .setPatch('Kick', hat())
+    .setPatch('Snare', snare())
+    .setPhrase('tick', drumTick())
+    .addPlacement(new Placement(new BarsBeatsSixteenths(0, 0, 0), 'tick'))
+    .addPlacement(new Placement(new BarsBeatsSixteenths(1, 0, 0), 'tick'));
+
+  return new Sequence(120, [], new TimeSignature(8, 4))
+    .addTrack(keys)
+    .addTrack(drums);
 };
