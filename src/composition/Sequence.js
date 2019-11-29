@@ -27,7 +27,7 @@ export default class Sequence {
   get beats() {
     return flatten(
       range(1, this.timeSignature.beats).map((beat) => {
-        return range(0, this.divisions - 1).map((numerator) => new Beat(beat, [numerator, this.divisions]));
+        return range(0, this.divisions - 1).map((numerator) => (new Beat(beat, [numerator, this.divisions])).toBbs());
       })
     );
   }

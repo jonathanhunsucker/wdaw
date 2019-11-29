@@ -9,7 +9,7 @@ import Beat from "./Beat.js";
  */
 export default class Period {
   constructor(beat, duration) {
-    assert(beat, instanceOf(Beat));
+    assert(beat, instanceOf(BarsBeatsSixteenths));
     assert(duration, instanceOf(BarsBeatsSixteenths));
     this.beat = beat;
     this.duration = duration;
@@ -18,10 +18,10 @@ export default class Period {
     return new Period(beat, BarsBeatsSixteenths.fromTick(duration));
   }
   beginning() {
-    return this.beat.toBbs();
+    return this.beat;
   }
   ending() {
-    return this.beat.toBbs().plus(this.duration);
+    return this.beat.plus(this.duration);
   }
   beginsOn(beat) {
     return this.beat.equals(beat);
@@ -30,7 +30,7 @@ export default class Period {
     return this.duration.divide(duration);
   }
   spans(beat) {
-    const startsOnOrAfter = beat.after(this.beat.toBbs()) || beat.equals(this.beat.toBbs());
+    const startsOnOrAfter = beat.after(this.beat) || beat.equals(this.beat);
     const end = this.beat.plus(this.duration);
     const endsStrictlyBefore = beat.before(end);
 

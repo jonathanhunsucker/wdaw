@@ -21,12 +21,12 @@ const on = (beat, rational) => {
   return {
     hit: (pitches) => {
       return {
-        for: (duration) => pitches.map((pitch) => new Hit(new Percussion(pitch), Period.fromBeatDuration(new Beat(beat, rational), duration))),
+        for: (duration) => pitches.map((pitch) => new Hit(new Percussion(pitch), Period.fromBeatDuration((new Beat(beat, rational)).toBbs(), duration))),
       };
     },
     play: (pitches) => {
       return {
-        for: (duration) => pitches.map((pitch) => new Hit(new Note(pitch), Period.fromBeatDuration(new Beat(beat, rational), duration))),
+        for: (duration) => pitches.map((pitch) => new Hit(new Note(pitch), Period.fromBeatDuration((new Beat(beat, rational)).toBbs(), duration))),
       };
     },
   };

@@ -36,8 +36,8 @@ const Sequencer = React.memo(function Sequencer({ audioContext, destination, seq
           <tr>
             <th style={cellStyles}></th>
             {sequence.beats.map((beat) =>
-              <th key={beat.key} style={currentBeat && currentBeat.equals(beat.toBbs()) ? currentBeatStyles : cellStyles}>
-                {beat.isRound() ? beat.beat : ''}
+              <th key={beat.key} style={currentBeat && currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
+                {beat.isRound() ? beat.beats : ''}
               </th>
             )}
           </tr>
@@ -53,14 +53,14 @@ const Sequencer = React.memo(function Sequencer({ audioContext, destination, seq
                   {sequence.beats.map((beat) => {
                     const period = track.getPeriodFromPlacement(placement);
 
-                    if (!period.beginsOn(beat.toBbs()) && period.spans(beat.toBbs())) {
+                    if (!period.beginsOn(beat) && period.spans(beat)) {
                       return null;
                     }
 
-                    const colSpan = period.beginsOn(beat.toBbs()) ? period.divide(sequence.tickSize) : 1;
+                    const colSpan = period.beginsOn(beat) ? period.divide(sequence.tickSize) : 1;
                     return (
-                      <td key={beat.key} colSpan={colSpan} style={currentBeat && currentBeat.equals(beat.toBbs()) ? currentBeatStyles : cellStyles}>
-                        {period.beginsOn(beat.toBbs()) ? placement.phraseId : ''}
+                      <td key={beat.key} colSpan={colSpan} style={currentBeat && currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
+                        {period.beginsOn(beat) ? placement.phraseId : ''}
                       </td>
                     );
                   })}

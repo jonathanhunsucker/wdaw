@@ -37,7 +37,7 @@ export default function usePlayer(audioContext, destination, sequence) {
             return [];
           }
 
-          const relativeBeat = beat.minus(placement.beat.toBbs());
+          const relativeBeat = beat.minus(placement.beat);
 
           return track.phrases[placement.phraseId].findHits({beginningOn: relativeBeat}).map((hit) => {
             const boundPatch = track.patchForPitch(hit.note.pitch).bind(hit.note.frequency);

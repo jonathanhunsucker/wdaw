@@ -39,9 +39,9 @@ export default function PhraseEditor({ phrase, setPhrase }) {
   const hitValue = (beat, note) => {
     const spanningHit = phrase.findHits({spans: beat, note: note})[0]
     if (spanningHit) {
-      return spanningHit.period.beginsOn(beat.toBbs()) ? true : 'indeterminate';
+      return spanningHit.period.beginsOn(beat) ? true : 'indeterminate';
     } else {
-      return !!phrase.findHits({beginningOn: beat.toBbs(), note: note})[0];
+      return !!phrase.findHits({beginningOn: beat, note: note})[0];
     }
   };
 
@@ -54,7 +54,7 @@ export default function PhraseEditor({ phrase, setPhrase }) {
 
     let spanningHit = phrase.findHits({spans: beat, note: note})[0];
     if (supportsSustain === false && !spanningHit) {
-      spanningHit = phrase.findHits({beginningOn: beat.toBbs(), note: note})[0];
+      spanningHit = phrase.findHits({beginningOn: beat, note: note})[0];
     }
 
     const toRemove = [];
@@ -79,7 +79,7 @@ export default function PhraseEditor({ phrase, setPhrase }) {
         return shouldTakeCandidate ? candidate : lastSoFar;
       }, null);
 
-      const duration = beat.toBbs().minus(hitWithClosestEnd.period.beginning()).plus(stepSize);
+      const duration = beat.minus(hitWithClosestEnd.period.beginning()).plus(stepSize);
       const adjusted = hitWithClosestEnd.adjustDurationTo(duration);
 
       toRemove.push(spanningHit);
@@ -88,8 +88,8 @@ export default function PhraseEditor({ phrase, setPhrase }) {
       // remove a hit, or shorten it
       if (spanningHit) {
         toRemove.push(spanningHit);
-        if (spanningHit.period.beginsOn(beat.toBbs()) === false) {
-          const duration = beat.toBbs().minus(spanningHit.period.beginning());
+        if (spanningHit.period.beginsOn(beat) === false) {
+          const duration = beat.minus(spanningHit.period.beginning());
           const adjusted = spanningHit.adjustDurationTo(duration);
           toAdd.push(adjusted);
         }
@@ -106,7 +106,7 @@ export default function PhraseEditor({ phrase, setPhrase }) {
 
   const beats = flatten(
     range(1, 4).map((beat) => {
-      return range(0, divisions - 1).map((numerator) => new Beat(beat, [numerator, divisions]));
+      return range(0, divisions - 1).map((numerator) => (new Beat(beat, [numerator, divisions])).toBbs());
     })
   );
 
@@ -121,7 +121,7 @@ export default function PhraseEditor({ phrase, setPhrase }) {
           <th style={cellStyles}></th>
           {beats.map((beat) =>
             <th key={beat.key} style={cellStyles}>
-              {beat.isRound() ? beat.beat : ''}
+              {beat.isRound() ? beat.beats : ''}
             </th>
           )}
         </tr>

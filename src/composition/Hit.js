@@ -1,3 +1,5 @@
+import { assert, instanceOf } from "@/utility/type.js";
+
 import Period from "@/music/Period.js";
 
 export default class Hit {
@@ -6,6 +8,7 @@ export default class Hit {
    * @param {Period} period
    */
   constructor(note, period) {
+    assert(period, instanceOf(Period));
     this.note = note;
     this.period = period;
   }
