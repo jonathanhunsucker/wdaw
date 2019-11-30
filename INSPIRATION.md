@@ -1,0 +1,73 @@
+# Sources, inspiration, related content
+
+- [setInterval implementation](https://overreacted.io/making-setinterval-declarative-with-react-hooks/)
+- [Common tempo ranges](http://www2.siba.fi/muste1/index.php?id=102&la=en)
+- [Scientific pitch notation](https://en.wikipedia.org/wiki/Scientific_pitch_notation)
+- [Browsers' auto-play gate logic](https://webkit.org/blog/6784/new-video-policies-for-ios/)
+- Timekeeping methods in the browser
+    - [DOMHighResTimeStamp](https://developer.mozilla.org/en-US/docs/Web/API/DOMHighResTimeStamp)
+    - [Performance_API](https://developer.mozilla.org/en-US/docs/Web/API/Performance_API)
+    - [TimeEvent](https://developer.mozilla.org/en-US/docs/Web/API/TimeEvent)
+- Musical numbers to chart support for
+    - [How to make a beat](https://www.youtube.com/watch?v=Y3nxuUJQAhY)
+    - [Tarkka - Chilli Dat](https://soundcloud.com/tarkka/chilli-dat)
+    - [10 Blooms](https://www.youtube.com/watch?v=kOTPjh6oA84)
+- Existing projects in this space
+    - Browser-based
+        - [onlinesequencer.net](https://onlinesequencer.net), [example](https://onlinesequencer.net/298808), [source code](https://github.com/buildist/onlinesequencer)
+        - [sampulator.com](http://sampulator.com), [example](http://sampulator.com/stevespaced/malibu-forever)
+        - [patternsketch.com](https://patternsketch.com)
+        - [io808.com](https://io808.com), [source code](https://github.com/vincentriemer/io-808)
+        - [collection of online synths](https://synth.playtronica.com)
+        - [omni](https://femurdesign.com/omni/)
+        - [mod synth](http://mod-synth.io) (particular its interface design, especially controls)
+        - [webx0x.com](https://webx0x.com/beats/new#)
+        - [beepbox](https://github.com/johnnesky/beepbox)
+        - [Ableton's Playground](https://learningmusic.ableton.com/the-playground.html)
+    - Spreadsheet-based
+        - [I made an actual Drum Machine in Excel](https://www.youtube.com/watch?v=To2JIXGoYzA)
+    - Desktop-based
+        - [LMMS](https://lmms.io)
+- Audio-related tooling
+    - [spleeter](https://github.com/deezer/spleeter)
+- Song analysis
+    - [Rick Beato's analysis of Boston's "More than a Feeling"](https://www.youtube.com/watch?v=ynFNt4tgBJ0) (learned about multi-track recording, it's impressive that he has individual tracks from that recording)
+- Audio visualizations
+    - [Vulf Conservatory's graphic score of James Jamerson's bassline on Stevie Wonde's "I Was Made to Love Her"](https://www.youtube.com/watch?v=KKBmkxFm7-U), which looks similar to [IEEE1599's sphere viewer](https://ieee1599.lim.di.unimi.it/viewer.php?id=217)
+    - Whatever is being visualized on the right side of [these plugins](https://goodhertz.co/faq/)
+- Web Audio API
+    - [Specification](https://github.com/WebAudio/web-audio-api)
+    - [W3C Recommendation](https://www.w3.org/TR/webaudio/)
+    - [Making a PWM wave](https://github.com/pendragon-andyh/WebAudio-PulseOscillator)
+    - [blog.chrislowis.co.uk](http://blog.chrislowis.co.uk/)
+    - [ToneJS](https://tonejs.github.io/demos)
+    - [NexusJS](https://nexus-js.github.io/ui/)
+    - [WebPd](https://github.com/sebpiq/WebPd)
+    - [Dub delay example](http://blog.chrislowis.co.uk/2014/07/23/dub-delay-web-audio-api.html)
+    - [theresassoundworld.com](https://theresassoundworld.com)
+    - [github.com/sebpiq/WAAClock](https://github.com/sebpiq/WAAClock)
+    - [github.com/alemangui/web-audio-resources](https://github.com/alemangui/web-audio-resources)
+    - [blog.mecheye.net/2017/09/i-dont-know-who-the-web-audio-api-is-designed-for](https://blog.mecheye.net/2017/09/i-dont-know-who-the-web-audio-api-is-designed-for/), [hackernews thread](https://news.ycombinator.com/item?id=15240762)
+    - [robert.ocallahan.org/2017/09/some-opinions-on-history-of-web-audio.html](https://robert.ocallahan.org/2017/09/some-opinions-on-history-of-web-audio.html)
+    - [smus.com/filter-playground](https://smus.com/filter-playground/)
+    - [rtoy.github.io/webaudio-hacks](http://rtoy.github.io/webaudio-hacks/), [shiny drum machine](http://rtoy.github.io/webaudio-hacks/demos/shiny-drum-machine.html)
+    - [Chrome experiments song maker](https://musiclab.chromeexperiments.com/Song-Maker/song/5121132346736640)
+- Music communities
+    - [r/LofiHipHop](https://www.reddit.com/r/LofiHipHop/)
+    - [r/Drumkits](https://www.reddit.com/r/Drumkits/)
+- Commercial DAWs
+    - [Cakewalk](https://www.bandlab.com/products/cakewalk)
+- Commercial sample packs
+    - [splice.com](https://splice.com/sounds/beatmaker)
+- [Vinyl sampling setup on an old machine](https://www.youtube.com/watch?v=B_fj7qO5V_o)
+- Notation and representation
+    - [musicxml](http://w3c.github.io/musicxml/)
+    - [ieee1599](https://ieee1599.lim.di.unimi.it/index.php)
+    - [midi spec level 1](https://www.midi.org/specifications-old/item/gm-level-1-sound-set)
+- Threaded off of Steve Duda's conversation at the Loop
+    - [ldesoras.free.fr](http://ldesoras.free.fr/prod.html)
+    - [cytomic.com](https://cytomic.com/#)
+    - [The Quest for the perfect resampler](http://ldesoras.free.fr/doc/articles/resampler-en.pdf)
+    - [twitter.com/andrewsimper](https://twitter.com/andrewsimper)
+    - [lancethackeray.com/gui/serum/](https://lancethackeray.com/gui/serum/)
+    - [Voger Design](https://vogerdesign.com/pages/our-story)
