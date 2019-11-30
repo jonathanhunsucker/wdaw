@@ -115,6 +115,10 @@ function Voicing({ audioContext, destination, track, setTrack }) {
     }
   }
 
+  function setPatch(replacement) {
+    setTrack(track.setPatch(selectedPitch, replacement));
+  }
+
   return (<>
     <h4>Patch</h4>
     <p>
@@ -129,7 +133,7 @@ function Voicing({ audioContext, destination, track, setTrack }) {
     </p>
     <p><button onClick={() => addPatch()}>Add patch</button></p>
 
-    <p>TODO patch editor</p>
+    {selectedPatch !== null ? <PatchEditor patch={selectedPatch} setPatch={setPatch} /> : null}
 
     <h4>Keyboard</h4>
     <Keyboard audioContext={audioContext} destination={destination} track={track} />
