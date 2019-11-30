@@ -28,7 +28,8 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Workstation</h1>
+      <h1>WDAW</h1>
+      <p>Project by <a href="https://jonathanhunsucker.com">Jonathan Hunsucker</a></p>
       <p>Level:{' '}
         <LinearScaleUnitInput value={level} onChange={(value) => setLevel(value)} />{' '}{Percentage(level)}
       </p>
