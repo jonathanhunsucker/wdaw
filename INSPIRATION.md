@@ -54,6 +54,7 @@
     - [smus.com/filter-playground](https://smus.com/filter-playground/)
     - [rtoy.github.io/webaudio-hacks](http://rtoy.github.io/webaudio-hacks/), [shiny drum machine](http://rtoy.github.io/webaudio-hacks/demos/shiny-drum-machine.html)
     - [Chrome experiments song maker](https://musiclab.chromeexperiments.com/Song-Maker/song/5121132346736640)
+    - [generative.fm](https://generative.fm)
 - Music communities
     - [r/LofiHipHop](https://www.reddit.com/r/LofiHipHop/)
     - [r/Drumkits](https://www.reddit.com/r/Drumkits/)
@@ -73,3 +74,4 @@
     - [twitter.com/andrewsimper](https://twitter.com/andrewsimper)
     - [lancethackeray.com/gui/serum/](https://lancethackeray.com/gui/serum/)
     - [Voger Design](https://vogerdesign.com/pages/our-story)
+- [Web Audio Conference 2019](https://www.ntnu.edu/wac2019/programme)
