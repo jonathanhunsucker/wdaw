@@ -18,7 +18,7 @@ function App() {
   const audioContext = useAudioContext();
   const [level, setLevel, destination] = useMainMix(audioContext);
 
-  const [sequence, setSequence] = useState(timingExerciseSequence());
+  const [sequence, setSequence] = useState(basicSequence());
   const [selectedTrackIndex, selectTrackIndex] = useSelectionState(sequence.tracks, (tracks) => tracks.length > 0 ? range(0, tracks.length) : []);
   const selectedTrack = sequence.tracks[selectedTrackIndex] || null;
 
