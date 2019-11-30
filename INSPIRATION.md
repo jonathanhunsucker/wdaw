@@ -39,6 +39,8 @@
     - [Specification](https://github.com/WebAudio/web-audio-api)
     - [W3C Recommendation](https://www.w3.org/TR/webaudio/)
     - [Making a PWM wave](https://github.com/pendragon-andyh/WebAudio-PulseOscillator)
+    - [Web Audio Modules "plug-in" format](https://www.webaudiomodules.org/blog/wam-story/)
+    - [standardized-audio-context](https://www.npmjs.com/package/standardized-audio-context?activeTab=readme)
     - [blog.chrislowis.co.uk](http://blog.chrislowis.co.uk/)
     - [ToneJS](https://tonejs.github.io/demos)
     - [NexusJS](https://nexus-js.github.io/ui/)
