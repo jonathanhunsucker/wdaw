@@ -67,11 +67,12 @@ export default function usePlayer(audioContext, destination, sequence) {
     const now = audioContext.currentTime;
     const divisionDurationInSeconds = sequence.secondsPerBeat() / sequence.divisions;
     const relativeAdvancementInSeconds = now - lastTickedAtRef.current.time;
+    const lastBeat = sequence.beats[sequence.beats.length - 1];
 
     const shouldPlayNextBeat = divisionDurationInSeconds < relativeAdvancementInSeconds;
     if (shouldPlayNextBeat) {
       const latestBeat = currentBeat.plus(sequence.tickSize);
-      if (latestBeat.after(new BarsBeatsSixteenths(0, sequence.timeSignature.beats, 15))) {
+      if (latestBeat.after(lastBeat)) {
         setIsPlaying(false);
         return;
       }
