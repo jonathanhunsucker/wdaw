@@ -11,7 +11,7 @@ import { emptyDrumTrack, defaultDrumTrack, emptyKeyTrack, defaultKeyTrack } from
 
 export const emptySequence = () => new Sequence(120, [], new TimeSignature(4, 4));
 
-export const defaultSequence = () => emptySequence().addTrack(defaultKeyTrack).addTrack(defaultDrumTrack);
+export const defaultSequence = () => emptySequence().addTrack(defaultKeyTrack.setPhrase('cMinorToUpperC', cMinorToUpperC())).addTrack(defaultDrumTrack);
 
 export const basic = () => {
   const keys = defaultKeyTrack

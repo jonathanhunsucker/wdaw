@@ -1,21 +1,27 @@
 import React from "react";
 
+import { range } from "@/utility/math.js";
 import { assert, is, any, none, aNonZeroLengthString, Matcher } from "@/utility/type.js";
 
+import BarsBeatsSixteenths from "@/music/BarsBeatsSixteenths.js";
+
 import Track from "@/composition/Track.js";
+import Placement from "@/composition/Placement.js";
 
 import { synth, hat } from "@/repository/Patches.js";
 import { emptyKeysPhrase, emptyDrumsPhrase } from "@/repository/Phrases.js";
 
 import PhraseEditor from "@/user-interface/PhraseEditor/index.js";
 import PatchEditor from "@/user-interface/PatchEditor/index.js";
+import PlacementEditor from "@/user-interface/PlacementEditor/index.js";
 import Keyboard from "@/user-interface/Keyboard/index.js";
 
 import useSelectionState from "../useSelectionState.js";
 
 export default function TrackEditor(props) {
   return (<>
-    <Arrangement {...props} />
+    <Phrasing {...props} />
+    <Placing {...props} />
     <Voicing {...props} />
   </>);
 }
@@ -28,7 +34,7 @@ function validPhraseNameForTrack(track) {
   });
 }
 
-function Arrangement({ audioContext, destination, track, setTrack }) {
+function Phrasing({ audioContext, destination, track, setTrack }) {
   const [selectedPhraseId, selectPhraseId] = useSelectionState(track.phrases, (phrases) => Object.keys(phrases));
   const selectedPhrase = selectedPhraseId !== null ? track.phrases[selectedPhraseId] : null;
 
@@ -48,6 +54,10 @@ function Arrangement({ audioContext, destination, track, setTrack }) {
     setTrack(track.setPhrase(selectedPhraseId, replacement));
   }
 
+  function place() {
+    setTrack(track.addPlacement(new Placement(new BarsBeatsSixteenths(0, 0, 0), selectedPhraseId)));
+  }
+
   return (<>
     <h4>Phrase</h4>
     <p>
@@ -62,9 +72,28 @@ function Arrangement({ audioContext, destination, track, setTrack }) {
     </p>
     <p><button onClick={() => addPhrase()}>Add phrase</button></p>
     {selectedPhrase !== null ? (<PhraseEditor phrase={selectedPhrase} setPhrase={setSelectedPhrase} />) : 'no phrase selected'}
+    <p><button onClick={() => place()}>Place</button></p>
+  </>);
+}
 
+function Placing({ audioContext, destination, track, setTrack }) {
+  const [selectedPlacementIndex, selectPlacementIndex] = useSelectionState(track.placements, (placements) => placements.length > 0 ? range(0, placements.length - 1) : []);
+  const selectedPlacement = track.placements[selectedPlacementIndex] || null;
+
+  function setPlacement(replacement) {
+    setTrack(track.replacePlacement(selectedPlacement, replacement));
+  }
+
+  return (<>
     <h4>Placement</h4>
-    <p>TODO</p>
+    <select value={selectedPlacementIndex || ''} onChange={(e) => selectPlacementIndex(parseInt(e.target.value, 10))}>
+      {track.placements.map((placement, placementIndex) => {
+        return (
+          <option key={placementIndex} value={placementIndex}>{placementIndex}</option>
+        );
+      })}
+    </select>
+    {selectedPlacement !== null ? <PlacementEditor placement={selectedPlacement} setPlacement={setPlacement} availablePhraseIds={Object.keys(track.phrases)} /> : null}
   </>);
 }
 

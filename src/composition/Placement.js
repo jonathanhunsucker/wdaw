@@ -1,6 +1,6 @@
 import { assert, instanceOf } from "@/utility/type.js";
 
-import BarsBeatsSixteenths from "@/music//BarsBeatsSixteenths.js";
+import BarsBeatsSixteenths from "@/music/BarsBeatsSixteenths.js";
 
 export default class Placement {
   constructor(beat, phraseId) {
@@ -8,12 +8,17 @@ export default class Placement {
     this.beat = beat;
     this.phraseId = phraseId;
   }
+  setBeat(replacementBeat) {
+    return new Placement(
+      replacementBeat,
+      this.phraseId
+    );
+  }
   setPhrase(replacementPhraseId) {
-    const replacement = new Placement(
+    return new Placement(
       this.beat,
       replacementPhraseId
     );
-    return replacement;
   }
 }
 

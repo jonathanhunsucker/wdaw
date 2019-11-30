@@ -46,17 +46,14 @@ const Sequencer = React.memo(function Sequencer({ audioContext, destination, seq
         </thead>
         <tbody>
           {sequence.tracks.map((track, trackIndex) => {
-            return (
+            return [
               <tr key={`${trackIndex}`}>
-                <td style={cellStyles}>{track.name}</td>
-                <td style={cellStyles} colSpan={sequence.beats.length}></td>
+                <td style={cellStyles} rowSpan={track.placements.length + 1}>{track.name}</td>
+                {track.placements.length === 0 ? <td style={cellStyles} colSpan={sequence.beats.length}></td> : null}
               </tr>
-            ); [].concat(flatten(
+            ].concat(flatten(
               track.placements.map((placement, index) =>
                 <tr key={`${trackIndex}-${index}`}>
-                  {index === 0 && <td style={cellStyles} rowSpan={track.placements.length}>
-                    <label htmlFor={`track-${trackIndex}`}>{track.name}</label>
-                  </td>}
                   {sequence.beats.map((beat) => {
                     const period = track.getPeriodFromPlacement(placement);
 
