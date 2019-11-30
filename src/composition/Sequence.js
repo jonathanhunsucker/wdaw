@@ -25,11 +25,22 @@ export default class Sequence {
     );
   }
   get beats() {
-    return flatten(
-      range(1, this.timeSignature.beats).map((beat) => {
-        return range(0, this.divisions - 1).map((numerator) => new BarsBeatsSixteenths(0, beat - 1, numerator * 4));
-      })
-    );
+    const finalBeat = flatten(this.tracks.map((track) => {
+      return track.placements.map((placement) => {
+        return track.getPeriodFromPlacement(placement).ending();
+      });
+    })).reduce((lastSoFar, candidate) => {
+      return candidate.after(lastSoFar) ? candidate : lastSoFar;
+    }, new BarsBeatsSixteenths(2, 0, 0));
+
+    const beats = [];
+    let beat = new BarsBeatsSixteenths(0, 0, 0);
+    while (beat.before(finalBeat)) {
+      beats.push(beat);
+      beat = beat.plus(this.tickSize);
+    }
+
+    return beats;
   }
   toggleHit(givenTrack, hit) {
     return this.replaceTrack(givenTrack, givenTrack.toggle(hit));
