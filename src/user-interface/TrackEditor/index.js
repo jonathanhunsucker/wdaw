@@ -71,8 +71,10 @@ function Phrasing({ audioContext, destination, track, setTrack }) {
       </select>
     </p>
     <p><button onClick={() => addPhrase()}>Add phrase</button></p>
-    {selectedPhrase !== null ? (<PhraseEditor phrase={selectedPhrase} setPhrase={setSelectedPhrase} />) : 'no phrase selected'}
-    <p><button onClick={() => place()}>Place</button></p>
+    {selectedPhrase !== null ? <>
+      <PhraseEditor phrase={selectedPhrase} setPhrase={setSelectedPhrase} />
+      <p><button onClick={() => place()}>Place</button></p>
+    </> : null}
   </>);
 }
 
