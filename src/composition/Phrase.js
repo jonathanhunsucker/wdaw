@@ -1,7 +1,10 @@
+import { assert, is, instanceOf, aString, any, aMappingOf, anArrayOf } from "@/utility/type.js";
+
 import BarsBeatsSixteenths, { bar } from "@/music/BarsBeatsSixteenths.js";
 
 export default class Phrase {
   constructor(kind, hits) {
+    assert(kind, any([is('keys'), is('drums')]));
     this.name = 'my phrase';
     this.kind = kind;
     this.hits = hits;

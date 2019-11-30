@@ -13,7 +13,7 @@ export const emptySequence = () => new Sequence(120, [], new TimeSignature(4, 4)
 
 export const defaultSequence = () => emptySequence().addTrack(defaultKeyTrack.setPhrase('cMinorToUpperC', cMinorToUpperC())).addTrack(defaultDrumTrack);
 
-export const basic = () => {
+export const basicSequence = () => {
   const keys = defaultKeyTrack
     .setPhrase('cMinorToUpperC', cMinorToUpperC())
     .setPhrase('cMinor', cMinor())
@@ -30,7 +30,7 @@ export const basic = () => {
     .addTrack(drums);
 };
 
-export const timingExercise = () => {
+export const timingExerciseSequence = () => {
   const keys = defaultKeyTrack
     .setPhrase('keyTick', keyTick())
     .addPlacement(new Placement(new BarsBeatsSixteenths(0, 0, 0), 'keyTick'))
