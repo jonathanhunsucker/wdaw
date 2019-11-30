@@ -10,6 +10,8 @@ import { defaultDrumTrack, defaultKeyTrack } from "@/repository/Tracks.js";
 
 import { buildCellStyles } from "../style.js";
 
+import BeatLabel from "@/user-interface/BeatLabel.js";
+
 import usePlayer from "./usePlayer.js";
 
 const { cellStyles, currentBeatStyles, rightAlignStyles } = buildCellStyles({ minWidth: '1vw'});
@@ -39,7 +41,7 @@ const Sequencer = React.memo(function Sequencer({ audioContext, destination, seq
             <th style={cellStyles}></th>
             {sequence.beats.map((beat) =>
               <th key={beat.key} style={currentBeat && currentBeat.equals(beat) ? currentBeatStyles : cellStyles}>
-                {beat.isRound() ? beat.beats : ''}
+                {BeatLabel(beat)}
               </th>
             )}
           </tr>

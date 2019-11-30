@@ -6,14 +6,16 @@ import { flatten, range } from "@/utility/math.js";
 import Phrase from "@/composition/Phrase.js";
 import Hit from "@/composition/Hit.js";
 
-import BarsBeatsSixteenths from "@/music//BarsBeatsSixteenths.js";
+import BarsBeatsSixteenths from "@/music/BarsBeatsSixteenths.js";
 import Period from "@/music/Period.js";
 import Percussion from "@/music/Percussion.js";
 
-import { Checkbox}  from "../input.js";
+import { Checkbox } from "../input.js";
 import { buildCellStyles } from "../style.js";
 
 const { cellStyles, currentBeatStyles, rightAlignStyles } = buildCellStyles({  });
+
+import BeatLabel from "@/user-interface/BeatLabel.js";
 
 // front for Percussion or Note
 class UniversalNoteParser {
@@ -120,7 +122,7 @@ export default function PhraseEditor({ phrase, setPhrase }) {
           <th style={cellStyles}></th>
           {beats.map((beat) =>
             <th key={beat.key} style={cellStyles}>
-              {beat.isRound() ? beat.beats : ''}
+              {BeatLabel(beat)}
             </th>
           )}
         </tr>
