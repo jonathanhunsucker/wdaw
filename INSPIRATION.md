@@ -12,6 +12,9 @@
     - [How to make a beat](https://www.youtube.com/watch?v=Y3nxuUJQAhY)
     - [Tarkka - Chilli Dat](https://soundcloud.com/tarkka/chilli-dat)
     - [10 Blooms](https://www.youtube.com/watch?v=kOTPjh6oA84)
+- Incredibly well-written dives into music, with accompanying infographics
+    - [JavaScript Systems Music](https://teropa.info/blog/2016/07/28/javascript-systems-music.html)
+    - [Terry Riley's "In C"](https://teropa.info/blog/2017/01/23/terry-rileys-in-c.html)
 - Existing projects in this space
     - Browser-based
         - [onlinesequencer.net](https://onlinesequencer.net), [example](https://onlinesequencer.net/298808), [source code](https://github.com/buildist/onlinesequencer)
